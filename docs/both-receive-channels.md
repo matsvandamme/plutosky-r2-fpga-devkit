@@ -25,9 +25,10 @@ the cost. To capture both channels, see
 ## Using it
 
 Nothing to do: `./devkit setup --target factory` applies it with the rest of the
-patch series, on the R2's design too. On one R2 the decimators were checked with the AD9361's built-in test tone
-([what is tested](plutosky-r2.md#what-is-tested-and-what-is-not)); the capture
-below has not been redone on an R2.
+patch series, on the R2's design too. On one R2 the same sweep was run through
+loops at 30.72 MSPS: both channels reject out-of-window tones by 89 dB or more
+([what is tested](plutosky-r2.md#what-is-tested-and-what-is-not)). The figures and
+the pictures below are the R1's.
 Engage the decimator and capture both channels:
 
 ```bash

@@ -59,7 +59,7 @@ Each line is in the R2's firmware, with what was checked on an R2 and where the 
 - **A current system**: Linux 6.12 LTS from Analog Devices and Debian 13. On the one R2 that has run it, it boots in about 21 s with no failed services.
 - **Ethernet at 1 Gbit/s**, which on the R2 goes through the FPGA: DHCP, `fishball.local`, ssh and iiod.
 - **Transmitters that start muted**: both come up at 89.75 dB of attenuation, and each mutes when its program stops, is killed or stops sending data. Tested at low power through attenuators; transmit power is not measured ([before you transmit](docs/start/before-you-transmit.md)).
-- **Both receive channels go through the FPGA's ÷8 decimation filter**, where the upstream design filters only one. The change is in every build. It was measured on the R1; on one R2 it was checked with the radio chip's built-in test tone, which arrives intact on both channels inside the decimated band and is removed on both outside it ([both receive channels](docs/both-receive-channels.md)).
+- **Both receive channels go through the FPGA's ÷8 decimation filter**, where the upstream design filters only one. Measured on one R2 through loops: tones outside the decimated window come out 89 dB or more down on both channels ([both receive channels](docs/both-receive-channels.md)).
 - **A self-test and a transmit gate**: `./devkit selftest` passes 24 of 24 checks on the R2 with no cable, and the transmitting tools refuse to run until you record `./devkit tx-guard affirm <0|1>` for the channel.
 
 ## 🧪 Where this stands
