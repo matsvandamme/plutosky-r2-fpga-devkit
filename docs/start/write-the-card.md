@@ -26,8 +26,8 @@ Needs Vivado 2022.2: [install it](../build/install-vivado.md), or use
 === Done: .../firmware/src/hdl/projects/pluto/system_top.xsa ===
 ```
 
-On the machine this port was made on, a 10-core Apple Silicon Mac running
-Vivado under emulation, the build took about 10 minutes and met timing with
+On the machine this port was made on, an Apple Silicon Mac running Vivado
+under x86-64 emulation, the build took about 9 minutes and met timing with
 +0.100 ns to spare. A design that misses timing still produces a bitstream:
 read the summary.
 

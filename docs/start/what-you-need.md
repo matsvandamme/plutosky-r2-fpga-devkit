@@ -12,7 +12,7 @@ description: A card, a card reader, two USB-C cables, Ethernet, a Linux PC that 
 | **Two USB-C cables** | the vendor's manual says a board that is not detected may be short of power, and to connect **both** sockets. The test board froze once and restarted once with only `DEBUG` connected, and not since |
 | **An Ethernet cable to your router** | the network route that is tested. The USB network is RNDIS, which Linux and Windows have a driver for and macOS does not |
 | **A Linux PC** | the devkit's build and its card writer are Linux tools. Vivado 2022.2 for the FPGA half runs on Ubuntu 18.04 to 22.04, or in [the container](../build/build-in-a-container.md) on any Linux |
-| **About 60 GB of disk** | Vivado with only the Zynq-7000 family is about 30 GB installed, and its installer downloads as much again |
+| **Disk** | Vivado with only the Zynq-7000 family took 29 GB installed here, and its installer needs room for the download on top; the rest of the build is a few GB |
 | **A 20 dB attenuator**, before any transmit port is cabled to a receive port | an AD9361 receive input survives about +2.5 dBm; a transmitter with a power amplifier puts out far more |
 
 The `DEBUG` socket is also the serial console: 115200 baud, the second of the

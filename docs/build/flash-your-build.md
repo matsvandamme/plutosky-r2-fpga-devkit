@@ -37,6 +37,7 @@ the ones you replace. That is how the test board was updated.
 It backs up the current files, checks the md5 of each new file on the board
 before swapping it in, unmounts cleanly and reboots. The previous files stay
 on the card as `*.prev` and on your disk in `firmware/.flash-backups/<stamp>/`.
+After it, `./devkit verify --board` compares the card with your build.
 
 ![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only. The kernel (a driver, the config): uImage, flash --kernel-only. The device tree: devicetree.dtb, flash --dtb-only. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-light.svg#only-light)
 ![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only. The kernel (a driver, the config): uImage, flash --kernel-only. The device tree: devicetree.dtb, flash --dtb-only. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-dark.svg#only-dark)

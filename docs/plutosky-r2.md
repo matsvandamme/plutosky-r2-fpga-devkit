@@ -125,9 +125,9 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 
 | | State |
 |---|---|
-| A Vivado build of the R2 design | run once, 2026-11-19: timing met, WNS +0.100 ns, 12,717 LUTs. Two warnings come with the vendor's design: a pin constraint for a `gpio_sync` port that does not exist, and the reference PLL's slow SPI clock, which has no timing constraint |
+| A Vivado build of the R2 design | run on 2026-11-19 and again on 2026-11-21, from this repository after it was split from the R1's: the same bitstream both times (sha256 `4d1d372595280900…`), timing met, WNS +0.100 ns, 12,717 LUTs. Two warnings come with the vendor's design: a pin constraint for a `gpio_sync` port that does not exist, and the reference PLL's slow SPI clock, which has no timing constraint |
 | The boot loader's generated headers (`firmware/fsbl/generated/`) | made from an R1 design; the build's check accepts them for the R2 XSA, and the pin and memory setup is taken from the XSA itself |
-| Booting the result on an R2 | done on one board: boots to Debian, radio receives, USB enumerates |
+| Booting the result on an R2 | done on one board, with the 2026-11-20 build: boots to Debian, radio receives, USB enumerates. The 2026-11-21 build from this repository has the same bitstream and a byte-identical device tree, and a kernel and U-Boot rebuilt from the same source; that build has not itself been booted |
 | Ethernet on Linux 6.12 through the converter core | works at 1 Gbit/s. The device tree says `rgmii-id`, not the vendor tree's `rgmii-rxid`: with the vendor's value the board receives and cannot send |
 | Transmit, the sample-locked `JP5` outputs | not tested on the R2 |
 | `./devkit flash` and `./devkit write-card` | not run on an R2; the test board's card was written from a card reader by hand |

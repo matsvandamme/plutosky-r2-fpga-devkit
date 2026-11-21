@@ -18,7 +18,7 @@ build in a pinned Ubuntu 22.04 container, so your distribution does not matter.
 
 !!! note "How the R2's design was actually built"
     In this container image, started by hand under Docker on an Apple Silicon
-    Mac, with Vivado running under x86-64 emulation: about 10 minutes, timing
+    Mac, with Vivado running under x86-64 emulation: about 9 minutes, timing
     met. `./devkit container` itself, which uses podman on a Linux host, has
     not been run for an R2 build. Two things that mattered there: Vivado hangs
     at start unless its standard input is closed (`</dev/null`), and

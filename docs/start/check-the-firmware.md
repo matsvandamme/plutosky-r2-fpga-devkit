@@ -22,15 +22,15 @@ grep fishball_ /boot/uEnv.txt
 | Debian 13 and kernel `6.12.0-…` | the firmware on the card, not the one in the flash |
 | Buildroot and `fw_version` `v0.38-5-g76414` | the vendor's factory firmware: the `BOOT` switch is on QSPI, or the card did not boot |
 
-Three lines in the kernel log say the board's own hardware answered:
+An image for the R1 fails on this board with `Unsupported PRODUCT_ID 0xFF` from
+the radio and `Could not attach PHY (-19)` from Ethernet. Neither should be in
+the kernel log:
 
 ```bash
 # run on the board
-dmesg | grep -E 'ad9361|RTL8211F|gmii2rgmii'
+dmesg | grep -E 'PRODUCT_ID|Could not attach PHY'   # prints nothing on a good build
+ip -br addr show eth0                                # an address from your router
 ```
-
-An image for the R1 fails all three, with `Unsupported PRODUCT_ID 0xFF` from
-the radio and `Could not attach PHY (-19)` from Ethernet.
 
 **Built it yourself and the board is on the network?** Compare the card with
 your build:

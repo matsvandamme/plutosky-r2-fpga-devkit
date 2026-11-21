@@ -18,7 +18,7 @@ Booted on **one** PlutoSky R2, on 2026-11-20. This is a young port: read the tab
 
 | | State on the R2 |
 |---|---|
-| FPGA design builds with Vivado 2022.2, timing met (WNS +0.100 ns) | **done** |
+| FPGA design builds with Vivado 2022.2, timing met (WNS +0.100 ns); rebuilt from this repository on 2026-11-21 with the same bitstream | **done** |
 | boots to Debian 13 / Linux 6.12 from the SD card, about 23 s to a login | **works** |
 | radio found, receives samples | **works** |
 | Ethernet: 1 Gbit/s, DHCP, `fishball.local` | **works** |
