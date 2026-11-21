@@ -23,8 +23,8 @@
 # THE BOARD. This builds for the PlutoSky R2 (firmware/scripts/rev.sh): the R2's
 # device tree, which includes the R1's and overrides it, and the R1's kernel
 # configuration plus config/r2.config. The XSA must be an R2 design; an R1 one is
-# refused by its part number. There is no pinned R2 XSA: build one with
-# ./devkit build --target factory.
+# refused by its part number. fetch-pinned-xsa.sh downloads a released R2 one;
+# ./devkit build --target factory builds your own.
 # The Debian root, firmware-modern/debian/rootfs.tar, is built only on request
 # (--rootfs-only or --all): it needs armhf emulation and takes far longer than
 # everything else here.
@@ -109,10 +109,11 @@ fi
 # machine build?", which does not depend on which XSA you will pass later.
 if [ -z "$XSA_FILE" ] && [ "$PREFLIGHT_ONLY" -eq 0 ] && [ "$DEVKIT_REV" != r1 ]; then
     echo "ERROR: the modern target needs --xsa FILE: the FPGA design it builds around." >&2
-    echo "       For the $REV_NAME that is the one your own FPGA build wrote:" >&2
+    echo "       The released $REV_NAME design, fetched and checked for you (no Vivado):" >&2
+    echo "           ./devkit build$REV_FLAG --xsa \"\$(./firmware-modern/fetch-pinned-xsa.sh)\"" >&2
+    echo "       or the one your own FPGA build wrote:" >&2
     echo "           ./devkit build --target factory$REV_FLAG        # Vivado; writes the XSA" >&2
     echo "           ./devkit build$REV_FLAG --xsa firmware/src$REV_SUFFIX/hdl/projects/pluto/system_top.xsa" >&2
-    echo "       No release carries a $REV_NAME design, so there is no pinned one to fetch." >&2
     exit 1
 fi
 if [ -z "$XSA_FILE" ] && [ "$PREFLIGHT_ONLY" -eq 0 ]; then

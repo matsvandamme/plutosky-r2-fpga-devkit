@@ -61,4 +61,4 @@ sudo apt install -y git build-essential bison flex libssl-dev \
     For an FPGA build on anything but Ubuntu 18.04 to 22.04, use
     [the container](build-in-a-container.md).
 
-**Next:** [build the firmware and write the card](../start/write-the-card.md).
+**Next:** [build it yourself](build-from-source.md).

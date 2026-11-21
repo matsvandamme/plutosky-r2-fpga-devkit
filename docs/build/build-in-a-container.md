@@ -35,4 +35,4 @@ What is in the image and other operating systems, written for the R1's build:
 [building in a container](../building-in-a-container.md).
 
 **Next:** the second half,
-[the boot files, the kernel and the Debian root](../start/write-the-card.md#2-the-boot-files-the-kernel-and-the-debian-root).
+[the boot files, the kernel and the Debian root](build-from-source.md#2-the-boot-files-the-kernel-and-the-debian-root).

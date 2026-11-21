@@ -161,7 +161,7 @@ nothing in CI boots it. Run the same check on your own build:
   no runner is registered for this repository, and its checks were written
   against an R1.
 - The hosted workflows do **not** build the FPGA design or touch hardware.
-- There is no release workflow yet, and no release.
+- There is no release workflow. Release v0.1 was made by hand: tagged, built at the tag, the Debian root taken from a `verify-rootfs.yml` run on the tag, booted on an R2, then published.
 
 ## Style
 

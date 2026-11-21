@@ -7,10 +7,6 @@ description: The path from a PlutoSky R2 in its box to one running this firmware
 
 From a PlutoSky R2 in its box to one running this firmware: six short steps, one page each.
 
-!!! note "There is no release to download yet"
-    Step 3 builds the firmware, and its FPGA half needs Vivado 2022.2. Allow
-    an afternoon the first time, most of it downloads.
-
 <div class="grid cards steps" markdown>
 
 -   :material-numeric-1-circle:{ .lg } **[Check you have an R2](right-board.md)**
@@ -21,12 +17,12 @@ From a PlutoSky R2 in its box to one running this firmware: six short steps, one
 -   :material-numeric-2-circle:{ .lg } **[Gather what you need](what-you-need.md)**
 
 
-    A card, a card reader, two USB-C cables, Ethernet, and a Linux PC that can build.
+    A card, a card reader, two USB-C cables, Ethernet, and a Linux PC.
 
--   :material-numeric-3-circle:{ .lg } **[Build the firmware and write the card](write-the-card.md)**
+-   :material-numeric-3-circle:{ .lg } **[Put the firmware on a card](write-the-card.md)**
 
 
-    The FPGA design, then the boot files, kernel and Debian root, then the card.
+    Download the release and write it, or build it yourself.
 
 -   :material-numeric-4-circle:{ .lg } **[Connect and find the board](connect.md)**
 

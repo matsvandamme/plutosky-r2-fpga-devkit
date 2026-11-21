@@ -7,7 +7,7 @@ description: Simulate first, delete the Vivado project, rebuild the design, then
 
 This needs Vivado 2022.2 ([in a container](build-in-a-container.md) on a Linux
 newer than Ubuntu 22.04) and a first FPGA build
-([build the firmware](../start/write-the-card.md#1-the-fpga-design)).
+([build it yourself](build-from-source.md#1-the-fpga-design)).
 
 1. **Simulate first.** Synthesis tells you the logic fits, not that it is right:
 

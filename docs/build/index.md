@@ -13,8 +13,9 @@ Every file on the SD card builds from source, in two halves:
 | The boot loader, kernel, device tree and Debian root, around that design | `./devkit build --xsa FILE` | an ARM cross-compiler | `firmware-modern/output/`, `firmware-modern/debian/rootfs.tar` |
 
 The second half never runs Vivado. Once you have an `.xsa`, a kernel, driver or
-device-tree change needs only the second command. No release carries an R2
-design yet, so the first `.xsa` is one you build.
+device-tree change needs only the second command. Release v0.1 ships an
+`.xsa`, which `./firmware-modern/fetch-pinned-xsa.sh` downloads and checks, so
+Vivado is needed only to change the FPGA design.
 
 ## The path
 
@@ -28,10 +29,10 @@ design yet, so the first `.xsa` is one you build.
 
     `./devkit doctor` answers in about a second.
 
--   :material-numeric-2-circle:{ .lg } **[Build the firmware and write the card](../start/write-the-card.md)**
+-   :material-numeric-2-circle:{ .lg } **[Build it yourself](build-from-source.md)**
 
 
-    The FPGA design, the files around it, and a card.
+    Around the released FPGA design, or your own; then a card.
 
 -   :material-numeric-3-circle:{ .lg } **[Check the build](verify-the-build.md)**
 

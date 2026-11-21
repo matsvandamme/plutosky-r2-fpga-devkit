@@ -18,12 +18,13 @@ only says so explicitly.
 
 You need an **XSA**: the FPGA design in one file, the bitstream plus a
 description of the hardware around it. This target never runs Vivado, so it
-cannot make one, and no release carries an R2 design yet. Build it first:
+cannot make one. `fetch-pinned-xsa.sh` downloads the one release v0.1 ships
+and checks its hash; or build your own with
 `./devkit setup --target factory && ./devkit build --target factory`.
 
 ```bash
 # run from: the repo root
-XSA=firmware/src/hdl/projects/pluto/system_top.xsa
+XSA="$(./firmware-modern/fetch-pinned-xsa.sh)"   # or firmware/src/hdl/projects/pluto/system_top.xsa, your own
 ./devkit setup --target modern                  # fetch the sources, apply the patches (~0.6 GB)
 ./devkit build --target modern --xsa "$XSA"     # BOOT.bin, uImage, devicetree.dtb, uEnv.txt
 ./devkit verify --target modern                 # read the parts back out of BOOT.bin and check them
@@ -72,7 +73,7 @@ PC rather than inside `./devkit container`.
 | `verify_dtb.py` | checks a built device tree; CI runs it |
 | `dump_context.py` | lists every IIO attribute, to compare two kernels with `diff` |
 | `write_card.sh` | puts a kernel on a card from a card reader (see below) |
-| `factory-xsa.pin`, `fetch-pinned-xsa.sh` | the slot for a released R2 design. The pin still names the R1's, so the script says there is none and stops |
+| `factory-xsa.pin`, `fetch-pinned-xsa.sh` | which release's XSA to build from (v0.1's), and its checksum |
 | `baseline/` | self-test results from an **R1**; nothing has been recorded on an R2 |
 
 ## Building the kernel by hand

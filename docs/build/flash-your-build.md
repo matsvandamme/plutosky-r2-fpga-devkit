@@ -17,7 +17,7 @@ already running this firmware.
 ## From a card reader
 
 A whole new card, with the Debian root: `sudo ./devkit write-card /dev/sdX`
-([build the firmware and write the card](../start/write-the-card.md#3-the-card)).
+([build it yourself](build-from-source.md#3-the-card)).
 
 To replace only the boot files on a card that already has this layout, copy
 `BOOT.bin`, `uImage`, `devicetree.dtb` and `uEnv.txt` from

@@ -17,7 +17,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
 </div>
 
-<p class="banner" markdown>Booted on one R2 so far. [What is tested and what is not](plutosky-r2.md#what-is-tested-and-what-is-not).</p>
+<p class="banner" markdown>Release [v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1) is out, booted on one R2. [What is tested and what is not](plutosky-r2.md#what-is-tested-and-what-is-not).</p>
 
 <div class="grid cards" markdown>
 
@@ -25,7 +25,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
     **[Getting started](start/index.md)**
 
-    Check the board is an R2, build the firmware, write the card, connect.
+    Check the board is an R2, download the release, write the card, connect.
 
     <span class="count">6 steps</span>
 
@@ -42,7 +42,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
     **[Build your own firmware](build/index.md)**
 
-    The FPGA design with Vivado; the kernel, drivers and Debian around it.
+    Kernel, drivers and Debian with no Vivado; the FPGA design with it.
 
     <span class="count">9 articles</span>
 
@@ -73,18 +73,20 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
 </div>
 
-## From nothing to a card
+## From the release to a card
+
+Download every file of [v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1) into one folder, then, in a clone of the
+repository on Linux:
 
 ```bash
 # run from: the repo root
-./devkit setup --target factory && ./devkit build --target factory   # the FPGA design: Vivado 2022.2
-./devkit doctor && ./devkit setup                                    # the rest: an ARM cross-compiler
-./devkit build --all --xsa firmware/src/hdl/projects/pluto/system_top.xsa
-sudo ./devkit write-card /dev/sdX                                    # DESTROYS the card
+gunzip -c ~/Downloads/debian-rootfs.tar.gz > firmware-modern/debian/rootfs.tar
+sudo ./devkit write-card --from ~/Downloads /dev/sdX    # DESTROYS the card
 ```
 
-- There is **no release to download yet**. The FPGA half needs Vivado 2022.2;
-  [the container](build/build-in-a-container.md) runs it on any Linux.
+- To build it yourself instead, no Vivado needed:
+  `./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"`.
+  Only [changing the FPGA](build/add-fpga-logic.md) needs Vivado 2022.2.
 - After the first card, `./devkit flash` puts a changed kernel or boot file on
   the running board over the network. It does not check which board answers.
 - `./devkit ssh-key` first saves typing the published root password.
@@ -95,13 +97,13 @@ sudo ./devkit write-card /dev/sdX                                    # DESTROYS 
 
 | | |
 |---|---|
-| Boot to a login prompt | about 23 s, no failed services |
+| Boot to a running system | about 21 s, no failed services |
 | Radio | found, receives samples |
 | Ethernet | 1 Gbit/s, DHCP, answers at `fishball.local` |
 | FPGA, default build | 12,717 LUTs, timing met, WNS +0.100 ns |
 | Transmit, header pins, 10 MHz input | not tested |
 
-One unit, on 2026-11-20. Every measured radio figure elsewhere on this site
+One unit, on 2026-11-20 and 2026-11-21. Every measured radio figure elsewhere on this site
 (power, image rejection, throughput) was taken on a PlutoSky **R1** and is
 labelled as such where it matters.
 
@@ -110,7 +112,7 @@ labelled as such where it matters.
 | | This site | [The R1's site](https://matsvandamme.github.io/fishball7020-fpga-devkit/) |
 |---|---|---|
 | Board | PlutoSky R2, XC7Z020-CLG484 | PlutoSky R1 / 7020-SDR / Fishball7020, XC7Z020-CLG400 |
-| Release to download | none yet | yes |
+| Release to download | [v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1), a pre-release | yes |
 | Hardware pages (ports, header, schematic) | [one page](plutosky-r2.md), from the vendor's schematic | measured on the board |
 | Course | no | Fabric School, 54 lessons |
 

@@ -4,8 +4,9 @@
     Its releases, its factory firmware, its JTAG adapter and the drawings of
     its `BOOT` switch are the R1's. On the R2:
 
-    - there is no release, and the factory target builds only the FPGA design,
-      so nothing here that says `--target factory` or "five files" applies;
+    - its release is [its own](start/write-the-card.md), and the factory
+      target builds only the FPGA design, so nothing here that says
+      `--target factory` or "five files" applies;
     - `./devkit flash` and `./devkit verify --board` are the same tools and
       have not been run against an R2. The test board's files were changed
       from a card reader;

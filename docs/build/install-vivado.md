@@ -5,8 +5,9 @@ description: Install Vivado 2022.2 for an FPGA build, on an Ubuntu host or throu
 
 # Install Vivado 2022.2
 
-The FPGA design is built with Vivado 2022.2, and with no R2 release there is
-no way round it yet. With only the Zynq-7000 family selected it is about 30 GB
+You need Vivado 2022.2 only to build or change the FPGA design; everything
+else builds around [the released one](build-from-source.md#1-the-fpga-design).
+With only the Zynq-7000 family selected it is about 30 GB
 installed, and the Zynq-7020 is covered by the free licence.
 
 === "Any Linux, through the container"
@@ -63,5 +64,5 @@ Either way, answer the installer the same:
     `xsetup` instead. When it is real, and what the install mounts:
     [installing Vivado in the first place](../building-in-a-container.md#installing-vivado-in-the-first-place).
 
-**Next:** [build the FPGA design](../start/write-the-card.md#1-the-fpga-design),
+**Next:** [build the FPGA design](build-from-source.md#1-the-fpga-design),
 in [the container](build-in-a-container.md) if your host needs it.

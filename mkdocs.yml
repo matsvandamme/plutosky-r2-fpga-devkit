@@ -108,7 +108,7 @@ nav:
       - start/index.md
       - Check you have an R2: start/right-board.md
       - Gather what you need: start/what-you-need.md
-      - Build the firmware and write the card: start/write-the-card.md
+      - Put the firmware on a card: start/write-the-card.md
       - Connect and find the board: start/connect.md
       - Check what it runs: start/check-the-firmware.md
       - Before you transmit: start/before-you-transmit.md
@@ -126,6 +126,7 @@ nav:
   - Building:
       - build/index.md
       - Check your machine can build: build/check-your-machine.md
+      - Build it yourself: build/build-from-source.md
       - Install Vivado 2022.2: build/install-vivado.md
       - Build with Vivado in a container: build/build-in-a-container.md
       - Check the build: build/verify-the-build.md

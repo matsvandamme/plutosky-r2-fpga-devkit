@@ -11,11 +11,12 @@ board boots Linux and has no radio, no Ethernet and no USB. The R1 has
 [its own repository](https://github.com/matsvandamme/fishball7020-fpga-devkit);
 the two were one, with a `--rev` switch, until 2026-11-21.
 
-!!! note "Booted on one R2, 2026-11-20"
-    Built with Vivado 2022.2 (timing met, WNS +0.100 ns) and booted from a card
-    on one PlutoSky R2: the radio is found and receives, Ethernet gets a DHCP
-    address at 1 Gbit/s, and USB enumerates. Transmit, the `JP5` outputs and
-    the 10 MHz input are not tested yet.
+!!! note "Release v0.1, booted on one R2 on 2026-11-21"
+    [v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1), a pre-release, is built with Vivado 2022.2 (timing met, WNS
+    +0.100 ns) and was booted from a card on one PlutoSky R2: the radio is found
+    and receives, both transmitters come up muted, Ethernet gets a DHCP address
+    at 1 Gbit/s, and USB enumerates. Transmit, the `JP5` outputs and the 10 MHz
+    input are not tested yet.
 
 ## Which board do you have
 
@@ -65,6 +66,7 @@ macb e000b000.ethernet eth0: Could not attach PHY (-19)
 ./devkit build --target factory
 
 # 2. The boot files and the kernel, around that design.
+#    Skipped step 1? --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)" uses release v0.1's.
 ./devkit setup
 ./devkit build --xsa firmware/src/hdl/projects/pluto/system_top.xsa
 
@@ -81,7 +83,7 @@ sudo ./devkit write-card /dev/sdX
 
 An XSA for the R1's part is refused, so an R1 design cannot be packaged for an
 R2 by passing the wrong file. Step by step:
-[build the firmware and write the card](start/write-the-card.md).
+[build it yourself](build/build-from-source.md).
 
 !!! danger "`./devkit flash` does not check which board answers"
     It copies `firmware-modern/output/` to whatever board it finds. Pointed at
@@ -127,13 +129,15 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 |---|---|
 | A Vivado build of the R2 design | run on 2026-11-19 and again on 2026-11-21, from this repository after it was split from the R1's: the same bitstream both times (sha256 `4d1d372595280900…`), timing met, WNS +0.100 ns, 12,717 LUTs. Two warnings come with the vendor's design: a pin constraint for a `gpio_sync` port that does not exist, and the reference PLL's slow SPI clock, which has no timing constraint |
 | The boot loader's generated headers (`firmware/fsbl/generated/`) | made from an R1 design; the build's check accepts them for the R2 XSA, and the pin and memory setup is taken from the XSA itself |
-| Booting the result on an R2 | done on one board, with the 2026-11-20 build: boots to Debian, radio receives, USB enumerates. The 2026-11-21 build from this repository has the same bitstream and a byte-identical device tree, and a kernel and U-Boot rebuilt from the same source; that build has not itself been booted |
+| Booting the result on an R2 | done on one board. Release v0.1, 2026-11-21: 20.7 s to a running system, no failed units, radio probed and receiving, both transmitters at 89.75 dB of attenuation, Ethernet and `fishball.local`, ssh and iiod reachable, `usb0` up. `/boot` read back and matched the release's `SHA256SUMS` |
 | Ethernet on Linux 6.12 through the converter core | works at 1 Gbit/s. The device tree says `rgmii-id`, not the vendor tree's `rgmii-rxid`: with the vendor's value the board receives and cannot send |
 | Transmit, the sample-locked `JP5` outputs | not tested on the R2 |
-| `./devkit flash` and `./devkit write-card` | not run on an R2; the test board's card was written from a card reader by hand |
+| `./devkit write-card` | `--from` a release into an image file (`--image`), copied to the card: that card booted. Writing straight to a card reader on Linux has not been done for an R2 |
+| `./devkit flash` | not run on an R2 |
 | `./devkit selftest`, `verify --board`, `gpio-check`, `clock` | not run on an R2. The self-test's baselines are the R1's |
 | The USER LED | its pin (MIO 7) is in the device tree; not looked at on the board |
-| A release, or a pinned R2 XSA | none; `fetch-pinned-xsa.sh` says so and stops |
+| A release, and a pinned R2 XSA | v0.1; `fetch-pinned-xsa.sh` downloads its `system_top.xsa`, so only an FPGA change needs Vivado |
+| The Windows card writer, `write-card.cmd` | in the release, unchanged from the R1's; not used for an R2 card |
 | A second R2, an AD9363 unit, a unit with a power amplifier | none tried: one board has run this |
 | The 10 MHz reference input | the FPGA programs the PLL as the vendor's design does; nothing here reads its lock state |
 

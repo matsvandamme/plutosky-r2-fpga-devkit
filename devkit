@@ -55,10 +55,10 @@
 #                          BOOT.bin, uImage, devicetree.dtb and uEnv.txt for the
 #                          modern target, into firmware-modern/output/. --xsa is
 #                          the FPGA design to build around, and is required:
-#                          the one ./devkit build --target factory wrote. No
-#                          release carries an R2 design yet, so there is none to
-#                          fetch.            (~2 min after the first build; the
-#                          first takes the kernel)
+#                          "$(./firmware-modern/fetch-pinned-xsa.sh)" fetches the
+#                          one release v0.1 shipped (no Vivado needed), or pass
+#                          the one ./devkit build --target factory wrote.
+#                          (~2 min after the first build; the first takes the kernel)
 #       --boot-only        BOOT.bin and uEnv.txt; skip the kernel.
 #       --all              The boot files, then the Debian root as well.
 #     ./devkit build --rootfs-only
@@ -310,9 +310,9 @@ Two targets, two halves of one build
   --target modern    Linux 6.12 + Debian around that .xsa file (the default)
 
 The usual runs
-  ./devkit setup --target factory && ./devkit build --target factory   # the FPGA, once
   ./devkit doctor && ./devkit setup                                    # once
-  ./devkit build --all --xsa firmware/src/hdl/projects/pluto/system_top.xsa
+  ./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"   # the released FPGA design
+  ./devkit setup --target factory && ./devkit build --target factory   # or build the FPGA yourself
   sudo ./devkit write-card /dev/sdX                      # a whole card
   ./devkit flash --kernel-only                           # a kernel change, over the network
   ./devkit selftest --ssh                                # "is it broken?"

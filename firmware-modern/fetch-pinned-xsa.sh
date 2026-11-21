@@ -1,31 +1,22 @@
 #!/bin/bash
-# Download the factory release XSA that factory-xsa.pin names, and check its hash.
+# Download the released PlutoSky R2 XSA that factory-xsa.pin names, and check its hash.
 #
 #     # run from: the repo root
 #     ./firmware-modern/fetch-pinned-xsa.sh          # prints the path it wrote
 #     ./devkit build --target modern --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"
 #
-# What a modern RELEASE is built from, and the easy answer to "which XSA?" for
-# anyone without Vivado. The file lands in firmware-modern/boot/pinned/<tag>/, and
+# The easy answer to "which XSA?" for anyone without Vivado: the FPGA design of
+# a published release. The file lands in firmware-modern/boot/pinned/<tag>/, and
 # is re-downloaded only if missing or if its hash is wrong. A hash mismatch is an
 # error, never a warning: the XSA decides which FPGA design the board runs.
 set -euo pipefail
 FW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PIN="$FW_DIR/factory-xsa.pin"
 case "${1:-}" in -h|--help) sed -n '2,/^set -/p' "${BASH_SOURCE[0]}" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;; esac
-# factory-xsa.pin names a PlutoSky R1 design, in the R1 repository's releases.
-# Handing it to a build here would be refused by its part number anyway; say so
-# at once, where the mistake is made. When an R2 design is released, re-pin and
-# drop this.
-if [ "${DEVKIT_REV:-r2}" != r1 ]; then
-    echo "ERROR: there is no pinned XSA for the PlutoSky R2: no release carries an R2 design yet." >&2
-    echo "       Build one:  ./devkit setup --target factory && ./devkit build --target factory" >&2
-    exit 1
-fi
 tag="$(sed -n 's/^tag=//p' "$PIN")"
 want="$(sed -n 's/^sha256=//p' "$PIN")"
 [ -n "$tag" ] && [ ${#want} -eq 64 ] || { echo "ERROR: $PIN needs tag= and a 64-hex sha256=" >&2; exit 1; }
-REPO_SLUG="${FISHBALL_REPO:-matsvandamme/fishball7020-fpga-devkit}"
+REPO_SLUG="${FISHBALL_REPO:-matsvandamme/plutosky-r2-fpga-devkit}"
 dest="$FW_DIR/boot/pinned/$tag/system_top.xsa"
 have() { [ -f "$dest" ] && [ "$(sha256sum "$dest" | cut -d' ' -f1)" = "$want" ]; }
 if ! have; then

@@ -14,19 +14,19 @@
 
 ## Where this stands
 
-Booted on **one** PlutoSky R2, on 2026-11-20. This is a young port: read the table before you rely on it.
+One PlutoSky R2 has run this firmware. Release **[v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1)**, a pre-release, was booted on it on 2026-11-21. This is a young port: read the table before you rely on it.
 
 | | State on the R2 |
 |---|---|
-| FPGA design builds with Vivado 2022.2, timing met (WNS +0.100 ns); rebuilt from this repository on 2026-11-21 with the same bitstream | **done** |
-| boots to Debian 13 / Linux 6.12 from the SD card, about 23 s to a login | **works** |
-| radio found, receives samples | **works** |
-| Ethernet: 1 Gbit/s, DHCP, `fishball.local` | **works** |
-| USB: the board enumerates on a PC | **works** (the host was a Mac, which has no driver for its network function) |
+| FPGA design builds with Vivado 2022.2, timing met (WNS +0.100 ns) | **done** |
+| boots to Debian 13 / Linux 6.12 from the SD card, about 21 s to a running system, no failed services | **works** |
+| radio found, receives samples; both transmitters come up muted (89.75 dB) | **works** |
+| Ethernet: 1 Gbit/s, DHCP, `fishball.local`, ssh and iiod | **works** |
+| USB: the board enumerates and its network interface comes up | **works** on the board's side (the host was a Mac, which has no driver for it) |
+| a card written with `./devkit write-card --from` a release | **works** |
 | transmit | **not tested** |
 | the four sample-locked header pins, the 10 MHz reference input | **not tested** |
-| `./devkit write-card`, `./devkit flash`, `./devkit selftest` on an R2 | **not run** on an R2 |
-| a release to download | **none yet**: you build it, and the FPGA half needs Vivado |
+| `./devkit flash`, `./devkit selftest`, the Windows card writer | **not run** for an R2 |
 
 The full list, with how each item was checked: [what is tested and what is not](docs/plutosky-r2.md#what-is-tested-and-what-is-not).
 
@@ -43,29 +43,38 @@ More ways to tell, and what differs inside: [the PlutoSky R2](docs/plutosky-r2.m
 
 > **Not the official Analog Devices / OpenSourceSDRLab repository.** This is an independent port. The vendor's own schematic and source are at [OpenSourceSDRLab/PlutoSky-R2](https://github.com/OpenSourceSDRLab/PlutoSky-R2).
 
-## Build it
+## Get it running
 
-There is no release, so the first step is the FPGA design, which needs **Vivado 2022.2** (on Ubuntu 18.04 to 22.04, or in the container `./devkit container` builds for you). Everything after it needs only an ARM cross-compiler.
+**From the release**, on a Linux PC with a card reader. Download every file of **[v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1)** into one folder, then:
 
 ```bash
 # run from: wherever you want the devkit to live (e.g. ~)
 git clone https://github.com/matsvandamme/plutosky-r2-fpga-devkit.git
 cd plutosky-r2-fpga-devkit
-
-# 1. The FPGA design. Fetches hdl/ only (~0.2 GB); Vivado runs 10 minutes to over an hour.
-./devkit setup --target factory
-./devkit build --target factory          # -> firmware/src/hdl/projects/pluto/system_top.xsa
-
-# 2. The boot files, the kernel and the Debian root, around that design (~0.6 GB of source).
-./devkit doctor                          # can this machine build?
-./devkit setup
-./devkit build --all --xsa firmware/src/hdl/projects/pluto/system_top.xsa
-
-# 3. A whole card, from a card reader. DESTROYS the card.
-sudo ./devkit write-card /dev/sdX
+gunzip -c ~/Downloads/debian-rootfs.tar.gz > firmware-modern/debian/rootfs.tar
+sudo ./devkit write-card --from ~/Downloads /dev/sdX      # DESTROYS the card
 ```
 
-Read the timing summary step 1 prints: a design that misses timing still produces a bitstream.
+**Or build it.** Everything but the FPGA design builds without Vivado, around the design the release ships:
+
+```bash
+# run from: the repo root
+./devkit doctor                          # can this machine build?
+./devkit setup                           # the kernel and boot-loader source, ~0.6 GB
+./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"
+sudo ./devkit write-card /dev/sdX        # DESTROYS the card
+```
+
+**Changing the FPGA** needs Vivado 2022.2 (on Ubuntu 18.04 to 22.04, or in the container `./devkit container` builds for you):
+
+```bash
+# run from: the repo root
+./devkit setup --target factory          # hdl/ only, ~0.2 GB
+./devkit build --target factory          # -> firmware/src/hdl/projects/pluto/system_top.xsa
+./devkit build --boot-only --xsa firmware/src/hdl/projects/pluto/system_top.xsa
+```
+
+Read the timing summary the FPGA build prints: a design that misses timing still produces a bitstream.
 
 Then put the card in, set the **`BOOT`** switch to SD (both sliders away from `ON`), connect **both** USB-C sockets for power, and plug in Ethernet. Step by step: **[start here](docs/start/index.md)**.
 

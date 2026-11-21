@@ -59,8 +59,8 @@ expect("--target=bogus (the = form) is refused too",
 # ---- 2. the modern build refuses what it must ----------------------------------
 expect("modern build refuses to run without --xsa",
        [DEVKIT, "build", "--target", "modern"], 1, "needs --xsa")
-expect("bare build is the modern target: without --xsa it says there is none to fetch",
-       [DEVKIT, "build"], 1, "No release carries a PlutoSky R2 design")
+expect("bare build is the modern target: without --xsa it says how to get one",
+       [DEVKIT, "build"], 1, "fetch-pinned-xsa.sh")
 expect("bare build without --xsa also names the factory target, for Vivado",
        [DEVKIT, "build"], 1, "./devkit build --target factory")
 expect("bare build --hdl-only (an old factory guide) names --target factory",
@@ -149,7 +149,7 @@ expect("a script run directly with DEVKIT_REV=r1 is refused by rev.sh",
 expect("--rev with an unknown value is refused",
        [DEVKIT, "build", "--rev", "r9"], 1, "unknown --rev 'r9'")
 expect("--rev r2 (a command line from the two-board days) is still accepted",
-       [DEVKIT, "build", "--rev", "r2"], 1, "No release carries a PlutoSky R2 design")
+       [DEVKIT, "build", "--rev", "r2"], 1, "fetch-pinned-xsa.sh")
 expect("factory doctor is the FPGA build's preflight",
        [DEVKIT, "doctor", "--target", "factory"], 1, "./devkit setup --target factory")
 
@@ -252,8 +252,8 @@ import re
 pin = (ROOT / "firmware-modern" / "factory-xsa.pin").read_text()
 tag = re.search(r"^tag=(v\d+\.\d+)$", pin, re.M)
 sha = re.search(r"^sha256=([0-9a-f]{64})$", pin, re.M)
-check("factory-xsa.pin, the R1's until an R2 design is released, is still well formed",
-      bool(tag and sha and tag.group(1).startswith("v1.")), pin[-200:])
+check("factory-xsa.pin names a release tag and a 64-hex sha256",
+      bool(tag and sha), pin[-200:])
 dropin = (ROOT / "firmware-modern" / "debian" / "overlay" / "etc" / "systemd" / "system" / "iiod.service.d" / "fishball.conf").read_text()
 check("iiod fails closed on the quiesce and rebinds USB on both start and stop",
       "\nRequires=fishball-rf-quiesce.service\n" in dropin
@@ -266,12 +266,10 @@ check("the overlay's iiod.service replaces the package's without udev-settle or 
       and "Environment=$" not in _active and "Requires=\n" not in dropin, "")
 with tempfile.TemporaryDirectory() as d:
     shutil.copy(str(ROOT / "firmware-modern" / "fetch-pinned-xsa.sh"), d)
-    (pathlib.Path(d) / "factory-xsa.pin").write_text("tag=v1.7\nsha256=nothex\n")
+    (pathlib.Path(d) / "factory-xsa.pin").write_text("tag=v0.1\nsha256=nothex\n")
     rc, out = run([str(pathlib.Path(d) / "fetch-pinned-xsa.sh")])
-    # The pin is still the R1's (the slot an R2 design will take when one is
-    # released), so the script must refuse before it reads it, or fetches anything.
-    check("fetch-pinned-xsa.sh says there is no pinned R2 design, before downloading anything",
-          rc == 1 and "no pinned XSA for the PlutoSky R2" in out and "fetching" not in out, out.strip()[:160])
+    check("fetch-pinned-xsa.sh refuses a malformed pin before downloading anything",
+          rc == 1 and "64-hex sha256" in out and "fetching" not in out, out.strip()[:160])
 
 # ---- 7. help --all documents the targets ---------------------------------------------
 rc, out = run([DEVKIT, "help", "--all"])
