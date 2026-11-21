@@ -1,5 +1,8 @@
 # TX idle: stream-termination test results (factory userspace)
 
+> **Measured on a PlutoSky R1.** This record came with the R1's devkit. Transmit has not
+> been tested on the R2, so none of these cases has been run on one.
+
 The record of how a transmit stream can end on the factory target's Buildroot
 userspace, and what the transmitter did next: before and after patch `0015`, plus
 the kernel attenuation cache, the debugfs routes to a live transmitter, and the

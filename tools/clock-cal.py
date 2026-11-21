@@ -20,7 +20,7 @@ This buys ACCURACY, NOT STABILITY. The VCTCXO still wanders with temperature,
 so a correction measured on a cold board is wrong on a warm one. Measure after
 the board has been on for a while, and re-measure if you care at the 0.01 ppm
 level. If you need stability rather than accuracy you have to replace `Y3`,
-which means soldering - see docs/hardware.md (external reference).
+which means soldering - see https://matsvandamme.github.io/fishball7020-fpga-devkit/hardware/ (external reference).
 
 WHAT YOU NEED. Any source whose frequency you trust: a GPS-disciplined clock
 (a Leo Bodnar Mini, an Ericsson/Trimble GPSDO), a rubidium standard, or a
@@ -254,7 +254,7 @@ def cmd_measure(c, args):
         c.write_device(PHY, "xo_correction", str(suggested))
         print(f"\n  applied: xo_correction = {suggested}")
         print("  This is NOT persistent. To keep it across reboots, see "
-              "docs/hardware.md (external reference)")
+              "https://matsvandamme.github.io/fishball7020-fpga-devkit/hardware/ (external reference)")
     else:
         c.write_device(PHY, "xo_correction", str(before))
         print(f"\n  nothing written (xo_correction left at {before}). "
@@ -266,7 +266,7 @@ def main():
     p = argparse.ArgumentParser(
         description="Measure and correct the board's 40 MHz reference.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="Background: docs/hardware.md, 'Locking the board to an external reference'")
+        epilog="Background: https://matsvandamme.github.io/fishball7020-fpga-devkit/hardware/, 'Locking the board to an external reference'")
     p.add_argument("--uri", default=None,
                    help="libiio URI; by default the board is found by name")
     p.add_argument("--json", action="store_true")

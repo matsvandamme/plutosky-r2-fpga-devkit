@@ -876,7 +876,7 @@ def _implied_pad_db(system_gain, freq_hz, with_pa=True):
     telling a 20 dB pad from a 50 dB one, or from a bare cable - and the
     cross-check only fires above 8 dB of disagreement.
 
-    Re-measured over 28 runs (docs/measured-performance.md): every single pad
+    Re-measured over 28 runs (https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/): every single pad
     within 1.1 dB. The one large miss, a stacked 50 dB on channel 0 reading up
     to +3.9, is the board's own TX->RX leak - at 900 MHz it equals a ~58 dB
     pad, only 8 dB below so weak a loop - not the constants.

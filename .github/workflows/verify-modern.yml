@@ -1,6 +1,6 @@
 name: Verify the modern firmware
 
-# CI for firmware-modern/. verify-patches.yml is the factory target's, and watches
+# CI for firmware-modern/. verify-patches.yml is the FPGA patch series', and watches
 # firmware/patches/ and therefore never fires for anything here - so until this
 # existed, firmware-modern/ had no CI at all, including no assertion on the
 # device tree's transmit-attenuation default. That default is the only thing
@@ -244,7 +244,7 @@ jobs:
       - name: The PlutoSky R2's tree builds, and differs from the R1's only where the board does
         working-directory: firmware-modern/src/linux
         run: |
-          # --rev r2: dts/zynq-pluto-sdr-fishball-r2.dts INCLUDES the R1's tree and
+          # dts/zynq-pluto-sdr-fishball-r2.dts INCLUDES the R1's tree and
           # overrides it, and its kernel options are config/r2.config merged over
           # fishball_defconfig. Run LAST in this job, because it changes .config.
           # What is asserted is the built .dtb, for the reason given above.

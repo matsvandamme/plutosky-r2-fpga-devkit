@@ -5,6 +5,14 @@ description: Connect the MCP server and ask Claude to tune, scan, capture and, i
 
 # Let Claude use the radio
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 The sibling [MCP server](../mcp-server.md) turns the board into tools that
 Claude can call. Ask in plain words, "what is on the air around 433 MHz?",
 and Claude tunes the board, scans the band and answers from what it measured.

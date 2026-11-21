@@ -1,173 +1,61 @@
-# firmware: the factory firmware, rebuilt from source
+# firmware: the PlutoSky R2's FPGA design
 
-> **PlutoSky R2:** with `--rev r2` this target builds the R2 FPGA design only
-> (`revs/r2/patches/`, into `src-r2/`); there is no R2 build of the 5.15 kernel or
-> the Buildroot root. See [the PlutoSky R2](../docs/plutosky-r2.md).
-
-A reconstruction of the firmware the Fishball7020 ships with on its SD card:
-the vendor's Linux 5.15, a Buildroot root filesystem that runs from RAM, and
-the FPGA design, which you build with Vivado or take ready-made from an XSA.
-It supports control over both USB and Ethernet. This is the target that makes
-the provenance claim: rebuilt from source, it matches a factory board file by
-file ([below](#verified-against-the-real-board)).
-
-| | here (factory) | [`firmware-modern/`](../firmware-modern/README.md) |
-|---|---|---|
-| kernel | 5.15, the vendor's fork | 6.12, Analog Devices `main` |
-| device tree | a flat file decompiled from the factory `.dtb` | a short overlay on ADI's `zynq-pluto-sdr.dtsi` |
-| userspace | Buildroot and busybox, in RAM | Debian 13 with systemd, on the SD card |
-| FPGA | built with Vivado, or taken from an XSA | always taken from an XSA |
-| claim | the same **bytes** as a factory board | the same **behaviour**, on a current kernel |
-
-`firmware-modern/` is the recommended target unless you specifically want the
-factory kernel. Both build `BOOT.bin` from the same FSBL and U-Boot source,
-pinned in [`scripts/fetch_common.sh`](scripts/fetch_common.sh), and drive the
-board with the same host tools. `./devkit` acts on `firmware-modern/` by default;
-add `--target factory` to act on this one, or set `DEVKIT_TARGET=factory`.
-
-Upstream source: [`Xiaozhang-code-cloud/Fish-Wan-plutosdr-fw-7020-SDR`](https://github.com/Xiaozhang-code-cloud/Fish-Wan-plutosdr-fw-7020-SDR),
-a fork of ADI's `plutosdr-fw` (the ADALM-Pluto firmware) retargeted from the
-Pluto's XC7Z010 to this board's XC7Z020, with matching AD9361 pin constraints.
-
-## Quick start
+This directory builds **one thing**: the R2's FPGA design, with Vivado 2022.2,
+into `src/hdl/projects/pluto/system_top.xsa`. Everything else on the card (the
+boot loader, the kernel, the Debian root) is built around that file by
+[`firmware-modern/`](../firmware-modern/README.md).
 
 ```bash
 # run from: the repo root
-./devkit doctor --target factory   # can this machine build? about a second
-./devkit setup --target factory    # clone upstream into firmware/src/ and apply patches/ (~6.8 GB)
-./devkit sim                       # simulate the custom HDL first, if you changed any
-./devkit build --target factory    # everything, with Vivado (45-90 min)
-./devkit verify --target factory   # five files present, bitstream compressed, timing met
+./devkit setup --target factory     # hdl/ from the vendor monorepo (~0.2 GB) + the R2 patch series
+./devkit doctor --target factory    # Vivado, the source tree, the patch stamp
+./devkit build --target factory     # synthesis, implementation, bitstream, system_top.xsa
 ```
 
-**Without Vivado**, give the build an **XSA**: the finished FPGA design in one
-file, the bitstream plus a description of the hardware around it. The build then
-skips the FPGA stage and needs nothing from AMD installed
-([`docs/building-without-vivado.md`](../docs/building-without-vivado.md)):
+Read the timing summary the build prints. A design that misses timing still
+produces a bitstream. The default design, built on 2026-11-19: timing met, WNS
++0.100 ns, 12,717 LUTs.
 
-```bash
-# run from: the repo root
-XSA="$(./firmware-modern/fetch-pinned-xsa.sh)"   # the XSA of a published factory release
-./devkit build --target factory --xsa "$XSA"
-```
-
-A release's XSA is that release's FPGA design, not necessarily what the current
-source would build. Your own previous build leaves one at
-`firmware/src/hdl/projects/pluto/system_top.xsa`.
-
-**Put it on the board** over the network, onto a board that is already running.
-Each option takes a backup and checks md5 sums before swapping anything in:
-
-```bash
-# run from: the repo root
-./devkit flash --target factory --all            # all five SD-card files
-./devkit flash --target factory --boot-only      # BOOT.bin: an HDL or bitstream change
-./devkit flash --target factory --kernel-only    # uImage: a driver or kernel change
-./devkit flash --target factory --dtb-only       # devicetree.dtb: a device-tree patch
-./devkit flash --target factory --rootfs-only    # uramdisk.image.gz
-./devkit verify --target factory --board         # is the board running what you built?
-```
-
-Other ways to flash, including a card reader and recovery:
-[`docs/flashing.md`](../docs/flashing.md). The full build walkthrough (Vivado,
-the block diagram, adding HDL): [`docs/building.md`](../docs/building.md).
+It is called the *factory* target because in the R1 repository, where these
+files come from, the same name builds the R1's whole factory firmware: the
+vendor's 5.15 kernel and a Buildroot root as well. None of that exists for the
+R2 here.
 
 ## What is in this directory
 
 | | |
 |---|---|
-| [`patches/`](patches/README.md) | the changes applied to upstream, one section per patch; five are transmitter safety |
-| `scripts/setup.sh`, `build_all.sh`, `verify_output.sh`, `doctor.sh` | what `./devkit setup`, `build`, `verify` and `doctor` run with `--target factory` |
+| [`patches/`](patches/README.md) | the R1's patch series, one section per patch. **The R2's input**: its `hdl/` hunks are applied to the R2's design, and its `u-boot-xlnx/` hunks to U-Boot by `firmware-modern/`. The kernel and Buildroot hunks are never applied here |
+| [`revs/r2/patches/`](revs/r2/README.md) | the R2's own three patches, which replace or add to the series: the vendor's R2 design, and two of the series' FPGA changes redone on R2 pins |
+| `scripts/rev.sh` | the R2's names (part, device tree) and the rule that merges the two patch directories |
+| `scripts/setup_fpga.sh`, `build_fpga.sh` | what `./devkit setup` and `build` run with `--target factory` |
+| `scripts/build_hdl.tcl`, `*.coe`, `gen_fir_coe.py`, `gen_fir_coe.m` | the Vivado run, and the receive-filter coefficient files |
 | `scripts/fetch_common.sh` | the pinned upstream, U-Boot, FSBL and bootgen commits, shared with `firmware-modern/` |
-| `scripts/build_hdl.tcl`, `import_xsa.sh`, `boot.bif`, `check_bootbin.py` | the FPGA build, the `--xsa` path, `BOOT.bin` packaging, and reading a `BOOT.bin` back apart |
-| `scripts/fix_and_retry_buildroot.sh` | repairs Buildroot download-hash drift and retries |
-| `scripts/gen_fir_coe.py`, `gen_fir_coe.m`, `*.coe` | receive-filter coefficient files |
-| [`fsbl/`](fsbl/README.md) | builds the FSBL (first-stage boot loader) without Vitis |
-| `sim/` | testbenches for the custom HDL; `./devkit sim` runs them |
-| `src/` | the upstream source, cloned and patched by `setup`; not committed |
-| `output/` | the five SD-card files: `BOOT.bin`, `uImage`, `devicetree.dtb`, `uEnv.txt`, `uramdisk.image.gz` |
+| `scripts/import_xsa.sh`, `boot.bif`, `check_bootbin.py` | used by `firmware-modern/`: reading an `.xsa`, packaging `BOOT.bin`, reading one back apart |
+| [`fsbl/`](fsbl/README.md) | builds the first-stage boot loader without Vitis; used by `firmware-modern/` |
+| `sim/` | testbenches for the devkit's own HDL; `./devkit sim` runs them |
+| `src/` | the FPGA source, cloned and patched by `setup`; not committed |
 
-## Rules that save you a card-reader trip or an hour
+## Rules that save you an hour
 
-- **Never flash over DFU** on this board. Use `./devkit flash` or the SD card.
 - **Nothing in `src/` is yours.** `setup` clones and patches it, and the surest
-  fix for a confused tree is `rm -rf firmware/src && ./devkit setup --target factory`. Put your
-  changes in a numbered patch.
+  fix for a confused tree is `rm -rf firmware/src && ./devkit setup --target factory`.
+  Put your changes in a numbered patch.
 - **Never edit a patch that is already applied.** `setup` cannot apply a changed
   patch over its earlier version; add a new, higher-numbered patch instead.
-- **Keep `0011`.** It is what stops the transmitter probing at 10 dB of
-  attenuation (about +9 dBm at the SMA) into whatever is on the TX port.
-- **`CONFIG_BOOTDELAY=3` is your only way into U-Boot.** It is the one window in
-  which boot can be interrupted from the serial console.
-- **`source tools/env-vivado.sh`, never Vivado's own `settings64.sh`**
-  ([`docs/building.md`](../docs/building.md#install-vivado-20222)).
-- **`--hdl-only` needs a previous full build.** It reuses the existing kernel,
-  U-Boot and root filesystem, and refuses to run without them.
-
-## Verified against the real board
-
-Built from this source and compared file by file with the SD-card contents of a
-real factory unit:
-
-- **`devicetree.dtb`**: patch `0002` recompiles byte for byte to the factory
-  file. Two later patches change it on purpose, `0008` (GPIO line names) and
-  `0011` (probe-time attenuation); without those two it is factory-identical.
-- **`uEnv.txt`**: the same content. Only the order in which U-Boot dumps its
-  variables differs, which cannot affect boot.
-- **Root filesystem**: the same file list. Remaining size differences (a random
-  password salt, a build-path dependent GDB helper, a version-string format)
-  are cosmetic.
-- **`uImage`**: the same kernel `.config` and build banner, but not the same
-  bytes, and only when built with `gcc-arm-linux-gnueabi` (the build prints a
-  note when it has to fall back to `gnueabihf`). Upstream's git history was squashed to one commit dated after the
-  factory firmware was built, so some kernel source has drifted and cannot be
-  recovered from the public repo.
-- **`BOOT.bin`**: inherits all of the above, plus Vivado's normal
-  place-and-route variation.
-
-The optional channelizer and patch `0021` change only the FPGA design, so none
-of the above depends on them.
-
-To check your own build and board:
-
-```bash
-# run from: the repo root
-./devkit verify --target factory --board   # is the card running what you built?
-iio_info -u ip:fishball.local | grep -E 'fw_version|hw_model'
-# expect fw_version 95aad-dirty (the pinned upstream commit)
-# and    hw_model   FISH Ball PlutoSDR Rev.A (Z7020-AD9361)
-
-# against a devicetree.dtb from a factory SD card: only gpio-line-names
-# (0008) and adi,tx-attenuation-mdB (0011) should differ
-diff <(dtc -I dtb -O dts FACTORY/devicetree.dtb) \
-     <(dtc -I dtb -O dts firmware/output/devicetree.dtb)
-```
-
-More in [Verify your build is actually running](../docs/flashing.md#verify-your-build-is-actually-running)
-and [`docs/provenance.md`](../docs/provenance.md).
-
-## Build system internals
-
-`scripts/build_all.sh` does not call upstream's top-level `Makefile`. It runs
-the same steps itself so that Vivado's `settings64.sh`, which it sources only
-for the FPGA and packaging steps, cannot put Xilinx's bundled
-cross-toolchains on `PATH` for the U-Boot, kernel and Buildroot steps. Those
-toolchains break the kernel build (the `GLIBC_2.xx not found` entry in
-[`docs/troubleshooting.md`](../docs/troubleshooting.md)).
-
-It does replicate one upstream step: writing `buildroot/board/pluto/VERSIONS`
-and running Buildroot's `legal-info` to produce `msd/LICENSE.html`. That file is
-not one of the five SD-card outputs, but Buildroot's `post-build.sh` needs it
-and stops before `rootfs.cpio.gz` without it.
-
-The seven build stages are listed in
-[`docs/building.md`](../docs/building.md#build-the-firmware); `build_all.sh`
-itself is short and readable. Its options are `--hdl-only`, `--xsa FILE` and
-`--preflight-only` (run the checks that guard the build, then stop).
+- **Delete the Vivado project before rebuilding after a source change.**
+  `build_hdl.tcl` reuses an existing `pluto.xpr`; the build refuses to start
+  when it sees sources newer than the project, and prints the `rm`.
+- **`source tools/env-vivado.sh`, never Vivado's own `settings64.sh`.** It
+  supplies the old libraries Vivado 2022.2 needs.
+- **An R2 pin comes from the R2 schematic**
+  ([OpenSourceSDRLab/PlutoSky-R2](https://github.com/OpenSourceSDRLab/PlutoSky-R2)),
+  never from anything written for the R1. The two packages share no pin-out,
+  and the R2's header is 1.8 V.
 
 ## Further reading
 
-- [`patches/README.md`](patches/README.md): each patch, what it changes and why.
-- [`docs/provenance.md`](../docs/provenance.md): how the reconstruction was made.
-- [`docs/transmitter-safety.md`](../docs/transmitter-safety.md): the safety
-  patches from the operator's side.
+- [`revs/r2/README.md`](revs/r2/README.md): the R2's patches.
+- [`patches/README.md`](patches/README.md): each patch of the R1 series, what it changes and why.
+- [The PlutoSky R2](../docs/plutosky-r2.md): what differs from the R1, and what is tested.
+- [Add your own logic to the FPGA](../docs/build/add-fpga-logic.md).

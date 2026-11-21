@@ -5,6 +5,14 @@ description: A complete automation script - both loopbacks swept from 100 MHz to
 
 # Sweep both loopbacks across frequency
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 A complete measurement script, built on [the automation server](../automation.md).
 At 14 frequencies from 100 MHz to 5.8 GHz it plays a tone on both transmitters,
 records both receivers in the same call, and measures four things in each
@@ -75,7 +83,7 @@ TX1 and TX2 at -40 dB, RX1 and RX2 at 20 dB gain, tone 1 MHz above the LO
 14 frequencies in 15 s; die 41.2 C; TX1 -89.75 dB, TX2 -89.75 dB
 RX1: level -41.8 to -24.8 dBFS (a 17.0 dB spread), image at worst -44.9 dBc at 2000 MHz
 RX2: level -51.8 to -35.0 dBFS (a 16.8 dB spread), image at worst -31.8 dBc at 5800 MHz
-written to /home/you/fishball7020-fpga-devkit/tools/automation/loopback_sweep.csv
+written to /home/you/plutosky-r2-fpga-devkit/tools/automation/loopback_sweep.csv
 ```
 
 The last line before the summary matters most: both transmitters read
@@ -104,7 +112,7 @@ Two runs, a few minutes apart, on one board:
 - **This is not a calibrated measurement.** dBFS is relative to the receiver's
   full scale at 20 dB gain, not to a power meter. For the board's loop gain
   with the pad added back, see
-  [measured performance](../measured-performance.md#frequency-response).
+  [measured performance](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/#frequency-response).
 
 ## How the script is built
 

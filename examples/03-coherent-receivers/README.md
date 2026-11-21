@@ -100,7 +100,7 @@ subtracts it, which makes later readings relative to that moment.
 It does **not** make the angle a direction of arrival. That needs a splitter,
 matched cables and a known geometry. The offset also changes with frequency, so
 zeroing at 2.4 GHz does not hold at 5 GHz.
-[measured-performance.md](../../docs/measured-performance.md) has the gain
+[measured-performance.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/) has the gain
 asymmetry between these two channels (about 1.5 dB of receive gain, which is
 normal), and [both-receive-channels.md](../../docs/both-receive-channels.md) has
 more on running the pair.

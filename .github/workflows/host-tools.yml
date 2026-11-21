@@ -16,6 +16,7 @@ on:
       - "devkit"
       - "firmware/sim/**"
       - "firmware/patches/**"
+      - "firmware/revs/**"
       - "firmware-modern/*.sh"
       - "firmware-modern/debian/write-card.sh"
       - "examples/**"
@@ -28,6 +29,7 @@ on:
       - "devkit"
       - "firmware/sim/**"
       - "firmware/patches/**"
+      - "firmware/revs/**"
       - "firmware-modern/*.sh"
       - "firmware-modern/debian/write-card.sh"
       - "examples/**"
@@ -203,11 +205,13 @@ jobs:
       - name: Prove the testbench can still fail
         run: cd firmware && ./sim/run_sim.sh --mutate
 
-  # The build script's preflight is the one part of it that can run without
-  # Vivado, and the part a new user hits first. It once referenced a variable
-  # it never set; under `set -u` every fresh clone died on line 112, while the
-  # author's shells had it set by an earlier `source tools/env-vivado.sh` and
-  # never saw it. So run it the way a new user does: an empty environment.
+  # The FPGA build script's preflight is the one part of it that can run without
+  # Vivado, and the part a new user hits first. The R1's build script once
+  # referenced a variable it never set; under `set -u` every fresh clone died,
+  # while the author's shells had it set by an earlier `source
+  # tools/env-vivado.sh` and never saw it. So run it the way a new user does:
+  # an empty environment. (And build_fpga.sh had its own such bug: env-vivado.sh
+  # overwrote its SCRIPT_DIR, found by the first real build.)
   build-preflight:
     runs-on: ubuntu-latest
     steps:
@@ -219,24 +223,32 @@ jobs:
           # project older than its sources, so the checks that read patches/
           # and the coefficient files both actually execute.
           mkdir -p firmware/src/hdl/projects/pluto
-          for p in firmware/patches/*.patch; do
+          source firmware/scripts/rev.sh
+          for p in $(devkit_patch_series "$PWD/firmware"); do
               echo "$(sha256sum "$p" | cut -d' ' -f1)  $(basename "$p")"
           done > firmware/src/.devkit-patches-applied
           touch -d 2000-01-01 firmware/src/hdl/projects/pluto/pluto.xpr
           touch firmware/src/hdl/projects/pluto/system_bd.tcl
+          echo 'adi_project pluto 0 {} "xc7z020clg484-2"' > firmware/src/hdl/projects/pluto/system_project.tcl
 
-          run() { env -i HOME="$HOME" PATH=/usr/bin:/bin bash firmware/scripts/build_all.sh --preflight-only > out.txt 2>&1 || true; cat out.txt; }
+          run() { env -i HOME="$HOME" PATH=/usr/bin:/bin bash firmware/scripts/build_fpga.sh --preflight-only > out.txt 2>&1 || true; cat out.txt; }
 
           run
           ! grep -q "unbound variable" out.txt
           grep -q "newer than the existing Vivado project:.*system_bd.tcl" out.txt
           grep -q "newer than the existing Vivado project:.*coefile_" out.txt
           ! grep -q "is not applied" out.txt
+          ! grep -q "does not name" out.txt
 
           # A patch the stamp does not list must be caught.
           sed -i '$d' firmware/src/.devkit-patches-applied
           run
           grep -q "is not applied" out.txt
+
+          # And a tree that is the R1's design must be refused by its part.
+          echo 'adi_project pluto 0 {} "xc7z020clg400-2"' > firmware/src/hdl/projects/pluto/system_project.tcl
+          run
+          grep -q "does not name xc7z020clg484-2" out.txt
 
   # tools/write-card.cmd builds a whole SD card (FAT32 boot + ext3 root) in
   # embedded C#, for Windows users with nothing installed. It runs here under
@@ -245,8 +257,14 @@ jobs:
   # once into a virtual disk, which exercises the disk path for real: volume
   # locking, raw writes, the read-back, and Windows' own FAT driver reading the
   # boot partition. The next job checks the disk it wrote with e2fsprogs.
+  #
+  # The card files it writes are the R1 REPOSITORY's latest release: there is no
+  # R2 release yet, and what is under test is the writer, which does not care
+  # whose BOOT.bin it copies. Nothing here ever reaches a board.
   write-card-windows:
     runs-on: windows-latest
+    env:
+      CARD_FILES_REPO: matsvandamme/fishball7020-fpga-devkit
     steps:
       - uses: actions/checkout@v5
       - name: Fetch the latest release's card files
@@ -255,9 +273,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir rel
-          tag=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName)
+          tag=$(gh release view --repo "$CARD_FILES_REPO" --json tagName -q .tagName)
           echo "release $tag"
-          gh release download "$tag" --repo "${{ github.repository }}" --dir rel \
+          gh release download "$tag" --repo "$CARD_FILES_REPO" --dir rel \
             -p BOOT.bin -p uImage -p devicetree.dtb -p uEnv.txt -p debian-rootfs.tar.gz -p SHA256SUMS
           cp tools/write-card.cmd rel/
       - name: Image file
@@ -293,6 +311,8 @@ jobs:
   write-card-check:
     needs: write-card-windows
     runs-on: ubuntu-latest
+    env:
+      CARD_FILES_REPO: matsvandamme/fishball7020-fpga-devkit
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v4
@@ -303,8 +323,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir rel
-          tag=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName)
-          gh release download "$tag" --repo "${{ github.repository }}" --dir rel \
+          tag=$(gh release view --repo "$CARD_FILES_REPO" --json tagName -q .tagName)
+          gh release download "$tag" --repo "$CARD_FILES_REPO" --dir rel \
             -p BOOT.bin -p uImage -p devicetree.dtb -p uEnv.txt -p debian-rootfs.tar.gz -p SHA256SUMS
       - name: The embedded C# is still C# 5 (what Windows PowerShell 5.1 compiles)
         run: |

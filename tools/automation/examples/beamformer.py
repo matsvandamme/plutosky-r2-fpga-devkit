@@ -9,7 +9,7 @@
 With two boards (--boards a.local,b.local) the array is A:RX1, A:RX2, B:RX1,
 B:RX2, in that order, spaced --spacing-mm apart (default half a wavelength).
 Both boards must run from ONE reference clock on EXT_CLK, or their phases
-drift apart and the lock check says so. Set-up: docs/radio/beamform-two-boards.md.
+drift apart and the lock check says so. Set-up: https://matsvandamme.github.io/fishball7020-fpga-devkit/radio/beamform-two-boards/.
 
 A beacon, a chirp burst repeating every 0.53 ms, plays on one board's
 transmitter (--beacon, default the first board's TX1). Every snapshot plays
@@ -328,7 +328,7 @@ def main():
         if not ok:
             failed = True
             print("\nAn element is not locked to the beacon: check every board runs from the same reference "
-                  "(docs/radio/beamform-two-boards.md). Stopping before calibration.")
+                  "(https://matsvandamme.github.io/fishball7020-fpga-devkit/radio/beamform-two-boards/). Stopping before calibration.")
             return 1
         cal = calibrate(ys, spacing, wavelength)
         print("calibrated at 0 degrees: " + ", ".join(f"{n} {np.degrees(np.angle(c)):+.1f} deg"

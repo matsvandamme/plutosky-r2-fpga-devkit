@@ -2,7 +2,7 @@
 
 Transmits ten modulations from the board, receives each one on a **HackRF One**,
 measures it, and draws the figures in
-[`docs/modulation-gallery.md`](../../docs/modulation-gallery.md). Everything is
+[`docs/modulation-gallery.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-gallery/). Everything is
 seeded, so the transmitted reference regenerates exactly and a capture can be
 re-analysed without going back on the air.
 

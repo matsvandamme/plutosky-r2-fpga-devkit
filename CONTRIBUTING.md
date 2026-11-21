@@ -1,49 +1,58 @@
 # Contributing
 
-A hobby-scale reverse-engineering and build-system project. Contributions are
-welcome. This page covers where the source lives, how to add a patch, what to
-check before a pull request (PR), and what CI does.
+This is the **PlutoSky R2**'s devkit, a young port that one board has run.
+Contributions are welcome, and so are reports: saying what works and what does
+not on a second R2 is a contribution. This page covers where the source lives,
+how to add a patch, what to check before a pull request (PR), and what CI does.
 
 Credit for ideas as well as commits lives in [CONTRIBUTORS.md](CONTRIBUTORS.md).
-A suggestion that changed the firmware counts, and GitHub's contributors graph
-cannot record one.
+
+## Two repositories
+
+The PlutoSky R1 / 7020-SDR has its own:
+[fishball7020-fpga-devkit](https://github.com/matsvandamme/fishball7020-fpga-devkit).
+This one started as a copy of it and still carries the R1's patch series and
+device tree, because the R2's are layered on them.
+
+| The change is about | It belongs |
+|---|---|
+| an R2 pin, the R2's block design, Ethernet through the FPGA, the reference PLL | here, in `firmware/revs/r2/patches/` |
+| the R2's device tree or kernel option | here: `firmware-modern/dts/zynq-pluto-sdr-fishball-r2.dts`, `firmware-modern/config/r2.config` |
+| a driver, the Debian root, a host tool, anything both boards share | in the R1 repository first, then carried over here. Keep the shared files identical: `firmware/patches/`, `firmware-modern/patches/`, `firmware-modern/dts/zynq-pluto-sdr-fishball.dts`, `fishball_defconfig` |
+
+The two share history up to 2026-11-21, so `git cherry-pick` between them works:
+`git remote add r1 https://github.com/matsvandamme/fishball7020-fpga-devkit.git`.
 
 ## Where the code lives
 
-**The HDL, kernel, U-Boot and Buildroot source is not in this repo.** Both
-`src/` directories are fetched fresh and patched:
+**The HDL, kernel and U-Boot source is not in this repo.** It is fetched fresh
+and patched:
 
-| target | fetched by | source | patches | CI |
+| half | fetched by | source | patches | CI |
 |---|---|---|---|---|
-| `firmware/` — Linux 5.15, the factory reconstruction | `./devkit setup --target factory` | a monorepo: HDL, U-Boot, Buildroot and the kernel | `firmware/patches/` | `verify-patches.yml` |
-| `firmware-modern/` — **Linux 6.12 LTS**, the current kernel | `./firmware-modern/setup.sh` | just the kernel, from ADI at a pinned SHA | `firmware-modern/patches/` | `verify-modern.yml` |
+| `firmware/`, the FPGA design | `./devkit setup --target factory` | `hdl/` of the vendor monorepo | the `hdl/` hunks of `firmware/patches/`, with `firmware/revs/r2/patches/` replacing or adding | `verify-patches.yml` |
+| `firmware-modern/`, **Linux 6.12 LTS**, U-Boot and the boot loader | `./devkit setup` | the kernel from ADI at a pinned SHA; U-Boot, embeddedsw and bootgen | `firmware-modern/patches/`, and the `u-boot-xlnx/` hunks of `firmware/patches/` | `verify-modern.yml` |
 
-A driver or kernel fix belongs in `firmware-modern/patches/` unless it is
-specifically about the factory kernel. Anything HDL, U-Boot or rootfs is
-`firmware/patches/`, which both targets share. Either way it is a patch file:
+A change is a patch file:
 
 ```bash
 # run from: firmware/src, with the tree patched and your edit made
-git diff -- path/to/file > ../patches/0022-what-it-does.patch
+git diff -- path/to/file > ../revs/r2/patches/0023-what-it-does.patch
 ```
 
-Number it after the highest existing patch in **both** `firmware/patches/` and
-`firmware-modern/patches/`: they share one numbering space, and the same patch
-carries the same number in both where it exists in both. The highest is
-currently `0021`, so the next is `0022`. Rules:
-
-- **The two directories share numbers.** `0019` exists only in the modern tree
-  (the cached attenuation fix) and `0020` and `0021` only in `firmware/` (the
-  libfdt build fix and the second RX filter); none of those numbers is free just
-  because one directory lacks it.
+A patch in `firmware/revs/r2/patches/` with the **same file name** as one in
+`firmware/patches/` replaces it; any other is added
+([`rev.sh`](firmware/scripts/rev.sh)). Number a new one after the highest in
+`firmware/patches/` and `firmware-modern/patches/`, which share one numbering
+space with the R1 repository: the highest there is currently `0022`. Rules:
 
 - **Patches stack.** 0004, 0005 and 0007 all edit `cf_axi_dds.c`. A plain
   `git diff` of such a file includes the earlier patches' changes too. Generate
   yours against a reconstructed pre-change copy (see commit `4468327` for how),
   and check the whole series still applies in order on a fresh `setup`.
-- **`setup.sh` stamps the tree** with a digest of the patch set, and
-  `build_all.sh` refuses to build without a matching stamp - so after adding a
-  patch, re-run `./devkit setup --target factory` before building. `firmware-modern/setup.sh`
+- **`setup` stamps the tree** with a digest of the patch set, and the build
+  refuses to run without a matching stamp - so after adding a patch, re-run
+  `./devkit setup --target factory` before building. `firmware-modern/setup.sh`
   stamps the same way and also recognises a tree patched some other way: if the
   last patch reverses cleanly, the series is on, in order.
 - **Do not put a safety-relevant field in `ad9361_rf_phy_state`.**
@@ -60,10 +69,10 @@ currently `0021`, so the next is `0022`. Rules:
 2. `./devkit sim --mutate` if you touched HDL - and **add a testbench** for any
    new module, next to `firmware/sim/tb_*.v`, plus at least one mutant in
    `run_sim.sh` that proves it can fail.
-3. `./devkit build --target factory` end to end (for a `firmware-modern/` patch,
-   `./devkit build --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"`),
-   `./devkit verify --board` after flashing, and
-   say so in the PR. CI cannot run Vivado; "I flashed it and it works" is the bar.
+3. `./devkit build --target factory` for an FPGA change, then
+   `./devkit build --xsa firmware/src/hdl/projects/pluto/system_top.xsa`; boot
+   it on an R2, and say so in the PR, with the timing summary for an FPGA
+   change. CI cannot run Vivado; "I booted it on an R2 and it works" is the bar.
 4. **Add a CI assertion** that your patch landed - a `grep` for something it
    introduces - in `verify-patches.yml` or `verify-modern.yml` depending on which
    target it is for. Every existing patch has one; it is what catches a patch that
@@ -73,9 +82,10 @@ currently `0021`, so the next is `0022`. Rules:
    (`firmware-modern/verify_dtb.py`), because device-tree mistakes can be
    invisible in the `.dts` and still boot.
 5. Measured numbers in the docs come from real builds and a real board. If your
-   change moves them (LUTs, WNS, `BOOT.bin` size), update them from your own
-   build rather than leaving stale figures: `docs/measured-performance.md`,
-   `docs/tx-gpio-bitmap.md` and the agent skill's healthy-board table.
+   change moves them (LUTs, WNS), update them from your own build, in
+   `docs/plutosky-r2.md`. **If you test something that page lists as
+   untested, change its row**, with the date and what you saw: that table is
+   the most useful thing in this repository to keep true.
 6. If you changed anything under `docs/`, check it the way CI does. The pages are
    GitHub Markdown first and are also published as a site with MkDocs Material:
 
@@ -132,11 +142,13 @@ nothing in CI boots it. Run the same check on your own build:
 
 ## What CI does and does not do
 
-- `verify-patches.yml`: a fresh clone, `setup.sh`, and an assertion per patch.
-- `verify-modern.yml`: the same for the 6.12 target, plus two things a kernel
+- `verify-patches.yml`: a fresh clone, `setup_fpga.sh`, and assertions that
+  the tree is the R2's design with this repo's FPGA changes in it.
+- `verify-modern.yml`: an assertion per kernel patch, plus two things a kernel
   allows that Vivado does not - it **builds the device tree and audits the
   `.dtb`** (16 checks, including that the transmit-attenuation default is still
-  89750 mdB), and it **cross-builds `uImage`** and fails on a warning in any file
+  89750 mdB; and the R2's tree may differ from the R1's only where the board
+  does), and it **cross-builds `uImage`** and fails on a warning in any file
   this repo patches.
 - `host-tools.yml`: the Python tools compile and import on 3.8 and 3.12, the
   selftest's measurement maths is asserted against known signals, and the HDL
@@ -145,14 +157,16 @@ nothing in CI boots it. Run the same check on your own build:
 - `verify-rootfs.yml`: builds the Debian root from scratch under ARM emulation
   and runs `firmware-modern/debian/check-rootfs.sh` on it (triggered by changes
   under `firmware-modern/debian/`, and weekly).
-- `hardware.yml`: runs on a self-hosted runner wired to a real board: the
-  self-test, the GPIO check and the HDL simulation.
-- The hosted workflows do **not** build the factory firmware or touch hardware.
+- `hardware.yml`: for a self-hosted runner wired to a real board. Inert here:
+  no runner is registered for this repository, and its checks were written
+  against an R1.
+- The hosted workflows do **not** build the FPGA design or touch hardware.
+- There is no release workflow yet, and no release.
 
 ## Style
 
 Scripts over documentation-only workarounds: fix the build in
-`build_all.sh` or the relevant `.tcl` rather than telling the next person how
+the script or the relevant `.tcl` rather than telling the next person how
 to work around it. Write for someone who has not built an FPGA design before -
 define a term where it first appears, and say *why*, not only *what*.
 

@@ -1,5 +1,13 @@
 # Watching a sweep live: chirp-view
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 [`chirp-view`](../tools/chirp-view/README.md) is a program for your PC. It
 makes TX1 play a **sweep** (a signal whose frequency moves across a band,
 also called a *chirp*) from a [cyclic buffer](cyclic-buffers.md), over and
@@ -34,7 +42,7 @@ start it, see [watch a sweep live](radio/watch-a-sweep.md).
 - **The board on Ethernet,** running the modern firmware (the Debian root).
 - **[`zc-stream`](../tools/stream-paths/zc-stream/README.md) installed on the
   board** for the default 20 MS/s: libiio carries about 10 MS/s at most
-  ([faster streaming](streaming-paths.md)). Without it, run at 4.8 MS/s with
+  ([faster streaming](https://matsvandamme.github.io/fishball7020-fpga-devkit/streaming-paths/)). Without it, run at 4.8 MS/s with
   `--rate 4.8e6 --span 1e6 --period 3`.
 - **On the PC:** Python 3.8 or later and the packages in
   `tools/chirp-view/requirements.txt` (pyadi-iio, numpy, scipy, pyqtgraph,

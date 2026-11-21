@@ -1,37 +1,48 @@
 ---
 icon: material/help-circle-outline
-description: One command tells you whether this firmware fits your board.
+description: The package printed on the Zynq, a socket on the case, or one command tells the PlutoSky R2 from the R1.
 ---
 
-# Check you have the right board
+# Check you have an R2
 
-The board is sold as **PlutoSky R1**, **7020-SDR**, **Fishball7020** and
-**Fish-Wan**. The released firmware fits one variant: a Zynq XC7Z020 with an
-AD9361, on the R1 board. The **PlutoSky R2** is supported too, with its own
-build and no release yet.
+This firmware fits the **PlutoSky R2** only. Its predecessor, sold as PlutoSky
+R1, 7020-SDR, Fishball7020 and Fish-Wan, looks similar and needs
+[the other repository](https://github.com/matsvandamme/fishball7020-fpga-devkit).
+The wrong image boots Linux with no radio, no Ethernet and no USB.
 
-![The bare board from above, labelled: four SMA connectors along the top edge, the AD9361 radio chip below them, the JP5 header on the left edge, the Zynq XC7Z020 in the middle, and the Ethernet jack, two USB-C sockets and the microSD card along the bottom edge.](../img/start-board.svg)
+| | PlutoSky R2: this firmware | PlutoSky R1 / 7020-SDR: the other one |
+|---|---|---|
+| Zynq package, printed on the chip | XC7Z020-**CLG484** | XC7Z020-**CLG400** |
+| Socket on the case | `10M_IN`, a 10 MHz reference input | none |
+| `JP5` header | 2×12 pins | 2×10 pins |
+| QSPI flash | 32 MB (W25Q256) | 16 MB (W25Q128) |
+| Vendor v0.38 firmware version | `v0.38-5-g76414` | `v0.38-4-g95aad` |
 
-*The bare board. In its case it looks like the picture on
-[gather what you need](what-you-need.md).*
-
-Ask the board which it is (needs `libiio-utils` on your PC):
+With the board on the firmware it shipped with, ask it (needs `libiio-utils` on
+your PC; `192.168.2.1` is its USB network address):
 
 ```bash
 # run on your HOST, from anywhere
-iio_attr -S
-#  1: 192.168.2.1 (FISH Ball PlutoSDR Rev.A (Z7020-AD9361)), serial=... [ip:fishball.local]
+iio_attr -C -u ip:192.168.2.1 fw_version
 ```
 
 | It says | |
 |---|---|
-| `FISH Ball PlutoSDR Rev.A (Z7020-AD9361)` | **fits** |
-| a PlutoSky R2 on the vendor's firmware (`fw_version` `v0.38-5-g76414`; a `10M_IN` socket on the case) | needs the R2 build: [the PlutoSky R2](../plutosky-r2.md) |
-| `FISH Ball PlutoSDR R2 (Z7020/AD9361)` | an R2 already running this firmware |
-| a `Z7010`, an `AD9363` or another Rev | does not work unchanged |
+| `v0.38-5-g76414`, with or without `-dirty` | **an R2: fits** |
+| `v0.38-4-g95aad` | an R1: use [the other repository](https://github.com/matsvandamme/fishball7020-fpga-devkit) |
+| something else | go by the package printed on the Zynq |
 
-Transmit power figures on this site assume the power amplifier is fitted
-([variants](../hardware.md)), and were measured on an R1. The R2 is sold with
-and without an amplifier; nothing here has measured its transmitter.
+Once it runs this firmware, the model reads
+`FISH Ball PlutoSDR R2 (Z7020/AD9361)`:
+
+```bash
+# run on the board
+cat /proc/device-tree/model
+```
+
+Checked on **one** R2, the one this port was made on. The vendor sells the R2
+with an AD9361 or an AD9363 and with or without a power amplifier; only an
+AD9361 unit has run this firmware, and nothing here has measured an R2's
+transmitter.
 
 **Next:** [gather what you need](what-you-need.md).

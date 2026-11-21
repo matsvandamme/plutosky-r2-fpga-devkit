@@ -7,7 +7,7 @@ they stand. Only system_constr.xdc differs, because the R2 is another package
 are JP5 pins 7, 9, 11, 13 - the pin numbers the R1 uses, at 1.8 V where the R1
 is at 3.3 V. The comment in the constraint file says where each ball was read.
 
-Replaces firmware/patches/0006 on --rev r2 (same file name).
+Replaces firmware/patches/0006 (same file name).
 
 NOT YET BUILT. Written 2026-11-18 on a machine without Vivado: it is checked to
 apply, not to synthesise, place or meet timing.

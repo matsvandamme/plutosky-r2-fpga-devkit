@@ -1,5 +1,13 @@
 # Why the modern target runs Debian
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 The factory firmware runs Buildroot and busybox from a RAM disk: no `apt`,
 nothing survives a reboot, many tools missing. The modern target's root
 filesystem is **Debian 13 (trixie) armhf with systemd** on an ext4 SD-card

@@ -59,8 +59,8 @@ expect("--target=bogus (the = form) is refused too",
 # ---- 2. the modern build refuses what it must ----------------------------------
 expect("modern build refuses to run without --xsa",
        [DEVKIT, "build", "--target", "modern"], 1, "needs --xsa")
-expect("bare build is the modern target: without --xsa it says how to get one",
-       [DEVKIT, "build"], 1, "fetch-pinned-xsa.sh")
+expect("bare build is the modern target: without --xsa it says there is none to fetch",
+       [DEVKIT, "build"], 1, "No release carries a PlutoSky R2 design")
 expect("bare build without --xsa also names the factory target, for Vivado",
        [DEVKIT, "build"], 1, "./devkit build --target factory")
 expect("bare build --hdl-only (an old factory guide) names --target factory",
@@ -97,10 +97,8 @@ for flag in ("--all", "--rootfs-only"):
            [DEVKIT, "flash", "--target", "modern", flag], 1, "sudo ./devkit write-card /dev/sdX")
     expect("flash --target modern %s names the command that builds the root" % flag,
            [DEVKIT, "flash", "--target", "modern", flag], 1, "./devkit build --rootfs-only")
-    # The old default's commands, typed from an old guide, now reach the modern
-    # target: each must be refused with the way back, never do something else.
-    expect("bare flash %s (an old factory guide) names --target factory" % flag,
-           [DEVKIT, "flash", flag], 1, "./devkit flash --target factory " + flag)
+    expect("bare flash %s is the modern target's refusal too" % flag,
+           [DEVKIT, "flash", flag], 1, "sudo ./devkit write-card /dev/sdX")
 expect("write-card on the factory target is refused, and says why",
        [DEVKIT, "write-card", "--target", "factory", "/dev/sdz"], 1, "write-card is the modern target's")
 expect("bare write-card is the modern target's: with no device it prints its usage",
@@ -129,14 +127,31 @@ with tempfile.TemporaryDirectory() as d:
     check("flash with no --target is the modern target (firmware-modern/output)",
           rc != 0 and ("FW_OUTPUT=[%s]" % modern_out in out or "missing %s/BOOT.bin" % modern_out in out),
           "exit=%s out=%r" % (rc, out.strip()[:200]))
+    # On the R2 the factory target is the FPGA design alone: nothing to flash,
+    # and it must say so before a board is contacted.
     rc, out = run([DEVKIT, "flash", "--target", "factory", "--boot-only"], env=env)
-    check("flash --target factory reads firmware/output",
-          rc != 0 and ("FW_OUTPUT=[]" in out or "missing %s/BOOT.bin" % (ROOT / "firmware" / "output") in out),
+    check("flash --target factory is refused: that target builds only the FPGA design",
+          rc == 1 and "builds only the FPGA design" in out and "FAKE-SSHPASS" not in out,
           "exit=%s out=%r" % (rc, out.strip()[:200]))
     rc, out = run([DEVKIT, "flash", "--boot-only"], env=dict(env, DEVKIT_TARGET="factory"))
-    check("DEVKIT_TARGET=factory makes bare flash the factory target again",
-          rc != 0 and ("FW_OUTPUT=[]" in out or "missing %s/BOOT.bin" % (ROOT / "firmware" / "output") in out),
+    check("DEVKIT_TARGET=factory makes bare flash that refusal",
+          rc == 1 and "builds only the FPGA design" in out and "FAKE-SSHPASS" not in out,
           "exit=%s out=%r" % (rc, out.strip()[:200]))
+
+# ---- 3b. one board: this repository builds for the PlutoSky R2 only ----------------
+R1_REPO = "github.com/matsvandamme/fishball7020-fpga-devkit"
+expect("--rev r1 is refused, and says where the R1 lives",
+       [DEVKIT, "build", "--rev", "r1", "--xsa", "x.xsa"], 1, R1_REPO)
+expect("DEVKIT_REV=r1 is refused the same way",
+       [DEVKIT, "setup"], 1, R1_REPO, env={"DEVKIT_REV": "r1"})
+expect("a script run directly with DEVKIT_REV=r1 is refused by rev.sh",
+       [str(ROOT / "firmware" / "scripts" / "setup_fpga.sh")], 1, R1_REPO, env={"DEVKIT_REV": "r1"})
+expect("--rev with an unknown value is refused",
+       [DEVKIT, "build", "--rev", "r9"], 1, "unknown --rev 'r9'")
+expect("--rev r2 (a command line from the two-board days) is still accepted",
+       [DEVKIT, "build", "--rev", "r2"], 1, "No release carries a PlutoSky R2 design")
+expect("factory doctor is the FPGA build's preflight",
+       [DEVKIT, "doctor", "--target", "factory"], 1, "./devkit setup --target factory")
 
 # ---- 4. import_xsa.sh: each refusal, and a good import, on synthetic XSAs ------
 IMPORT = str(ROOT / "firmware" / "scripts" / "import_xsa.sh")
@@ -145,7 +160,7 @@ with tempfile.TemporaryDirectory() as d:
     notzip = d / "not.xsa"
     notzip.write_bytes(b"this is not a zip")
 
-    def xsa(name, part='xc7z020clg400-2', version='2022.2', bit=b"\x00" * 64):
+    def xsa(name, part='xc7z020clg484-2', version='2022.2', bit=b"\x00" * 64):
         p = d / name
         with zipfile.ZipFile(p, "w") as z:
             if bit is not None:
@@ -157,7 +172,8 @@ with tempfile.TemporaryDirectory() as d:
     cases = [
         ("import_xsa refuses a file that is not a zip", str(notzip), "not a readable zip"),
         ("import_xsa refuses an XSA with no bitstream", xsa("nobit.xsa", bit=None), "contains no system_top.bit"),
-        ("import_xsa refuses another board's part", xsa("part.xsa", part="xc7z010clg400-1"), "is not for the PlutoSky R1's part"),
+        ("import_xsa refuses another board's part", xsa("part.xsa", part="xc7z010clg400-1"), "is not for the PlutoSky R2's part"),
+        ("import_xsa refuses a PlutoSky R1 design, and names the R1 repository", xsa("r1.xsa", part="xc7z020clg400-2"), R1_REPO),
         ("import_xsa refuses another tool version", xsa("ver.xsa", version="2023.1"), "different tool version"),
     ]
     for name, f, needle in cases:
@@ -236,13 +252,8 @@ import re
 pin = (ROOT / "firmware-modern" / "factory-xsa.pin").read_text()
 tag = re.search(r"^tag=(v\d+\.\d+)$", pin, re.M)
 sha = re.search(r"^sha256=([0-9a-f]{64})$", pin, re.M)
-check("factory-xsa.pin names a factory (v1.x) tag and a 64-hex sha256",
+check("factory-xsa.pin, the R1's until an R2 design is released, is still well formed",
       bool(tag and sha and tag.group(1).startswith("v1.")), pin[-200:])
-rel = (ROOT / ".github" / "workflows" / "release.yml").read_text()
-check("release.yml re-downloads the pinned XSA (never trusts the cache), needs real hashes, and gates the rootfs on the fail-closed iiod",
-      'rm -f "$B/firmware-modern/boot/pinned/$tag/system_top.xsa"' in rel
-      and '[ -n "$local_sum" ] && [ "$local_sum" = "$board_sum" ]' in rel
-      and "^Requires=fishball-rf-quiesce.service" in rel, "")
 dropin = (ROOT / "firmware-modern" / "debian" / "overlay" / "etc" / "systemd" / "system" / "iiod.service.d" / "fishball.conf").read_text()
 check("iiod fails closed on the quiesce and rebinds USB on both start and stop",
       "\nRequires=fishball-rf-quiesce.service\n" in dropin
@@ -253,15 +264,14 @@ _active = "\n".join(l for l in unit.splitlines() if not l.startswith("#"))
 check("the overlay's iiod.service replaces the package's without udev-settle or the malformed Environment=",
       "ExecStart=/usr/sbin/iiod" in _active and "udev-settle" not in _active
       and "Environment=$" not in _active and "Requires=\n" not in dropin, "")
-check("release.yml gates a modern BOOT.bin on the pin, and a dry run publishes nothing",
-      "factory-xsa.pin" in rel and "fetch-pinned-xsa.sh" in rel
-      and rel.count("!inputs.dry_run") == 2, "")
 with tempfile.TemporaryDirectory() as d:
     shutil.copy(str(ROOT / "firmware-modern" / "fetch-pinned-xsa.sh"), d)
     (pathlib.Path(d) / "factory-xsa.pin").write_text("tag=v1.7\nsha256=nothex\n")
     rc, out = run([str(pathlib.Path(d) / "fetch-pinned-xsa.sh")])
-    check("fetch-pinned-xsa.sh refuses a malformed pin before downloading anything",
-          rc == 1 and "64-hex sha256" in out and "fetching" not in out, out.strip()[:160])
+    # The pin is still the R1's (the slot an R2 design will take when one is
+    # released), so the script must refuse before it reads it, or fetches anything.
+    check("fetch-pinned-xsa.sh says there is no pinned R2 design, before downloading anything",
+          rc == 1 and "no pinned XSA for the PlutoSky R2" in out and "fetching" not in out, out.strip()[:160])
 
 # ---- 7. help --all documents the targets ---------------------------------------------
 rc, out = run([DEVKIT, "help", "--all"])

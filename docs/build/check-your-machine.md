@@ -7,16 +7,16 @@ description: ./devkit doctor checks the compilers, host packages, disk and sourc
 
 ```bash
 # run from: the repo root
-./devkit doctor                     # the modern firmware
-./devkit doctor --target factory    # the factory firmware: also Vivado, the patch stamp and the board
+./devkit doctor                     # the boot files, kernel and Debian root
+./devkit doctor --target factory    # the FPGA design: Vivado, the source tree and its patch stamp
 ```
 
 It checks the compilers, host packages, disk and the sources, in about a
 second. Every check is a failure that once cost somebody an hour: run it before
 the build, not during.
 
-**You should see** every line say `ok`, as on a machine that can build the
-modern firmware:
+**You should see** every line say `ok`, as on a machine that can build
+everything but the FPGA design:
 
 ```
 === preflight ===
@@ -42,7 +42,7 @@ modern firmware:
 | `arm-none-eabi-gcc`, or one without the hard-float multilib (*"uses VFP register arguments"*) | `gcc-arm-none-eabi` + `libnewlib-arm-none-eabi` |
 | an ARM Linux cross-compiler | `gcc-arm-linux-gnueabi` (or `arm-linux-gnueabihf-gcc`) |
 | `gmp.h` | `libgmp-dev`, `libmpc-dev`, `libmpfr-dev` |
-| Vivado | only for an FPGA change; with `--target factory` it is a warning |
+| Vivado 2022.2 | needed for the FPGA design: [install it](install-vivado.md), or use [the container](build-in-a-container.md) |
 
 On Ubuntu 22.04, one line installs the lot:
 
@@ -57,8 +57,8 @@ sudo apt install -y git build-essential bison flex libssl-dev \
 
 ??? question "On Arch, or another distribution?"
     Arch has no ARM Linux cross-compiler in its official repositories: use Arm's
-    prebuilt toolchain ([how](../building.md#an-arm-cross-compiler-on-arch)). For an
-    FPGA build on anything but Ubuntu 18.04 to 22.04, use
+    prebuilt toolchain ([how, on the R1's site](https://matsvandamme.github.io/fishball7020-fpga-devkit/building/#an-arm-cross-compiler-on-arch)).
+    For an FPGA build on anything but Ubuntu 18.04 to 22.04, use
     [the container](build-in-a-container.md).
 
-**Next:** [build without Vivado](build-without-vivado.md).
+**Next:** [build the firmware and write the card](../start/write-the-card.md).

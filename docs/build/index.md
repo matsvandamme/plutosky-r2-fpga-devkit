@@ -1,12 +1,20 @@
 ---
 icon: material/hammer-wrench
-description: Build your own firmware, check it, and put it on the board, then change the kernel, the device tree, the FPGA or the Debian root.
+description: Build the R2's FPGA design and the firmware around it, check it, put it on the board, then change the kernel, the device tree, the FPGA or the Debian root.
 ---
 
 # Build your own firmware
 
-Every file on the SD card rebuilds from source. The modern firmware (Linux 6.12
-and Debian) builds **without Vivado**; only a change to the FPGA design needs it.
+Every file on the SD card builds from source, in two halves:
+
+| Half | Command | Needs | Writes |
+|---|---|---|---|
+| The FPGA design | `./devkit build --target factory` | Vivado 2022.2 | `firmware/src/hdl/projects/pluto/system_top.xsa` |
+| The boot loader, kernel, device tree and Debian root, around that design | `./devkit build --xsa FILE` | an ARM cross-compiler | `firmware-modern/output/`, `firmware-modern/debian/rootfs.tar` |
+
+The second half never runs Vivado. Once you have an `.xsa`, a kernel, driver or
+device-tree change needs only the second command. No release carries an R2
+design yet, so the first `.xsa` is one you build.
 
 ## The path
 
@@ -20,20 +28,20 @@ and Debian) builds **without Vivado**; only a change to the FPGA design needs it
 
     `./devkit doctor` answers in about a second.
 
--   :material-numeric-2-circle:{ .lg } **[Build without Vivado](build-without-vivado.md)**
+-   :material-numeric-2-circle:{ .lg } **[Build the firmware and write the card](../start/write-the-card.md)**
 
 
-    The kernel, drivers and Debian, from a pinned FPGA design.
+    The FPGA design, the files around it, and a card.
 
 -   :material-numeric-3-circle:{ .lg } **[Check the build](verify-the-build.md)**
 
 
-    `./devkit verify` before flashing; `--board` after.
+    `./devkit verify` before it goes on the board.
 
 -   :material-numeric-4-circle:{ .lg } **[Put it on the board](flash-your-build.md)**
 
 
-    `./devkit flash` over the network, backed up and md5-verified.
+    A card, or `./devkit flash` over the network.
 
 </div>
 
@@ -41,15 +49,10 @@ and Debian) builds **without Vivado**; only a change to the FPGA design needs it
 
 <div class="grid cards" markdown>
 
--   :material-chip:{ .lg .middle } **[Build for a PlutoSky R2](../plutosky-r2.md#build-for-the-r2)**
-
-
-    `--rev r2`: its own FPGA design, device tree and output directory.
-
 -   :material-chip:{ .lg .middle } **[Change a kernel driver](change-a-driver.md)**
 
 
-    The two-minute loop: build `uImage` alone, flash it alone.
+    Build `uImage` alone, flash it alone.
 
 -   :material-file-tree-outline:{ .lg .middle } **[Change the device tree](change-the-device-tree.md)**
 
@@ -59,45 +62,35 @@ and Debian) builds **without Vivado**; only a change to the FPGA design needs it
 -   :material-memory:{ .lg .middle } **[Add your own logic to the FPGA](add-fpga-logic.md)**
 
 
-    Simulate first, delete the Vivado project, rebuild the bitstream.
+    Simulate first, delete the Vivado project, rebuild the design.
 
 -   :material-docker:{ .lg .middle } **[Build with Vivado in a container](build-in-a-container.md)**
 
 
-    The recommended route for FPGA builds, on any Linux.
+    For a Linux newer than Ubuntu 22.04.
 
 -   :material-download-box-outline:{ .lg .middle } **[Install Vivado 2022.2](install-vivado.md)**
 
 
-    Only for an FPGA change: through the container, or on an Ubuntu host.
-
--   :material-radio:{ .lg .middle } **[Build the FM channelizer example](build-the-fm-channelizer.md)**
-
-
-    A worked example: one FM channel, filtered in the FPGA.
+    Through the container, or on an Ubuntu host.
 
 -   :material-debian:{ .lg .middle } **[Rebuild the Debian root](rebuild-the-debian-root.md)**
 
 
     After a change to the root's overlay, then a new card.
 
--   :material-scale-balance:{ .lg .middle } **[Compare with the factory firmware](check-provenance.md)**
-
-
-    How close the rebuild is, and how to check it yourself.
-
 </div>
 
 ## Reference
 
-The long pages, with every detail and measurement:
-[building your own firmware](../building.md) ·
+[The PlutoSky R2](../plutosky-r2.md#where-each-part-comes-from): where each
+part of the build comes from ·
 [building in a container](../building-in-a-container.md) ·
-[building without Vivado](../building-without-vivado.md) ·
-[the stock block design](../block-design.md) ·
-[an FM channelizer in the FPGA](../wbfm-channelizer.md) ·
-[changing the kernel](../kernel.md) ·
 [the modern kernel](../modern-kernel.md) ·
 [why Debian](../debian-rootfs.md) ·
-[the Debian root reference](../debian-root-reference.md) ·
-[provenance](../provenance.md).
+[the Debian root reference](../debian-root-reference.md).
+
+The R1 repository documents things this one does not build: the vendor's 5.15
+kernel and Buildroot root, a build from a released FPGA design with no Vivado,
+and a comparison with the factory firmware. They are on
+[the R1's site](https://matsvandamme.github.io/fishball7020-fpga-devkit/build/).

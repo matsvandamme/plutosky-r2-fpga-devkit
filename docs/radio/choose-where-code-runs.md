@@ -5,6 +5,14 @@ description: Your PC, the board, the kernel or the FPGA - four questions decide 
 
 # Choose where your code runs
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 **Most projects belong on your PC.** Ask these in order and stop at the first yes:
 
 ![Three questions, asked in order. Can my PC keep up (streaming plateaus near 44 MB/s)? Yes: on your PC. If no: must it run with no PC, or is the data too big to ship? Yes: on the board. If no: a new sysfs file, or act between samples? Yes: in the kernel. If no: in the FPGA, for a high input rate and a small output.](../img/radio-code-places-light.svg#only-light)

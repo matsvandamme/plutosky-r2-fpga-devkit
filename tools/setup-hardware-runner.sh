@@ -29,7 +29,7 @@
 # token).
 set -euo pipefail
 
-REPO="${REPO:-matsvandamme/fishball7020-fpga-devkit}"
+REPO="${REPO:-matsvandamme/plutosky-r2-fpga-devkit}"
 LABEL="fishball-board"
 DIR="${RUNNER_DIR:-$HOME/actions-runner-fishball}"
 MODE="configure"

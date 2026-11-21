@@ -5,9 +5,9 @@ description: Install Vivado 2022.2 for an FPGA build, on an Ubuntu host or throu
 
 # Install Vivado 2022.2
 
-You need Vivado only to change the FPGA design. It is about 50 GB installed,
-and the Zynq-7020 is covered by the free WebPACK licence. Not changing the
-FPGA? [Build without Vivado](build-without-vivado.md).
+The FPGA design is built with Vivado 2022.2, and with no R2 release there is
+no way round it yet. With only the Zynq-7000 family selected it is about 30 GB
+installed, and the Zynq-7020 is covered by the free licence.
 
 === "Any Linux, through the container"
 
@@ -55,13 +55,13 @@ Either way, answer the installer the same:
 `./devkit container doctor --target factory`) find Vivado.
 
 !!! warning "Always `source tools/env-vivado.sh`, never Vivado's own `settings64.sh`"
-    The script supplies the old libraries Vivado 2022.2 needs
-    ([why](../building.md#install-vivado-20222)).
+    The script supplies the old libraries Vivado 2022.2 needs (`libtinfo5`
+    among them), which a current distribution no longer ships.
 
 ??? question "The installer says \"Extraction failed\"?"
     Usually false: the container's install step checks for an executable
     `xsetup` instead. When it is real, and what the install mounts:
     [installing Vivado in the first place](../building-in-a-container.md#installing-vivado-in-the-first-place).
 
-**Next:** [build with Vivado in a container](build-in-a-container.md), then
-[add your own logic to the FPGA](add-fpga-logic.md).
+**Next:** [build the FPGA design](../start/write-the-card.md#1-the-fpga-design),
+in [the container](build-in-a-container.md) if your host needs it.

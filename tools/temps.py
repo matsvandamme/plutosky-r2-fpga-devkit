@@ -246,7 +246,7 @@ def tx_limit_lines(limit_mC, ad9361_c: float, host: str) -> list[str]:
         "                /mnt/jffs2/autorun.sh is NOT run on this rootfs - a",
         "                script there will sit and do nothing.",
         "      Buildroot /mnt/jffs2/autorun.sh, which runs at every boot. Read",
-        "                docs/kernel.md first: that partition survives",
+        "                https://matsvandamme.github.io/fishball7020-fpga-devkit/kernel/ first: that partition survives",
         "                reflashing and is the usual reason a board behaves",
         "                unlike its firmware.",
     ]

@@ -1,10 +1,80 @@
 # Troubleshooting
 
-Known problems, by symptom, with the cause and the fix. If the radio itself
-misbehaves rather than the build, run the [self-test](../tools/selftest/README.md)
-first. On a Windows PC with no tools installed, double-click `tools\board-info.cmd`: it
-prints what the board is, what it runs and every setting it reports, read-only.
-`board-info.cmd -OutFile board.txt` saves the report for a bug report.
+Known problems, by symptom, with the cause and the fix. The first section is
+what has been seen on a PlutoSky R2. The rest came with the R1's devkit: the
+build problems apply to this build too, and the board problems were seen on an
+R1.
+
+## Seen on the R2
+
+### Linux boots, but there is no radio, no Ethernet and no USB
+
+**Symptom.** The kernel log shows all three:
+
+```text
+ad9361 spi0.0: ad9361_spi_check : Unsupported PRODUCT_ID 0xFF
+mdio_bus e000b000.ethernet-ffffffff: MDIO device at address 0 is missing.
+macb e000b000.ethernet eth0: Could not attach PHY (-19)
+```
+
+**Cause.** The card holds firmware for the PlutoSky R1: another FPGA pin-out,
+Ethernet on other pins, another bank voltage.
+
+**Fix.** Build from this repository. `grep fishball_rev /boot/uEnv.txt` on the
+board says `fishball_rev=r2` for boot files built here.
+
+### Ethernet links at 1 Gbit/s and receives, but DHCP never completes
+
+**Cause.** The device tree says `phy-mode = "rgmii-rxid"`, the vendor's value.
+On Linux 6.12 the Realtek driver then switches the PHY's transmit-clock delay
+off, and nothing the board sends arrives.
+
+**Fix.** `rgmii-id`, which is what this repository's tree says. If you see this
+on a current build, the device tree on the card is not the one built here.
+
+### The board freezes or restarts shortly after boot
+
+**Seen** once each on the test board, with only the `DEBUG` socket connected,
+and not since `USB2.0` was connected too.
+
+**Cause.** Probably power: the vendor's manual says to connect both USB-C
+sockets when the board is not detected. Not proven.
+
+**Fix.** Connect both sockets.
+
+### Nothing at all on the serial console
+
+**Cause.** The `BOOT` switch is not on SD, or the card is not seated. A wrong
+switch position is silent.
+
+**Fix.** SD is both sliders away from `ON`. Change it with the board off.
+
+### The serial console fills with garbage after a BREAK
+
+**Cause.** A serial BREAK sent to the console; on the test board it flooded the
+console with NUL bytes.
+
+**Fix.** Power-cycle, and do not send one.
+
+### The board does not appear as a network interface over USB on a Mac
+
+**Cause.** Its USB network function is RNDIS, which macOS has no driver for.
+
+**Fix.** Use Ethernet (`fishball.local`) or the serial console on `DEBUG`.
+
+### `unable to generate target frequency: 125000000 Hz` in the kernel log
+
+Printed when the Ethernet link comes up. On the test board the link worked at
+1 Gbit/s regardless. Not looked into.
+
+### Vivado prints its banner and then hangs
+
+**Seen** running Vivado in a container started from a script.
+
+**Cause.** Its standard input was an open pipe.
+
+**Fix.** Close it: `vivado -mode batch ... </dev/null`. `./devkit build
+--target factory` from a terminal is not affected.
 
 ## The board
 
@@ -87,7 +157,7 @@ explicitly and narrows an existing checkout that is too wide, so running
 which supplies the old libraries Vivado 2022.2 needs.
 
 **Fix.** `source tools/env-vivado.sh`. See
-[Install Vivado 2022.2](building.md#install-vivado-20222).
+[install Vivado 2022.2](build/install-vivado.md).
 
 ### Vivado dies mid-synthesis with `tcmalloc: large alloc 115875935977472 bytes`
 
@@ -104,22 +174,14 @@ and libudev frees memory through glibc after Vivado's tcmalloc has replaced
 !!! warning "Do not silence it with `MALLOC_CHECK_`"
     That hides real heap corruption.
 
-### The FSBL stage fails with a bare `Channel closed` from `xsct`
-
-**Cause.** An older checkout that builds the FSBL (first-stage boot loader) with
-Vitis's `xsct`, which needs GTK3 and the SWT libraries.
-
-**Fix.** Update: the FSBL now builds from AMD's embeddedsw with
-`gcc-arm-none-eabi`. On an old checkout, install GTK3 and SWT.
-
 ### The kernel build fails with `GLIBC_2.xx not found` in a `gcc-plugins` step
 
 **Cause.** `env-vivado.sh` was sourced in the same shell; its Xilinx toolchain
 directories on `PATH` conflict.
 
-**Fix.** Build the kernel in a fresh shell. `build_all.sh` keeps the two apart.
+**Fix.** Build the kernel in a fresh shell. `./devkit build` keeps the two apart.
 
-### U-Boot stage [3/7] fails at `tools/aisimage.o` with `conflicting types for 'fdt64_t'`
+### U-Boot fails at `tools/aisimage.o` with `conflicting types for 'fdt64_t'`
 
 **Cause.** Your host has libfdt's headers installed (`libfdt-dev` on
 Debian/Ubuntu; on Arch they come with `dtc`), and U-Boot picks them up ahead of
@@ -127,25 +189,6 @@ its own.
 
 **Fix.** Patch `0020` fixes it; `./devkit setup` applies it. Do **not** uninstall
 the package: on Arch that would take `dtc` with it.
-
-### Buildroot fails with `has wrong sha256 hash`
-
-**Cause.** Known, harmless git-archive repackaging drift for a few pinned commits.
-
-**Fix.** `fix_and_retry_buildroot.sh` repairs it automatically. If it still
-fails, check `/tmp/buildroot_autoretry_*.log` for a different cause.
-
-### Buildroot fails with `cp: cannot stat` after you moved the checkout
-
-**Cause.** Buildroot's `output/` is **not relocatable**.
-
-**Fix.** Discard the stale build state (the download cache is unaffected):
-
-```bash
-# run from: firmware/
-rm -rf src/buildroot/output
-./scripts/build_all.sh
-```
 
 ## Flashing
 
@@ -156,14 +199,15 @@ rm -rf src/buildroot/output
 
 ### A freshly flashed card seems to do nothing, or the old firmware still runs
 
-**Cause.** The `BOOT` DIP switch is not in SD mode, or the card holds a different
+**Cause.** The `BOOT` switch is not in SD mode, or the card holds a different
 build from the one you think.
 
-**Fix.** Check the switch ([boot modes](flashing.md#boot-modes-boot-dip-switch)),
-then `./devkit verify --board` to compare the card with your build.
+**Fix.** Check the switch (SD is both sliders away from `ON`), then
+`grep fishball_ /boot/uEnv.txt` on the board: it names the commit and the FPGA
+design the boot files were built from.
 
 ## Still stuck?
 
-[Open an issue](https://github.com/matsvandamme/fishball7020-fpga-devkit/issues/new/choose);
+[Open an issue](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/issues/new/choose);
 the templates ask for the details needed. See also
 [CONTRIBUTING.md](../CONTRIBUTING.md).

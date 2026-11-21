@@ -1,5 +1,13 @@
 # Cyclic buffers and triggers
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 The board can transmit in three ways. They differ in who supplies the samples
 while the radio runs, and that decides how fast you can go and how precisely you
 control timing:
@@ -8,7 +16,7 @@ control timing:
 |---|---|---|---|
 | What happens | your program keeps sending new samples | the board replays one buffer from its own memory until stopped | the board plays a prepared buffer once per trigger, then goes quiet |
 | Who feeds the radio while it runs | your PC or program, without pause | the FPGA's DMA engine, alone | the DMA engine, once per trigger |
-| Fastest rate | about 5 MS/s from a PC ([throughput](modulation-and-throughput.md)) | 61.44 MS/s on both transmitters | 61.44 MS/s on both transmitters |
+| Fastest rate | about 5 MS/s from a PC ([throughput](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/)) | 61.44 MS/s on both transmitters | 61.44 MS/s on both transmitters |
 | Timing | set by your program and the network | sample-exact repetition; starts when software enables it | starts a software delay after the trigger; plays sample-exact |
 | Use it for | live, changing signals: a modem, an audio transmitter | test tones, calibration patterns, beacons, radar chirps, anything periodic | a packet, a chirp or a pulse on demand, from a sensor or another computer |
 
@@ -61,7 +69,7 @@ things decide whether that join is invisible:
 - **Headroom.** Samples are 16-bit, full scale ±32767, and the 12-bit DAC uses
   their top 12 bits. A single tone can use about half of full scale. Signals
   with high peaks (OFDM, several tones added) need more room, or the peaks clip
-  and splatter: [the modulation gallery](modulation-gallery.md) shows the effect.
+  and splatter: [the modulation gallery](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-gallery/) shows the effect.
 - **Memory.** A buffer takes `4 bytes × samples × channels`: a 1 ms chirp at
   61.44 MS/s on both transmitters is 491 520 bytes. One DMA block holds up to
   64 MB by default, and the board has 1 GB.
@@ -138,7 +146,7 @@ the DMA plays it to the end, runs out of samples, and the DAC outputs zeros
 until the next one. "Triggering" means pushing the prepared buffer at the right
 moment.
 
-[`tools/tx-burst`](https://github.com/matsvandamme/fishball7020-fpga-devkit/tree/main/tools/tx-burst)
+[`tools/tx-burst`](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/tree/main/tools/tx-burst)
 is a small program that runs on the board and does exactly that. It loads the
 burst once, prepares the transmit buffer, and then waits for a trigger:
 
@@ -219,7 +227,7 @@ iio.Context("ip:192.168.2.1").find_device("cf-ad9361-dds-core-lpc").attrs["tx_sa
 - **It is exact to the sample.** Measured with a logic analyser: every marker
   arrives, in order, with both transmitters running a 4.46 MB cyclic buffer at
   40 and 60 MS/s, from the very first block on
-  ([measured results](tx-gpio-bitmap.md#measured-results)), and on every
+  ([measured results](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/#measured-results)), and on every
   one-shot burst above.
 - **OR the marker in last**, after any scaling or conversion, or those steps
   overwrite it.
@@ -230,7 +238,7 @@ iio.Context("ip:192.168.2.1").find_device("cf-ad9361-dds-core-lpc").attrs["tx_sa
     it matters.
 
 Everything else about the pins (levels, all four bits, clocks and frame
-signals) is on [sample-locked GPIO](tx-gpio-bitmap.md).
+signals) is on [sample-locked GPIO](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/).
 
 ## A hardware trigger in: not in the FPGA design this board ships
 
@@ -251,5 +259,5 @@ Two more ways around the limit:
   20 dB of attenuation) against the transmitted one.
 - **Wire a trigger in.** Connecting `dac_sync_in` to a free pin in the block
   design and rebuilding the bitstream would add one. That is an FPGA change,
-  untested here; [the stock block design](block-design.md) is the place to
+  untested here; [the stock block design](https://matsvandamme.github.io/fishball7020-fpga-devkit/block-design/) is the place to
   start.

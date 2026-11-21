@@ -6,7 +6,7 @@
     .venv/bin/python tools/sample_gpio_clock.py                 # safe: transmitter muted
     .venv/bin/python tools/sample_gpio_clock.py --tx-gain -40   # ...into a terminated load
 
-This is the complete, runnable version of the example in docs/tx-gpio-bitmap.md. It
+This is the complete, runnable version of the example in https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/. It
 connects to the board, turns the feature on, authors a pattern into the low
 nibble of each transmit sample, and streams it in a loop.
 

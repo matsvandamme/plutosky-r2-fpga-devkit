@@ -1,5 +1,13 @@
 # Capturing IQ with metadata and an integrity check
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 What `tools/sigmf-capture.py` records, its options, its rate limits and what
 its verdicts mean. It writes a file that describes itself and says whether
 samples were lost. To record one now, see
@@ -60,7 +68,7 @@ sample.
 | 2 channels @ 3 MSPS | 24 MB/s | 1.10–1.29 s | 0 (clean) |
 
 Receive alone sustains about 40 MB/s (the ~31 MB/s in
-[modulation-and-throughput.md](modulation-and-throughput.md) is with transmit
+[modulation-and-throughput.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/) is with transmit
 running too).
 
 !!! warning "Above that, samples are lost silently"

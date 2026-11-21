@@ -7,7 +7,9 @@
  * THIS IS THE R1's TREE WITH THE R2's DIFFERENCES ON TOP, and nothing else:
  * it includes zynq-pluto-sdr-fishball.dts and overrides. The radio, the SD
  * card, the DMA channels, the flash layout and the sample-GPIO names are the
- * R1's and are not repeated here, so a fix to one of them reaches both boards.
+ * R1's and are not repeated here. That file is kept identical to the R1
+ * repository's (github.com/matsvandamme/fishball7020-fpga-devkit), so a fix
+ * made there can be carried over without editing.
  * In particular the transmit attenuation the driver probes with (89.75 dB,
  * the muted state) is inherited - do not restate it here, where it could
  * drift from the R1's.
@@ -19,10 +21,9 @@
  *     github.com/OpenSourceSDRLab/PlutoSky-R2, the patch in firmware/source
  * The two agree on every value below.
  *
- * NOT YET BOOTED. Written on 2026-11-18, before an R2 bitstream of this
- * repo's design existed to boot it with. Ethernet in particular is the
- * vendor's 5.15 description carried to 6.12, where the MAC driver is the
- * same but the GMII-to-RGMII glue is mainline's rather than Xilinx's.
+ * BOOTED on one R2 on 2026-11-20, with an FPGA design built from this
+ * repository: radio, Ethernet and USB all probe. One value below is not the
+ * vendor's: Ethernet's phy-mode, changed after measuring it (see &gem0).
  *
  * Needs CONFIG_XILINX_GMII2RGMII, which the R1 does not: config/r2.config.
  *

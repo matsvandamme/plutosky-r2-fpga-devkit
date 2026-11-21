@@ -1,20 +1,26 @@
-# AGENTS.md — fishball7020-fpga-devkit
+# AGENTS.md — plutosky-r2-fpga-devkit
 
-Editable, rebuildable firmware for the **PlutoSky R1 / 7020-SDR** and, with `--rev r2`, the **PlutoSky R2** (Zynq **XC7Z020** + **AD9361**) two-channel SDR. HDL + bootloader + kernel + rootfs, patch-based. Public, **GPL-2.0**. `README.md` and `CONTRIBUTING.md` are the source of truth.
+Editable, rebuildable firmware for the **PlutoSky R2** (Zynq **XC7Z020-CLG484** + **AD9361**) two-channel SDR: FPGA design + bootloader + kernel + Debian root, patch-based. Public, **GPL-2.0**. `README.md` and `CONTRIBUTING.md` are the source of truth.
+
+**This repository is the R2's only.** The PlutoSky R1 / 7020-SDR lives in `matsvandamme/fishball7020-fpga-devkit`, which this one was copied from on 2026-11-21 (shared history; `git cherry-pick` works between them). An image for one board does not work on the other.
 
 ## The build driver: `./devkit`
-- `./devkit doctor` — check the machine can build.
-- `./devkit setup --target factory` — materialise sources + apply `firmware/patches/` (re-run after editing any patch).
-- `./devkit build --target factory` — full build (bitstream → FSBL → U-Boot → kernel → rootfs), end to end.
+- `./devkit setup --target factory` then `./devkit build --target factory` — the **FPGA design only** (Vivado 2022.2) → `firmware/src/hdl/projects/pluto/system_top.xsa`. There is no 5.15 kernel or Buildroot build here.
+- `./devkit doctor`, `./devkit setup`, `./devkit build --xsa firmware/src/hdl/projects/pluto/system_top.xsa` — boot loader, Linux 6.12 and device tree around that design → `firmware-modern/output/`. `--all` adds the Debian root.
+- `sudo ./devkit write-card /dev/sdX` — a whole card. `./devkit flash` — boot files onto a running board (does **not** check which board answers).
 - `./devkit sim --mutate` — HDL simulation; run it if you touch HDL and **add a testbench**.
-- `./devkit verify --board` — after flashing to real hardware.
-- Modern kernel path: `firmware-modern/setup.sh` (Linux 6.12 LTS, ADI at a pinned SHA); build with `./devkit build --target modern` / `--xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"`.
-- Rootfs only: `./devkit build --target modern --rootfs-only` then `./firmware-modern/debian/check-rootfs.sh`.
-- **Two hardware revisions.** `--rev r1` (default, PlutoSky R1, CLG400) or `--rev r2` (PlutoSky R2, CLG484) on the commands that take `--target`; every revision-dependent name is in `firmware/scripts/rev.sh`. The R2 has its own FPGA design (`firmware/revs/r2/patches/`), device tree (`firmware-modern/dts/*-r2.dts`), kernel fragment (`config/r2.config`) and output directory (`output-r2/`); on the R2 the factory target builds the FPGA only. An image for one revision does not work on the other. See `docs/plutosky-r2.md`, including what is untested.
+- There is **no release and no pinned XSA**: `firmware-modern/fetch-pinned-xsa.sh` refuses.
+
+## What is the R1's and still here
+`firmware/patches/` (the R1 series), `firmware-modern/dts/zynq-pluto-sdr-fishball.dts` and `config/fishball_defconfig` are the R2's **inputs**: `firmware/revs/r2/patches/` replaces three FPGA patches, the R2 device tree `#include`s the R1's, and `config/r2.config` is merged over the R1's kernel configuration. Keep those shared files identical to the R1 repository's; put R2 differences in the R2 files. Every board-dependent name is in `firmware/scripts/rev.sh` (`--rev r2` is still accepted; `--rev r1` is refused with a pointer).
+
+## Honesty about state
+One R2 has booted this (2026-11-20): boot, receive, Ethernet and USB enumeration work. **Transmit, the JP5 outputs (1.8 V, pin 1 = 5 V), the 10 MHz input, `flash`, `write-card` and `selftest` are untested on an R2.** `docs/plutosky-r2.md` has the table; update it when you test something. Most pages under `docs/radio/` were written and measured on an R1 and say so. Never present an R1 measurement as the R2's.
 
 ## Conventions
-- **Everything is a patch.** Change a file, then `git diff -- path > firmware/patches/00NN-what-it-does.patch` (or `firmware-modern/patches/`), and re-run the matching `setup`. Don't commit materialised sources.
-- CI (`verify-patches.yml`, `verify-modern.yml`) checks patches apply — **it cannot run Vivado**. The bar for hardware changes is "I flashed it and it works," stated in the PR.
+- **Everything is a patch.** Change a file, then `git diff -- path > firmware/revs/r2/patches/00NN-what-it-does.patch` (or `firmware-modern/patches/`), and re-run the matching `setup`. Don't commit materialised sources.
+- R2 pins come from the vendor schematic (`OpenSourceSDRLab/PlutoSky-R2`, `hardware/PlutoSky-R2_Schematic.pdf`), never from R1 material.
+- CI (`verify-patches.yml`, `verify-modern.yml`) checks patches apply and audits the built device tree — **it cannot run Vivado**. The bar for hardware changes is "I booted it on an R2 and it works," stated in the PR.
 - Keep GPL-2.0 headers; respect `NOTICE`/`LICENSE`.
-- Docs are MkDocs (`mkdocs.yml`): `mkdocs serve` to preview, `mkdocs build` for `site/`. The 54-lesson course lives under docs.
-- Don't commit large captures/binaries (`*.sigmf-data`, build outputs); keep `loop.sigmf-*` as the one sample if referenced.
+- Docs are MkDocs (`mkdocs.yml`): `python3 docs/check_links.py`, `python3 docs-site/style_check.py docs/`, `mkdocs build --strict`.
+- Don't commit large captures/binaries (`*.sigmf-data`, build outputs).

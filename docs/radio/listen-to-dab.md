@@ -5,6 +5,14 @@ description: The patched SDR++ carries a DAB+ decoder - pick a block, wait for S
 
 # Listen to DAB+ radio
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 DAB+ is digital radio in Band III (174–240 MHz): one 1.536 MHz-wide block, a
 *multiplex*, carries a dozen or so stations at once. The
 [patched SDR++](install-patched-sdrpp.md) carries a DAB+ decoder, F4JTV's

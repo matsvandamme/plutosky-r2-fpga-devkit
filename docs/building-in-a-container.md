@@ -1,5 +1,13 @@
 # Building in a container
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 **This is the recommended way to build this firmware.** Vivado 2022.2 runs only
 on Ubuntu 18.04–22.04; `./devkit container` runs the build (and the Vivado
 installer) in a pinned Ubuntu 22.04 container (an isolated userspace on your
@@ -17,12 +25,12 @@ the detail.
 # run from: the repo root
 ./devkit container build-image                       # once, ~3 min
 ./devkit container doctor --target factory           # the same checks as ./devkit doctor, inside
-./devkit container setup --target factory            # clone upstream source + apply patches   (~5 min)
-./devkit container build --target factory            # everything                           (45-90 min)
-
-# after that first full build, the fast loop for an HDL change:
-./devkit container build --target factory --hdl-only #                                       (~20 min)
+./devkit container setup --target factory            # hdl/ and the R2 patch series, ~0.2 GB
+./devkit container build --target factory            # Vivado -> system_top.xsa
 ```
+
+On the R1 these two commands fetch and build the whole factory firmware, which
+is what the rest of this page describes; here they build the FPGA design alone.
 
 No Vivado yet? [Install it first](build/install-vivado.md). **Build in the
 container; flash from the host**: `flash`, `selftest`, `gpio-check` and
@@ -37,7 +45,7 @@ The steps are in [install Vivado 2022.2](build/install-vivado.md):
 |---|---|
 | why in the container | on a host too new for Vivado, its installer (the same Java/GTK application) will not run either, so it runs in the container too, writing to the host |
 | the mount | `/tools/Xilinx` read-write (the only time it is not read-only), and the installer's GUI |
-| answers | as in [building.md](building.md#install-vivado-20222): **Vivado**, only **Zynq-7000** under device families (~130 GB down to ~30 GB), path `/tools/Xilinx` |
+| answers | as in [building.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/building/#install-vivado-20222): **Vivado**, only **Zynq-7000** under device families (~130 GB down to ~30 GB), path `/tools/Xilinx` |
 | time | the web installer needs your AMD account and downloads the content itself; budget an hour |
 
 | Symptom | Cause | Fix |

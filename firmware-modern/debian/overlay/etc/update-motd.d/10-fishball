@@ -10,8 +10,8 @@
 # blocks only, which every terminal font has).
 
 BLUE=$'\e[38;2;64;105;255m'; BOLD=$'\e[1m'; DIM=$'\e[2m'; RED=$'\e[1;31m'; OFF=$'\e[0m'
-REPO=https://github.com/matsvandamme/fishball7020-fpga-devkit
-DOCS=https://matsvandamme.github.io/fishball7020-fpga-devkit/
+REPO=https://github.com/matsvandamme/plutosky-r2-fpga-devkit
+DOCS=https://matsvandamme.github.io/plutosky-r2-fpga-devkit/
 
 printf '\n%s' "$BLUE"
 cat <<'MARK'
@@ -36,9 +36,9 @@ cat <<'WORD'
    ▝▀▘   ▀▘   ▝▀ ▀▀   ▀▘  ▝▀
 WORD
 printf '%s\n' "$OFF"
-printf ' %sFishball7020 FPGA devkit%s  %s\n' "$BOLD" "$OFF" "$REPO"
+printf ' %sPlutoSky R2 FPGA devkit%s  %s\n' "$BOLD" "$OFF" "$REPO"
 # The boards this firmware is for: one design, sold under four names (README.md).
-printf ' %sfor PlutoSky R1, 7020-SDR, Fishball7020 and Fish-Wan: Zynq XC7Z020 + AD9361%s\n\n' "$DIM" "$OFF"
+printf ' %sfor the PlutoSky R2: Zynq XC7Z020-CLG484 + AD9361%s\n\n' "$DIM" "$OFF"
 
 row() { printf ' %s%-10s%s %s\n' "$DIM" "$1" "$OFF" "$2"; }
 UENV=${FISHBALL_UENV:-/boot/uEnv.txt}     # the overrides are for testing a stamp
@@ -95,7 +95,8 @@ if [ -z "$pl" ] && [ -r /boot/BOOT.bin ]; then
          [ -n "$pl" ] && printf '%s\n%s\n' "$key" "$pl" > "$cache" 2>/dev/null; fi
 fi
 case "$pl" in
-    01e6f3063e780a20*) design="the v1.7 factory design (the FPGA of releases v1.7 and v2.x)" ;;
+    # (The R1 repository names its released design here by hash. No R2 design
+    # is released yet; every R2 bitstream is one somebody built.)
     "")                design="unknown (no /boot/BOOT.bin)" ;;
     *)                 design="a custom design" ;;
 esac

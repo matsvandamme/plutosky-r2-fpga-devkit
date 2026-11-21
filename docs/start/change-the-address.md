@@ -5,30 +5,26 @@ description: Pin the board to a fixed address, go back to DHCP, or change the na
 
 # Change the IP address or name
 
-Pin the board to a fixed address, go back to DHCP, or change the name it
-answers to. Only the Ethernet side changes.
-
-![The board has two network interfaces. The USB cable is fixed at 192.168.2.1 and is always the way back in. Ethernet takes its address from the router, or a static one; devkit net changes that side only. The board answers to fishball.local.](../img/start-network-light.svg#only-light)
-![The board has two network interfaces. The USB cable is fixed at 192.168.2.1 and is always the way back in. Ethernet takes its address from the router, or a static one; devkit net changes that side only. The board answers to fishball.local.](../img/start-network-dark.svg#only-dark)
+Out of the card, Ethernet takes its address from your router (DHCP) and the
+board answers to `fishball.local`. Both are ordinary Debian settings.
 
 ```bash
 # run from: the repo root
 ./devkit net                          # what is it doing now?
-./devkit net static 192.168.1.50      # pin it to one address (optional second argument: the netmask)
-./devkit net dhcp                     # back to the router's address (the default)
-./devkit net name mysdr               # answer to mysdr.local instead
+./devkit net find                     # look for the board without knowing its address
 ```
 
-`dhcp` and `static` read the setting back before rebooting, then find the
-board again by name. **On the Debian firmware** they refuse and print the
-command to run instead: there, the address is in `/etc/network/interfaces` and
-the name is set with `hostnamectl set-hostname`.
+To change them, log in and use Debian's own tools: the address is in
+`/etc/network/interfaces`, and the name is set with
+`hostnamectl set-hostname mysdr`, after which the board answers to
+`mysdr.local`. `./devkit net static`, `dhcp` and `name` are for the R1's
+Buildroot firmware; on Debian they refuse and print the command to run instead.
 
 | Good to know | |
 |---|---|
-| a static address has **no gateway and no DNS** (Buildroot) | the board reaches only its own subnet; a DHCP reservation in your router is usually the better answer |
-| `192.168.2.1` on the USB cable never changes with these | it stays the way back in |
-| on Buildroot the settings live in QSPI flash | they survive rewriting the card |
+| a DHCP reservation in your router is usually the better answer | the board keeps its gateway and DNS |
+| the serial console on `DEBUG` does not depend on the network | it is the way back in after a wrong address |
+| the USB network at `192.168.2.1` does not change with these | on a PC with an RNDIS driver (not a Mac) |
 
-Every route, every variable and recovery from a lock-out:
+Every route and recovery from a lock-out, written for the R1:
 [networking reference](../networking.md).

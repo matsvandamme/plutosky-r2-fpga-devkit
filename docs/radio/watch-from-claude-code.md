@@ -5,6 +5,14 @@ description: A Claude Code pane with the board's links, temperatures, radio sett
 
 # Watch the board from Claude Code
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 [Claude Code](https://claude.com/claude-code) is Anthropic's AI coding
 assistant, run in a terminal. The devkit ships a plugin for it, an add-on it
 loads at start: type `/fishball` and a pane beside the conversation shows the

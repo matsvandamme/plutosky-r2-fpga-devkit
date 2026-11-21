@@ -1,12 +1,15 @@
 ---
 icon: material/chip
-description: The PlutoSky R2 is a different board from the R1. What differs, how to build for it with --rev r2, and what has and has not been tested.
+description: What differs between the PlutoSky R2 and the R1, how this firmware is put together for the R2, and what has and has not been tested.
 ---
 
 # The PlutoSky R2
 
-The PlutoSky R2 needs its own firmware build. **An R1 image does not work on
-it**: the board boots Linux and has no radio, no Ethernet and no USB.
+The PlutoSky R2 is a different board from the PlutoSky R1 / 7020-SDR, and this
+repository builds for the R2 only. **An R1 image does not work on it**: the
+board boots Linux and has no radio, no Ethernet and no USB. The R1 has
+[its own repository](https://github.com/matsvandamme/fishball7020-fpga-devkit);
+the two were one, with a `--rev` switch, until 2026-11-21.
 
 !!! note "Booted on one R2, 2026-11-20"
     Built with Vivado 2022.2 (timing met, WNS +0.100 ns) and booted from a card
@@ -22,7 +25,7 @@ it**: the board boots Linux and has no radio, no Ethernet and no USB.
 | Vendor v0.38 firmware version | `v0.38-4-g95aad` | `v0.38-5-g76414` |
 | QSPI flash | 16 MB (W25Q128) | 32 MB (W25Q256) |
 | Extra socket | none | `10M_IN`, a 10 MHz reference input |
-| `--rev` | `r1` (the default) | `r2` |
+| Repository | [fishball7020-fpga-devkit](https://github.com/matsvandamme/fishball7020-fpga-devkit) | this one |
 
 `iio_attr -C -u ip:192.168.2.1 fw_version` prints the version on the vendor's
 firmware. The package is printed on the Zynq itself.
@@ -54,56 +57,57 @@ macb e000b000.ethernet eth0: Could not attach PHY (-19)
 
 ## Build for the R2
 
-Every command that takes `--target` also takes `--rev`. `DEVKIT_REV=r2` in your
-environment makes it the default.
-
 ```bash
 # run from: the repo root
 
-# 1. The FPGA design (Vivado 2022.2, 45-90 min). Fetches hdl/ only, ~0.2 GB.
-./devkit setup --target factory --rev r2
-./devkit build --target factory --rev r2
+# 1. The FPGA design (Vivado 2022.2, 10 minutes to over an hour). Fetches hdl/ only, ~0.2 GB.
+./devkit setup --target factory
+./devkit build --target factory
 
 # 2. The boot files and the kernel, around that design.
-./devkit setup --rev r2
-./devkit build --rev r2 --xsa firmware/src-r2/hdl/projects/pluto/system_top.xsa
+./devkit setup
+./devkit build --xsa firmware/src/hdl/projects/pluto/system_top.xsa
 
-# 3. A card. The Debian root is the same for both boards.
+# 3. A card, with the Debian root.
 ./devkit build --rootfs-only
-sudo ./devkit write-card --rev r2 /dev/sdX
+sudo ./devkit write-card /dev/sdX
 ```
 
 | Step | Writes |
 |---|---|
-| 1 | `firmware/src-r2/hdl/projects/pluto/system_top.xsa` |
-| 2 | `firmware-modern/output-r2/`: `BOOT.bin`, `uImage`, `devicetree.dtb`, `uEnv.txt` |
+| 1 | `firmware/src/hdl/projects/pluto/system_top.xsa` |
+| 2 | `firmware-modern/output/`: `BOOT.bin`, `uImage`, `devicetree.dtb`, `uEnv.txt` |
+| 3 | `firmware-modern/debian/rootfs.tar`, then the card |
 
-The R1's files stay where they were, in `firmware-modern/output/`. An XSA for
-the other board is refused by its part number, so the two cannot be mixed by
-passing the wrong file.
+An XSA for the R1's part is refused, so an R1 design cannot be packaged for an
+R2 by passing the wrong file. Step by step:
+[build the firmware and write the card](start/write-the-card.md).
 
-!!! danger "`./devkit flash --rev r2` does not check which board answers"
-    It copies `output-r2/` to whatever board it finds. Flashing an R2 image to
-    an R1, or the reverse, gives a board that boots without a network. The way
-    back is a card reader.
+!!! danger "`./devkit flash` does not check which board answers"
+    It copies `firmware-modern/output/` to whatever board it finds. Pointed at
+    an R1 it writes R2 files onto it, and that board then boots without a
+    network. The way back is a card reader.
 
-## What `--rev r2` changes
+## Where each part comes from
 
 | Part | R2 source |
 |---|---|
-| FPGA design | [`firmware/revs/r2/patches/`](https://github.com/matsvandamme/fishball7020-fpga-devkit/tree/main/firmware/revs/r2/patches): the vendor's R2 design, then this repo's FPGA patches with R2 pin constraints |
+| FPGA design | [`firmware/revs/r2/patches/`](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/tree/main/firmware/revs/r2/patches): the vendor's R2 design, then this repo's FPGA patches with R2 pin constraints |
 | First-stage boot loader | generated from the R2 XSA, which sets the pin-mux and the 3.3 V bank |
 | U-Boot | the R1's source, unchanged |
-| Kernel | the R1's, plus `CONFIG_XILINX_GMII2RGMII` ([`config/r2.config`](https://github.com/matsvandamme/fishball7020-fpga-devkit/blob/main/firmware-modern/config/r2.config)) |
-| Device tree | [`zynq-pluto-sdr-fishball-r2.dts`](https://github.com/matsvandamme/fishball7020-fpga-devkit/blob/main/firmware-modern/dts/zynq-pluto-sdr-fishball-r2.dts): includes the R1's and overrides Ethernet, the USB reset pin, the LED pin and the model |
+| Kernel | the R1's, plus `CONFIG_XILINX_GMII2RGMII` ([`config/r2.config`](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/blob/main/firmware-modern/config/r2.config)) |
+| Device tree | [`zynq-pluto-sdr-fishball-r2.dts`](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/blob/main/firmware-modern/dts/zynq-pluto-sdr-fishball-r2.dts): includes the R1's and overrides Ethernet, the USB reset pin, the LED pin and the model |
 | Debian root | the same |
 
-On the R2 the factory target builds **only** the FPGA design. There is no R2
-build of the 5.15 kernel or the Buildroot root.
+The factory target builds **only** the FPGA design here. There is no R2 build
+of the vendor's 5.15 kernel or of a Buildroot root: the R1 repository has
+both, for the R1. The R1's patch series and device tree are still in this
+repository because the R2's are layered on them.
 
 ## The sample-locked GPIO pins on the R2
 
-The four [sample-locked outputs](tx-gpio-bitmap.md) keep their `JP5` pin
+The four [sample-locked outputs](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/)
+(the R1's page explains the feature) keep their `JP5` pin
 numbers, 7, 9, 11 and 13, so the same cable fits. **The level does not carry
 over: 1.8 V on the R2, 3.3 V on the R1.**
 
@@ -126,9 +130,11 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 | Booting the result on an R2 | done on one board: boots to Debian, radio receives, USB enumerates |
 | Ethernet on Linux 6.12 through the converter core | works at 1 Gbit/s. The device tree says `rgmii-id`, not the vendor tree's `rgmii-rxid`: with the vendor's value the board receives and cannot send |
 | Transmit, the sample-locked `JP5` outputs | not tested on the R2 |
-| `./devkit flash --rev r2` and `./devkit write-card --rev r2` | not run on an R2; the test board's card was written from a card reader by hand |
-| `./devkit selftest` baselines, the docs' port and header drawings | all R1 |
-| A pinned, released R2 XSA | none; `fetch-pinned-xsa.sh` refuses `--rev r2` |
+| `./devkit flash` and `./devkit write-card` | not run on an R2; the test board's card was written from a card reader by hand |
+| `./devkit selftest`, `verify --board`, `gpio-check`, `clock` | not run on an R2. The self-test's baselines are the R1's |
+| The USER LED | its pin (MIO 7) is in the device tree; not looked at on the board |
+| A release, or a pinned R2 XSA | none; `fetch-pinned-xsa.sh` says so and stops |
+| A second R2, an AD9363 unit, a unit with a power amplifier | none tried: one board has run this |
 | The 10 MHz reference input | the FPGA programs the PLL as the vendor's design does; nothing here reads its lock state |
 
 ## Power, USB and the vendor's manual
@@ -140,7 +146,13 @@ only `DEBUG` connected and none after `USB2.0` was connected as well; that
 fits the manual, and is not proven to be the cause.
 
 The USB network is RNDIS, as on the R1. macOS has no driver for it, so from a
-Mac use Ethernet or the serial console on `DEBUG` (115200 baud).
+Mac use Ethernet or the serial console on `DEBUG` (115200 baud, the second of
+the two serial ports the socket presents). Do not send that console a serial
+BREAK: on the test board it flooded the console with NUL bytes.
+
+On link-up the kernel prints `unable to generate target frequency: 125000000
+Hz`. On the test board the link worked at 1 Gbit/s regardless; the message has
+not been looked into.
 
 ## Going back to the factory firmware
 

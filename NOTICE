@@ -1,4 +1,6 @@
-Fishball7020 FPGA Devkit
+PlutoSky R2 FPGA Devkit
+(the PlutoSky R2's copy of the Fishball7020 FPGA Devkit,
+https://github.com/matsvandamme/fishball7020-fpga-devkit)
 Copyright (C) 2026 Matthieu
 
 This program is free software; you can redistribute it and/or modify it
@@ -25,7 +27,15 @@ docs/img/boot-sd-00.jpg, boot-qspi-10.jpg, boot-jtag-11.jpg
     PlutoSky R1 write-up:
     https://blog.opensourcesdrlab.com/archives/PlutoSky-R1
 
-firmware/src/  (not committed; fetched by firmware/scripts/setup.sh)
+firmware/revs/r2/patches/0000-plutosky-r2-fpga-design.patch
+    The hdl/ part of OpenSourceSDRLab's own PlutoSky R2 port, re-expressed
+    against this repository's pinned tree. From
+    https://github.com/OpenSourceSDRLab/PlutoSky-R2
+    (firmware/source/plutosky-r2-plutosdr-fw-v0.38.patch), which that
+    repository publishes under Apache-2.0. It modifies Analog Devices' HDL
+    reference design, which keeps Analog Devices' own licence terms.
+
+firmware/src/  (not committed; fetched by firmware/scripts/setup_fpga.sh)
     Linux (GPL-2.0), U-Boot (GPL-2.0+) and Buildroot (mostly MIT/BSD, with
     individual packages under their own licences), from
     https://github.com/Xiaozhang-code-cloud/Fish-Wan-plutosdr-fw-7020-SDR

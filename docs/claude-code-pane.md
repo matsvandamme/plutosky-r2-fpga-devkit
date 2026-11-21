@@ -1,5 +1,13 @@
 # The board in a Claude Code pane
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 A side pane in [Claude Code](https://claude.com/claude-code) that shows the
 board while you work: which links reach it, both die temperatures, the radio's
 settings, CI, and the firmware it runs against the build in your checkout. It

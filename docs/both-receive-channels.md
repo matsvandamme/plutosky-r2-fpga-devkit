@@ -1,5 +1,13 @@
 # Two receivers that both survive decimation
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 With the FPGA's ÷8 decimator engaged, upstream's block design filters only
 channel 0, so channel 1 comes out aliased. Patch
 `firmware/patches/0021-filter-both-receive-channels-by-default.patch` puts both
@@ -16,7 +24,9 @@ the cost. To capture both channels, see
 
 ## Using it
 
-Nothing to do: `./devkit setup --target factory` applies it with the rest of the patch series.
+Nothing to do: `./devkit setup --target factory` applies it with the rest of the
+patch series, on the R2's design too. Receiving on both channels with the
+decimator engaged has not been tried on an R2.
 Engage the decimator and capture both channels:
 
 ```bash
@@ -38,11 +48,12 @@ and set `STOCK_RX_FILTER=1`. An empty `STOCK_RX_FILTER=` counts as unset.
 ```bash
 # run from: the repo root
 rm -rf firmware/src/hdl/projects/pluto/pluto.{xpr,cache,gen,hw,ip_user_files,runs,sim,srcs,sdk}
-STOCK_RX_FILTER=1 ./devkit build --target factory --hdl-only && ./devkit verify --target factory \
-  && ./devkit flash --target factory --boot-only
+STOCK_RX_FILTER=1 ./devkit build --target factory \
+  && ./devkit build --boot-only --xsa firmware/src/hdl/projects/pluto/system_top.xsa \
+  && ./devkit flash --boot-only
 ```
 
-`system_bd.tcl` prints which wiring it chose, and `./devkit verify --target factory` reports
+`system_bd.tcl` prints which wiring it chose, and on the R1 `./devkit verify --target factory` reports
 `-> decimator on RX channel 0 only (STOCK_RX_FILTER=1, upstream wiring)` or
 `-> decimator on BOTH RX channels (default)`.
 
@@ -147,7 +158,7 @@ slightly more margin than stock, and 126 DSP slices remain free.
 !!! danger "The transmit interpolator: do not engage it"
     `tx_upack/fifo_rd_en` is the OR of the interpolator's valid and channel 1's DAC
     valid, so on a 2R2T board channel 1 drags the packer at full rate and TX1 emits
-    nothing. See [block-design.md](block-design.md#the-transmit-path).
+    nothing. See [block-design.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/block-design/#the-transmit-path).
 
 - **The shared coefficient file.** Receive and transmit both use
   `library/util_fir_int/coefile_int.coe`; editing it changes both.

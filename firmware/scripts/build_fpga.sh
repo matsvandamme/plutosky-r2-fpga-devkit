@@ -1,20 +1,19 @@
 #!/bin/bash
-# Build the FPGA design for a hardware revision other than the R1, and stop:
+# Build the PlutoSky R2's FPGA design, and stop:
 # synthesis -> implementation -> bitstream -> system_top.xsa.
 #
 #     # run from: the repo root
-#     ./devkit build --target factory --rev r2
+#     ./devkit build --target factory
 #
 #     --preflight-only   check the tools and the source tree, build nothing
 #
 # There is no kernel, U-Boot or root filesystem stage here, and no BOOT.bin: on
-# these revisions the factory target exists to produce the XSA, and the modern
+# the R2 the factory target exists to produce the XSA, and the modern
 # target builds the rest from it (firmware/scripts/setup_fpga.sh says why).
 #
-# The Vivado step is build_all.sh's stage [1/7], run the same way - same
-# build_hdl.tcl, same coefficient file, same environment. It is a copy, not a
-# shared function, so that this file could be added without touching the script
-# every R1 build runs. If you change one, change the other.
+# The Vivado step is stage [1/7] of build_all.sh (the R1 repository's factory
+# build, beside this file and never run here), run the same way - same
+# build_hdl.tcl, same coefficient file, same environment.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FW1_DIR="$(dirname "$SCRIPT_DIR")"
@@ -29,7 +28,7 @@ for arg in "$@"; do
         -h|--help) sed -n '2,/^set -/p' "${BASH_SOURCE[0]}" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
         --hdl-only) ;;   # the only thing this builds; accepted so the habit still works
         --xsa|--xsa=*)
-            echo "ERROR: --xsa has nothing to do here: on --rev $DEVKIT_REV the factory target only" >&2
+            echo "ERROR: --xsa has nothing to do here: on the $REV_NAME the factory target only" >&2
             echo "       builds the FPGA. An XSA you already have goes to the modern target:" >&2
             echo "           ./devkit build$REV_FLAG --xsa FILE" >&2
             exit 1 ;;
@@ -37,8 +36,8 @@ for arg in "$@"; do
     esac
 done
 if [ "$DEVKIT_REV" = r1 ]; then
-    echo "ERROR: build_fpga.sh is for the other revisions. On the R1:" >&2
-    echo "           ./devkit build --target factory [--hdl-only]" >&2
+    echo "ERROR: build_fpga.sh builds the PlutoSky R2's FPGA design; rev.sh should have" >&2
+    echo "       refused r1 before this line." >&2
     exit 1
 fi
 

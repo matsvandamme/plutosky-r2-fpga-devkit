@@ -1,17 +1,17 @@
 #!/bin/bash
-# Set up the FPGA source for a hardware revision other than the R1, and nothing
-# else: hdl/ from the vendor monorepo, with the hdl/ part of the patch series.
+# Set up the PlutoSky R2's FPGA source, and nothing else: hdl/ from the vendor
+# monorepo, with the hdl/ part of the patch series.
 #
 #     # run from: the repo root
-#     ./devkit setup --target factory --rev r2
+#     ./devkit setup --target factory
 #
-# WHY THIS IS NOT setup.sh. The factory target's setup.sh clones the whole
-# monorepo - its 5.15 kernel, U-Boot and Buildroot, ~6.8 GB - because the R1's
-# factory build produces all five SD-card files. For the R2 the factory target
-# builds ONE thing, the FPGA design, and hands its system_top.xsa to the modern
-# target, which builds everything else. So this takes hdl/ only, as a blob-less
-# sparse clone (~0.2 GB), into firmware/src-r2/, beside the R1's firmware/src/
-# and never inside it.
+# WHY THIS IS NOT setup.sh. setup.sh, beside this file, is the R1 repository's
+# factory setup: it clones the whole monorepo - its 5.15 kernel, U-Boot and
+# Buildroot, ~6.8 GB - because the R1's factory build produces all five SD-card
+# files. For the R2 the factory target builds ONE thing, the FPGA design, and
+# hands its system_top.xsa to the modern target, which builds everything else.
+# So this takes hdl/ only, as a blob-less sparse clone (~0.2 GB), into
+# firmware/src/. ./devkit never runs setup.sh here.
 #
 # The patches are the same series, by the same rule (firmware/scripts/rev.sh):
 # firmware/patches/, with firmware/revs/r2/patches/ replacing or adding. Only
@@ -27,8 +27,8 @@ source "$SCRIPT_DIR/fetch_common.sh"
 case "${1:-}" in -h|--help) sed -n '2,/^set -/p' "${BASH_SOURCE[0]}" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;; esac
 
 if [ "$DEVKIT_REV" = r1 ]; then
-    echo "ERROR: setup_fpga.sh is for the other revisions. The R1's FPGA source comes" >&2
-    echo "       with the whole factory tree: ./devkit setup --target factory" >&2
+    echo "ERROR: setup_fpga.sh sets up the PlutoSky R2's FPGA source; rev.sh should have" >&2
+    echo "       refused r1 before this line." >&2
     exit 1
 fi
 SRC_DIR="$FW1_DIR/src$REV_SUFFIX"

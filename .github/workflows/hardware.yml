@@ -158,7 +158,7 @@ jobs:
         continue-on-error: true
         run: |
           set -u
-          B="${BUILD_TREE:-$HOME/fishball7020-fpga-devkit}"
+          B="${BUILD_TREE:-$HOME/plutosky-r2-fpga-devkit}"
           if [ ! -d "$B/firmware/output" ] || [ -z "$(ls -A "$B/firmware/output" 2>/dev/null | grep -v '^\.gitkeep$')" ]; then
             echo "::notice::no build in $B/firmware/output - nothing to compare the board against. Not a hardware fault."
             exit 0

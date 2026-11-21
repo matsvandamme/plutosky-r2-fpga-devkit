@@ -1,5 +1,13 @@
 # How it works: from power-on to a running radio
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 What the files on the SD card are, and what happens between power-on and a
 login prompt. No FPGA or embedded-Linux knowledge assumed. To just build and
 flash, the [README](../README.md) is enough.
@@ -105,12 +113,11 @@ cat /proc/version
 
 | You changed… | Which file changes | How it gets onto the board |
 |---|---|---|
-| HDL / block design | `BOOT.bin` (contains the bitstream) | `./devkit flash --target factory --boot-only` (network) or card reader |
+| HDL / block design | `BOOT.bin` (contains the bitstream) | rebuild the design and `BOOT.bin` ([how](build/add-fpga-logic.md)), then `./devkit flash --boot-only` (network) or card reader |
 | Kernel config or a driver | `uImage` | `./devkit flash --kernel-only`, or card |
 | Hardware description | `devicetree.dtb` | `./devkit flash --dtb-only`, or card |
-| Boot settings | `uEnv.txt` | `./devkit flash --target factory --all` (factory target) or card |
-| Userspace, on `firmware/` | `uramdisk.image.gz` | `./devkit flash --target factory --rootfs-only`, or card |
-| Userspace, on `firmware-modern/` | *nothing* | `apt install`, or edit the file in place: it is a real disk |
+| Boot settings | `uEnv.txt` | a card reader |
+| Userspace | *nothing* | `apt install`, or edit the file in place: the Debian root is a real disk |
 
 `build_all.sh`'s seven stages are the chain in dependency order:
 

@@ -6,7 +6,7 @@ libiio's local backend (mapped into the program, so reading copies nothing)
 and writes each block to the socket. With 8-bit samples (`-8`) it sustains
 **20 MS/s** of one receiver, against 11 MS/s through `iiod`. The patched
 SDR++ reads it as its **Fast TCP** transport, and tuning and gain stay in
-SDR++. Measurements: [docs/streaming-paths.md](../../../docs/streaming-paths.md).
+SDR++. Measurements: [docs/streaming-paths.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/streaming-paths/).
 
 ## As a service, for SDR++
 

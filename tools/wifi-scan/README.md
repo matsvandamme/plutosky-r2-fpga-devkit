@@ -207,7 +207,7 @@ to it, rounds to the 1 dB step the radio accepts, and **reads the gain back**,
 refusing to continue if the radio disagrees. It checks once more after the
 first real retune, because `gr-iio` re-applies the gain every time the frequency
 changes. The rule, from
-[`ad9361-gain-tables.md`](../../.claude/skills/fishball7020-firmware/references/ad9361-gain-tables.md):
+[`ad9361-gain-tables.md`](https://github.com/matsvandamme/fishball7020-fpga-devkit/blob/main/.claude/skills/fishball7020-firmware/references/ad9361-gain-tables.md):
 *"Re-read `hardwaregain_available` after retuning; clamp to it."*
 
 ## What this cannot tell you
@@ -216,7 +216,7 @@ changes. The rule, from
   reference this repository does not have.
 - **The two bands are not comparable to each other**, for three reasons, each
   enough on its own: the board's flatness is only established from
-  [200 MHz to 1 GHz](../../docs/measured-performance.md); its RF baluns carry no
+  [200 MHz to 1 GHz](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/); its RF baluns carry no
   part number in the schematic, so nothing says what the front end does at
   5 GHz; and the gain-table swap at 4 GHz puts a **4.6 dB step** in this board's
   loop gain. Within one band the numbers are comparable; across the two they

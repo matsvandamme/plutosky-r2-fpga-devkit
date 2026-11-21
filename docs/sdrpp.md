@@ -1,5 +1,13 @@
 # Using SDR++ with this board
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 [SDR++](https://www.sdrpp.org/) is a fast, simple receiver for listening and
 watching a band. This page lists what each setting does, what each link
 carries, and the controls a patched build adds. For the tasks, see
@@ -108,7 +116,7 @@ them to the same source panel:
 ![Inside the board, the AD9361 feeds zc-stream on ports 5555 (RX1) and 5556 (RX2), which sends 8-bit samples to SDR++ on the PC. SDR++ sends tuning, gain, rate and RX port to iiod on port 30431, which sets the AD9361.](img/radio-fasttcp-dark.svg#only-dark)
 
 Tuning, gain, rate, RX port and the rest still go through libiio, so the panel
-works exactly as before. [Faster streaming](streaming-paths.md) has the
+works exactly as before. [Faster streaming](https://matsvandamme.github.io/fishball7020-fpga-devkit/streaming-paths/) has the
 measurements.
 
 To set it up, install `zc-stream` on the board as a service, once, and pick

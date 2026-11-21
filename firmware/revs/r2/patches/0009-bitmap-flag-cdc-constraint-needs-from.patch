@@ -3,7 +3,7 @@ The bit-map flag's clock-domain constraint needs -from, for the PlutoSky R2
 Patch 0009 against the R2's constraint file, which patch 0006 for the R2 left
 with different context lines. The change is 0009's own.
 
-Replaces firmware/patches/0009 on --rev r2 (same file name).
+Replaces firmware/patches/0009 (same file name).
 
 diff --git a/hdl/projects/pluto/system_constr.xdc b/hdl/projects/pluto/system_constr.xdc
 index a299a3d5..5423099d 100755

@@ -2,56 +2,47 @@
 # One entry point, so you do not have to remember which script lives where or
 # which directory it wants to run from. Run it from anywhere.
 #
-# ---- Two firmware targets ---------------------------------------------------
+# ---- One board: the PlutoSky R2 -----------------------------------------------
 #
-#   --target modern    (the default) Linux 6.12 LTS and a Debian root.
-#                      firmware-modern/. No Vivado path at all: it ALWAYS takes
-#                      an --xsa, and builds BOOT.bin from the same FSBL and
-#                      U-Boot source as factory.
+#   This repository builds for the PlutoSky R2 (XC7Z020-CLG484, Ethernet through
+#   the FPGA, a 10 MHz reference input) and for nothing else. An image for the
+#   PlutoSky R1 / 7020-SDR boots on an R2 with no radio, no Ethernet and no USB,
+#   and the reverse is as bad; the R1 has its own repository:
+#       https://github.com/matsvandamme/fishball7020-fpga-devkit
+#   An XSA for the R1's part is refused here.          -> docs/plutosky-r2.md
+#
+# ---- Two targets, which on this board are two halves of one build -------------
+#
+#   --target factory   The FPGA design, built with Vivado 2022.2, and nothing
+#                      else: firmware/src/hdl/ -> system_top.xsa. Setup fetches
+#                      ~0.2 GB. Changing the FPGA happens here.
+#   --target modern    (the default) Everything around that design: the boot
+#                      loader, Linux 6.12 LTS and a Debian root.
+#                      firmware-modern/. It ALWAYS takes an --xsa - the file the
+#                      factory target wrote - and builds BOOT.bin from it.
 #                      Needs an ARM Linux cross-compiler - or ./devkit container,
 #                      which has one. Setup fetches ~0.6 GB.
-#   --target factory   The vendor tree: its 5.15 kernel and a Buildroot ramdisk,
-#                      and the FPGA built with Vivado or taken from an --xsa.
-#                      firmware/. Needs: Vivado, OR an --xsa. Setup fetches
-#                      ~6.8 GB. Changing the FPGA itself happens here.
 #
 #   Takes --target:  doctor  setup  build  verify  flash  write-card  status
-#   Everything else is the same board and the same tools either way.
 #   DEVKIT_TARGET=factory in your environment makes factory the default.
 #
-# ---- Two hardware revisions -------------------------------------------------
-#
-#   --rev r1           (the default) PlutoSky R1 / 7020-SDR: XC7Z020-CLG400.
-#   --rev r2           PlutoSky R2: XC7Z020-CLG484, Ethernet through the FPGA,
-#                      a 10 MHz reference input. Another package and another
-#                      pin-out, so it needs its own FPGA design, boot image and
-#                      device tree: an R1 image on an R2 boots with no radio, no
-#                      Ethernet and no USB. Its files are kept apart -
-#                      firmware-modern/output-r2/, firmware/src-r2/ - and an XSA
-#                      for the other revision is refused by its part number.
-#                      -> docs/plutosky-r2.md
-#
-#   Takes --rev:  the same commands that take --target.
-#   DEVKIT_REV=r2 in your environment makes r2 the default.
-#   Not to be confused with `verify --board`, which is about the board on your
-#   desk running the build, not about which board it is.
-#
-#   On the R2 the factory target builds the FPGA and nothing else:
-#       ./devkit setup --target factory --rev r2     hdl/ only, ~0.2 GB
-#       ./devkit build --target factory --rev r2     Vivado -> system_top.xsa
-#       ./devkit setup --rev r2 && ./devkit build --rev r2 --xsa \
-#           firmware/src-r2/hdl/projects/pluto/system_top.xsa
-#       sudo ./devkit write-card --rev r2 /dev/sdX
+#   From nothing:
+#       ./devkit setup --target factory              hdl/ only, ~0.2 GB
+#       ./devkit build --target factory              Vivado -> system_top.xsa
+#       ./devkit setup && ./devkit build --xsa \
+#           firmware/src/hdl/projects/pluto/system_top.xsa
+#       sudo ./devkit write-card /dev/sdX
 #
 # ---- Before you build -------------------------------------------------------
 #
 #     ./devkit doctor      Can this machine build? Checks the compilers, host
 #                          packages, disk and the sources; on factory also
-#                          Vivado, the patch stamp and the board. In about a
+#                          Vivado and the patch stamp. In about a
 #                          second. Every check is a failure that once cost
 #                          somebody an hour. Run it before the hour, not during.
 #     ./devkit setup       Fetch the kernel and boot-loader source, and apply
-#                          this repo's patches (factory: into firmware/src/).
+#                          this repo's patches (factory: the FPGA source only,
+#                          into firmware/src/).
 #                          Safe to re-run; it stamps what it applied. Needed
 #                          once, and after every new patch.
 #
@@ -64,9 +55,10 @@
 #                          BOOT.bin, uImage, devicetree.dtb and uEnv.txt for the
 #                          modern target, into firmware-modern/output/. --xsa is
 #                          the FPGA design to build around, and is required:
-#                          "$(./firmware-modern/fetch-pinned-xsa.sh)" fetches the
-#                          one a factory release shipped.         (~2 min after the
-#                          first build; the first takes the kernel)
+#                          the one ./devkit build --target factory wrote. No
+#                          release carries an R2 design yet, so there is none to
+#                          fetch.            (~2 min after the first build; the
+#                          first takes the kernel)
 #       --boot-only        BOOT.bin and uEnv.txt; skip the kernel.
 #       --all              The boot files, then the Debian root as well.
 #     ./devkit build --rootfs-only
@@ -77,21 +69,12 @@
 #     ./devkit container build --xsa FILE
 #                          The boot files, on a machine with no ARM Linux compiler.
 #     ./devkit build --target factory
-#                          The factory target, everything: FPGA, boot loader,
-#                          kernel, root filesystem, packaging.        (45-90 min)
-#       --hdl-only         Just the FPGA side, reusing the existing kernel,
-#                          u-boot and rootfs.                            (~20 min)
-#       --xsa FILE         Do NOT run Vivado. Use a hardware platform that was
-#                          already built - your own from a previous build, or the
-#                          system_top.xsa attached to a FACTORY release, v1.6 or
-#                          later. A release's XSA is THAT release's FPGA design:
-#                          none published so far matches a current from-source
-#                          build. Needs NOTHING from AMD: the FSBL builds from
-#                          embeddedsw and bootgen from AMD's own source. Vivado
-#                          does not even have to be installed.
-#                          -> docs/building-without-vivado.md
-#     ./devkit verify      Is the build sane? Five files present, bitstream
-#                          compressed, timing met, and what is in the design.
+#                          The FPGA design: synthesis, implementation, bitstream,
+#                          system_top.xsa. Vivado 2022.2. Read the timing summary
+#                          it prints: a design that misses timing still produces
+#                          a bitstream.                    (10 min to over an hour)
+#     ./devkit verify      Is the build sane? The four boot files present and
+#                          consistent, and what is in the design.
 #       --board            Also compare the card against what you built. This is
 #                          the only thing that proves the board runs your build.
 #
@@ -108,9 +91,8 @@
 #                          build it, then write a card:
 #                              ./devkit build --rootfs-only
 #                              sudo ./devkit write-card /dev/sdX
-#       --target factory   Flash the factory build instead, which also takes:
-#         --all            all five SD-card files (a release)
-#         --rootfs-only    uramdisk.image.gz only
+#                          flash does not check WHICH board answers: pointed at
+#                          a PlutoSky R1 it would write R2 files onto it.
 #     sudo ./devkit write-card /dev/sdX
 #                          A whole modern card from a card reader: BOOT.bin and the
 #                          kernel on p1, the Debian root on p2. DESTROYS the card;
@@ -170,10 +152,11 @@
 #       hello              Run example 01 against the board.
 #       run <expr>         Evaluate one expression with the path set.
 #     ./devkit clock       What the 40 MHz reference correction is set to, and
-#                          measure it against a source you trust. EXT_CLK cannot
-#                          discipline this radio - that U.FL goes to the fabric,
-#                          not the AD9361 - but xo_correction gets you accuracy
-#                          without soldering.
+#                          measure it against a source you trust. Written on the
+#                          R1, whose reference free-runs. On the R2 a 10 MHz
+#                          signal on 10M_IN locks the 40 MHz reference in
+#                          hardware; this command does not read that lock, and
+#                          has not been run on an R2.
 #       measure --ref HZ   Measure. Needs a disciplined source on an RX port,
 #                          through at least 20 dB of pad.
 #       --apply            Write the measured value.
@@ -257,13 +240,14 @@
 #
 # ---- The usual runs ---------------------------------------------------------
 #
-#     ./devkit doctor && ./devkit setup \
-#       && ./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)" \
+#     ./devkit setup --target factory && ./devkit build --target factory \
+#       && ./devkit setup \
+#       && ./devkit build --all --xsa firmware/src/hdl/projects/pluto/system_top.xsa \
 #       && sudo ./devkit write-card /dev/sdX                  # from nothing
 #     ./devkit build --xsa FILE && ./devkit flash --kernel-only  # a kernel change
-#     ./devkit sim && ./devkit build --target factory --hdl-only \
-#       && ./devkit verify --target factory \
-#       && ./devkit flash --target factory --boot-only        # an HDL change
+#     ./devkit sim && ./devkit build --target factory \
+#       && ./devkit build --boot-only --xsa firmware/src/hdl/projects/pluto/system_top.xsa \
+#       && ./devkit flash --boot-only                         # an HDL change
 #     ./devkit selftest --ssh                                 # "is it broken?"
 #
 # ---- Tab completion ---------------------------------------------------------
@@ -299,7 +283,7 @@ Before you build
   setup           fetch the source and apply this repo's patches
 
 Build and check
-  build           build the firmware (modern: needs --xsa, the FPGA design)
+  build           build the firmware (needs --xsa; --target factory builds that FPGA design)
   sim             simulate the custom HDL in a second, before a 20-minute build
   verify          is the build sane? --board: is the board running it?
 
@@ -319,19 +303,16 @@ Once it runs
   claude-pane     Claude Code with the board in a side pane: claude-pane start
   also: gpio-check  clock  loopback  matlab  uboot-contract  container  completion
 
-Two firmware targets
-  --target modern    Linux 6.12 + Debian; takes the FPGA from an .xsa file (the default)
-  --target factory   Linux 5.15 + Buildroot; the FPGA itself, built with Vivado
-  DEVKIT_TARGET=factory in your environment makes factory the default.
+One board: the PlutoSky R2 (XC7Z020-CLG484). The R1 has its own repository.
 
-Two hardware revisions
-  --rev r1           PlutoSky R1 / 7020-SDR, XC7Z020-CLG400 (the default)
-  --rev r2           PlutoSky R2, XC7Z020-CLG484; its own FPGA design and output-r2/
-  DEVKIT_REV=r2 in your environment makes r2 the default.
+Two targets, two halves of one build
+  --target factory   the FPGA design, built with Vivado -> system_top.xsa
+  --target modern    Linux 6.12 + Debian around that .xsa file (the default)
 
 The usual runs
-  ./devkit doctor && ./devkit setup                      # once
-  ./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"
+  ./devkit setup --target factory && ./devkit build --target factory   # the FPGA, once
+  ./devkit doctor && ./devkit setup                                    # once
+  ./devkit build --all --xsa firmware/src/hdl/projects/pluto/system_top.xsa
   sudo ./devkit write-card /dev/sdX                      # a whole card
   ./devkit flash --kernel-only                           # a kernel change, over the network
   ./devkit selftest --ssh                                # "is it broken?"
@@ -409,10 +390,8 @@ case "$cmd" in
         exit 0 ;;
     -V|--version|version)
         echo "devkit $(git -C "$HERE" describe --tags --always --dirty 2>/dev/null || echo '(not a git checkout)')"
-        for _t in "factory:$HERE/firmware/output/BOOT.bin" "modern:$HERE/firmware-modern/output/BOOT.bin" \
-                  "modern-r2:$HERE/firmware-modern/output-r2/BOOT.bin"; do
-            # The R2 line only once there is something to say about it.
-            [ "${_t%%:*}" != modern-r2 ] || [ -r "${_t#*:}" ] || continue
+        # factory: the FPGA design; modern: the boot files built around it.
+        for _t in "factory:$HERE/firmware/src/hdl/projects/pluto/system_top.xsa" "modern:$HERE/firmware-modern/output/BOOT.bin"; do
             _f="${_t#*:}"
             if [ -r "$_f" ]; then printf '  %-9s built %s\n' "${_t%%:*}" "$(date -r "$_f" '+%Y-%m-%d %H:%M')"
             else printf '  %-9s not built\n' "${_t%%:*}"; fi
@@ -441,12 +420,13 @@ esac
 # factory, rather than doing something else: the modern build demands --xsa
 # and refuses --hdl-only, and the modern flash refuses --all and --rootfs-only.
 #
-# --rev r1|r2, the hardware revision, is parsed in the same pass and for the same
-# commands, and exported as DEVKIT_REV: the scripts read it from the environment
-# (firmware/scripts/rev.sh), so nothing has to pass it down by hand. It is --rev
-# and not --board because `verify --board` already means something else.
+# --rev is what is left of the time this repository built for two boards. r2 is
+# the default and the only value; it is still parsed, so a command line copied
+# from then keeps working, and --rev r1 is answered with where the R1 lives
+# rather than with "unknown option". Exported as DEVKIT_REV for the scripts
+# (firmware/scripts/rev.sh).
 TARGET="${DEVKIT_TARGET:-modern}"
-REV="${DEVKIT_REV:-r1}"
+REV="${DEVKIT_REV:-r2}"
 case "$cmd" in
     setup|build|verify|flash|doctor|status|write-card)
         _rest=(); _take=0
@@ -462,10 +442,13 @@ case "$cmd" in
             esac
         done
         [ "$_take" -eq 1 ] && { echo "ERROR: --target needs a value: factory or modern" >&2; exit 1; }
-        [ "$_take" -eq 2 ] && { echo "ERROR: --rev needs a value: r1 or r2" >&2; exit 1; }
+        [ "$_take" -eq 2 ] && { echo "ERROR: --rev needs a value, and here that is r2" >&2; exit 1; }
         case "$REV" in
-            r1|r2) ;;
-            *) echo "ERROR: unknown --rev '$REV'${DEVKIT_REV:+ (DEVKIT_REV=$DEVKIT_REV?)}. It is r1 (the default, PlutoSky R1) or r2 (PlutoSky R2)." >&2
+            r2) ;;
+            r1) echo "ERROR: this repository builds for the PlutoSky R2 only. The PlutoSky R1 / 7020-SDR is at" >&2
+                echo "           https://github.com/matsvandamme/fishball7020-fpga-devkit" >&2
+                exit 1 ;;
+            *) echo "ERROR: unknown --rev '$REV'${DEVKIT_REV:+ (DEVKIT_REV=$DEVKIT_REV?)}. This repository builds for r2, the PlutoSky R2." >&2
                exit 1 ;;
         esac
         case "$TARGET" in
@@ -476,11 +459,11 @@ case "$cmd" in
         set -- ${_rest[@]+"${_rest[@]}"} ;;
 esac
 export DEVKIT_REV="$REV"
-# "" on the R1, "-r2" on the R2: the suffix on every per-revision directory.
-case "$REV" in r1) REVSFX="" ;; *) REVSFX="-$REV" ;; esac
+# The suffix on every per-revision directory: none, with one revision (rev.sh).
+REVSFX=""
 FWM="$HERE/firmware-modern"
 
-# Off the R1, the factory target is the FPGA build and nothing more: the R2's
+# The factory target is the FPGA build and nothing more: the R2's
 # kernel, device tree and root are the modern target's. So setup, build and
 # doctor go to the FPGA-only scripts, and the commands that act on the factory
 # target's five SD-card files have nothing to act on.
@@ -490,9 +473,9 @@ if [ "$TARGET" = factory ] && [ "$REV" != r1 ]; then
         build)  exec "$FW/scripts/build_fpga.sh" "$@" ;;
         doctor) exec "$FW/scripts/build_fpga.sh" --preflight-only "$@" ;;
         verify|flash)
-            echo "ERROR: on --rev $REV the factory target builds only the FPGA design, so there" >&2
-            echo "       are no factory SD-card files to $cmd. The firmware is the modern target's:" >&2
-            echo "           ./devkit $cmd --rev $REV" >&2
+            echo "ERROR: the factory target builds only the FPGA design, so there are no" >&2
+            echo "       factory SD-card files to $cmd. The firmware is the modern target's:" >&2
+            echo "           ./devkit $cmd" >&2
             exit 1 ;;
     esac
 fi
@@ -501,17 +484,14 @@ case "$cmd" in
     doctor)
         # The modern target's doctor IS its build preflight: one list of what it
         # needs, so the two cannot disagree about whether this machine can build.
-        if [ "$TARGET" = modern ]; then exec "$FWM/build_all.sh" --preflight-only "$@"; fi
-        exec "$FW/scripts/doctor.sh" "$@" ;;
+        # (The factory target's doctor, setup and build went to the FPGA scripts
+        # above; what reaches this case statement is the modern target.)
+        exec "$FWM/build_all.sh" --preflight-only "$@" ;;
     setup)
-        if [ "$TARGET" = modern ]; then exec "$FWM/setup.sh" "$@"; fi
-        cd "$FW" && exec ./scripts/setup.sh "$@" ;;
+        exec "$FWM/setup.sh" "$@" ;;
     build)
-        # build_all.sh runs from firmware/, so a RELATIVE --xsa path would be
-        # resolved against firmware/ rather than against the directory you
-        # typed it in. Make it absolute here, while we still know where that
-        # was. Measured the wrong way round first: "--xsa local-test.xsa" from
-        # the repo root went looking in firmware/local-test.xsa.
+        # A RELATIVE --xsa path is made absolute here, while we still know which
+        # directory it was typed in: the build scripts change directory.
         args=()
         take_next=0
         for a in "$@"; do
@@ -528,37 +508,30 @@ case "$cmd" in
             fi
             args+=("$a")
         done
-        if [ "$TARGET" = modern ]; then exec "$FWM/build_all.sh" ${args[@]+"${args[@]}"}; fi
-        cd "$FW" && exec ./scripts/build_all.sh ${args[@]+"${args[@]}"} ;;
+        exec "$FWM/build_all.sh" ${args[@]+"${args[@]}"} ;;
     verify)
-        if [ "$TARGET" = modern ]; then exec "$FWM/verify_output.sh" "$@"; fi
-        cd "$FW" && exec ./scripts/verify_output.sh "$@" ;;
+        exec "$FWM/verify_output.sh" "$@" ;;
     sim)        cd "$FW" && exec ./sim/run_sim.sh "$@" ;;
     flash)
-        if [ "$TARGET" = modern ]; then
-            # The modern root is Debian on the card's second partition, not a
-            # file on /boot, so it cannot be swapped over the network. Refuse
-            # --all and --rootfs-only, and give the two commands that do it.
-            for a in "$@"; do
-                case "$a" in
-                    --all|--rootfs-only)
-                        echo "ERROR: flash cannot write the modern target's Debian root over the" >&2
-                        echo "       network. Build it, then write a card from a card reader:" >&2
-                        echo "           ./devkit build --rootfs-only" >&2
-                        echo "           sudo ./devkit write-card /dev/sdX" >&2
-                        echo "       Over the network: --boot-only, --kernel-only, --dtb-only." >&2
-                        echo "       The factory firmware's five files: ./devkit flash --target factory $a" >&2
-                        exit 1 ;;
-                esac
-            done
-            FW_OUTPUT="$FWM/output$REVSFX" exec "$HERE/tools/flash.sh" "$@"
-        fi
-        exec "$HERE/tools/flash.sh" "$@" ;;
+        # The root is Debian on the card's second partition, not a file on
+        # /boot, so it cannot be swapped over the network. Refuse --all and
+        # --rootfs-only, and give the two commands that do it.
+        for a in "$@"; do
+            case "$a" in
+                --all|--rootfs-only)
+                    echo "ERROR: flash cannot write the Debian root over the network. Build it," >&2
+                    echo "       then write a card from a card reader:" >&2
+                    echo "           ./devkit build --rootfs-only" >&2
+                    echo "           sudo ./devkit write-card /dev/sdX" >&2
+                    echo "       Over the network: --boot-only, --kernel-only, --dtb-only." >&2
+                    exit 1 ;;
+            esac
+        done
+        FW_OUTPUT="$FWM/output$REVSFX" exec "$HERE/tools/flash.sh" "$@" ;;
     write-card)
         if [ "$TARGET" != modern ]; then
             echo "ERROR: write-card is the modern target's: sudo ./devkit write-card /dev/sdX" >&2
-            echo "       A factory card is one FAT32 partition holding the five files in" >&2
-            echo "       firmware/output/ - copy them, or use ./devkit flash --target factory --all over the network." >&2
+            echo "       The factory target builds the FPGA design only; it has no card to write." >&2
             exit 1
         fi
         exec "$FWM/debian/write-card.sh" "$@" ;;
@@ -662,7 +635,7 @@ case "$cmd" in
             [ -f "$FWM/boot/fw/u-boot-xlnx/Makefile" ] && echo "   boot:   present (U-Boot, embeddedsw, bootgen)" \
                 || echo "   boot:   missing - run ./devkit setup --target modern"
             echo
-            echo "== last modern build${REVSFX:+ for --rev $REV (output$REVSFX/)} =="
+            echo "== last modern build =="
             for f in BOOT.bin uImage devicetree.dtb uEnv.txt system_top.xsa; do
                 if [ -r "$FWM/output$REVSFX/$f" ]; then printf '   %-22s %10s B  %s\n' "$f" \
                     "$(stat -c%s "$FWM/output$REVSFX/$f")" "$(date -r "$FWM/output$REVSFX/$f" '+%Y-%m-%d %H:%M')"
@@ -675,57 +648,23 @@ case "$cmd" in
             board_status
             exit 0
         fi
-        if [ "$REV" != r1 ]; then
-            # The FPGA-only tree: is it there, and has it produced an XSA?
-            echo "== FPGA source for --rev $REV (firmware/src$REVSFX/) =="
-            _pl="$FW/src$REVSFX/hdl/projects/pluto"
-            if [ -f "$_pl/system_bd.tcl" ]; then
-                echo "   hdl/ present, $(grep -c . "$FW/src$REVSFX/.devkit-patches-applied" 2>/dev/null || echo 0) patch(es) recorded as applied"
-            else
-                echo "   missing - run ./devkit setup --target factory --rev $REV"
-            fi
-            if [ -r "$_pl/system_top.xsa" ]; then
-                printf '   %-20s %10s B  %s\n' system_top.xsa "$(stat -c%s "$_pl/system_top.xsa")" \
-                    "$(date -r "$_pl/system_top.xsa" '+%Y-%m-%d %H:%M')"
-            else
-                echo "   no system_top.xsa yet - run ./devkit build --target factory --rev $REV"
-            fi
-            echo
-            board_status
-            exit 0
-        fi
-        echo "== source tree =="
-        if [ -d "$FW/src/.git" ]; then
-            stamp="$FW/src/.devkit-patches-applied"
-            if [ ! -f "$stamp" ]; then
-                echo "   src/ present, patches NOT applied - run ./devkit setup"
-            else
-                missing=0
-                for p in "$FW"/patches/*.patch; do
-                    grep -qxF "$(sha256sum "$p" | cut -d' ' -f1)  $(basename "$p")" "$stamp" \
-                        || missing=$((missing+1))
-                done
-                if [ "$missing" -eq 0 ]; then
-                    echo "   src/ present, all $(ls "$FW"/patches/*.patch | wc -l) patches applied"
-                else
-                    echo "   src/ present, $missing patch(es) not applied - run ./devkit setup"
-                fi
-            fi
+        # The factory target: is the FPGA tree there, and has it produced an XSA?
+        echo "== FPGA source (firmware/src/) =="
+        _pl="$FW/src$REVSFX/hdl/projects/pluto"
+        if [ -f "$_pl/system_bd.tcl" ]; then
+            echo "   hdl/ present, $(grep -c . "$FW/src$REVSFX/.devkit-patches-applied" 2>/dev/null || echo 0) patch(es) recorded as applied"
         else
-            echo "   src/ missing - run ./devkit setup"
+            echo "   missing - run ./devkit setup --target factory"
         fi
-        echo
-        echo "== last build =="
-        if [ -r "$FW/output/BOOT.bin" ]; then
-            for f in BOOT.bin devicetree.dtb uEnv.txt uImage uramdisk.image.gz; do
-                [ -r "$FW/output/$f" ] && printf '   %-20s %10s B  %s\n' "$f" \
-                    "$(stat -c%s "$FW/output/$f")" "$(date -r "$FW/output/$f" '+%Y-%m-%d %H:%M')"
-            done
+        if [ -r "$_pl/system_top.xsa" ]; then
+            printf '   %-20s %10s B  %s\n' system_top.xsa "$(stat -c%s "$_pl/system_top.xsa")" \
+                "$(date -r "$_pl/system_top.xsa" '+%Y-%m-%d %H:%M')"
         else
-            echo "   nothing in output/ - run ./devkit build"
+            echo "   no system_top.xsa yet - run ./devkit build --target factory"
         fi
         echo
         board_status
+        exit 0
         ;;
 
     *)  _m="$(suggest "$cmd")"

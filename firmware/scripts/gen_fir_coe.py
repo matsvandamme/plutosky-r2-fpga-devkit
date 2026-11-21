@@ -15,7 +15,7 @@ good trade here. If you need the tap count minimised, use gen_fir_coe.m.
 WHAT THIS DEFAULT CONFIGURATION IS FOR
 --------------------------------------
 Isolating ONE WBFM broadcast channel in the FPGA, so only that channel ever
-crosses USB. See docs/wbfm-channelizer.md for the full picture. The short
+crosses USB. See https://matsvandamme.github.io/fishball7020-fpga-devkit/wbfm-channelizer/ for the full picture. The short
 version, because it determines every number below:
 
 The AD9361 is tuned 1.056 MHz BELOW the wanted station, so its LO leakage and

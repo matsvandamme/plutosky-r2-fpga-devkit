@@ -1,5 +1,8 @@
 # TX idle cases: how a stream can end, and what the transmitter does next
 
+> **Measured on a PlutoSky R1.** This record came with the R1's devkit. Transmit has not
+> been tested on the R2, so none of these cases has been run on one.
+
 The test record behind [`docs/transmitter-safety.md`](docs/transmitter-safety.md)
 for the modern target (Debian 13, Linux 6.12). One row per way a transmit stream
 can stop, with the attenuation read back from sysfs on the board and, in every
@@ -719,7 +722,7 @@ At −30 dB commanded with scale 0.25 the port level was taken as
 **That origin is misused.** `+19 dBm` is not a level: in
 `tools/selftest/sdr_selftest.py` it is `PA_P1DB_DBM + 1.5 = 17.5 + 1.5`, a
 datasheet constant that **caps** the estimate at the amplifier's compression
-point. [`docs/measured-performance.md`](docs/measured-performance.md) says to use
+point. [`docs/measured-performance.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/) says to use
 +19 dBm as a safe upper figure for planning, not as an output power. A compression
 cap cannot be the origin of a 42 dB linear backoff. The correct origin is the
 *linear* chain level, which is higher whenever the cap bites: the AD9361's

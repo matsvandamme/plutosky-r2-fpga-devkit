@@ -1,7 +1,15 @@
 # The factory target's patches
 
+> **This is the PlutoSky R1's patch series, kept identical to the R1 repository's.**
+> In this repository it is the R2's input: its `hdl/` hunks are applied to the
+> R2's FPGA design, with [`../revs/r2/patches/`](../revs/r2/README.md) replacing
+> `0006` and `0009` and adding `0000`, and its `u-boot-xlnx/` hunks to U-Boot.
+> The kernel (5.15) and Buildroot hunks described below are never applied here;
+> the R2's kernel patches are in [`firmware-modern/patches/`](../../firmware-modern/patches/README.md).
+> Pin numbers, measurements and "the board" below mean the R1.
+
 Each file here is a change to the pinned upstream source. `./devkit setup --target factory`
-([`../scripts/setup.sh`](../scripts/setup.sh)) applies every top-level `*.patch`
+([`setup.sh`](https://github.com/matsvandamme/fishball7020-fpga-devkit/blob/main/firmware/scripts/setup.sh) in the R1 repository; [`setup_fpga.sh`](../scripts/setup_fpga.sh) here) applies every top-level `*.patch`
 in filename order and stamps each one it applied, as a `sha256  filename` line,
 in `src/.devkit-patches-applied`; a re-run applies only unstamped patches. An
 applied patch cannot be changed in place, so a fix is always a new,
@@ -98,7 +106,7 @@ are therefore two values, `CONFIG_BOOTDELAY=3` and `maxcpus=2`, which is worth
 knowing before replacing U-Boot.
 
 Buildroot source tarballs whose `.hash` no longer matches on a modern git/tar
-are not patched here: [`../scripts/fix_and_retry_buildroot.sh`](../scripts/fix_and_retry_buildroot.sh)
+are not patched here: [`../scripts/fix_and_retry_buildroot.sh`](https://github.com/matsvandamme/fishball7020-fpga-devkit/blob/main/firmware/scripts/fix_and_retry_buildroot.sh)
 repairs that at build time, for any package.
 
 ## 0002: add fishball devicetree
@@ -182,7 +190,7 @@ fabric). Resource use: 3 LUTs and 7 flip-flops, no DSPs, no block RAM. It does
 not touch the device tree.
 
 Full reference, including timing and authoring patterns:
-[`docs/tx-gpio-bitmap.md`](../../docs/tx-gpio-bitmap.md). `./devkit gpio-check`
+[`docs/tx-gpio-bitmap.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/). `./devkit gpio-check`
 checks the feature on hardware.
 
 ## 0007: tx sample gpio iio attribute
@@ -287,7 +295,7 @@ raised with no buffer open at all, and a stream-only indicator would then sit
 dark while LO leakage leaves the SMA.
 
 The LED is on PS MIO pin 0, which the FPGA fabric cannot reach, so this has to
-be software ([`docs/user-led.md`](../../docs/user-led.md)). The trigger is
+be software ([`docs/user-led.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/user-led/)). The trigger is
 selected in `S21misc` rather than the device tree, so the `.dtb` stays
 factory-identical. To keep the heartbeat:
 
@@ -419,7 +427,7 @@ The DAC core reports underflow and overflow in `ADI_REG_VDMA_STATUS`. Upstream
 writes the bits back to clear them at `preenable` and otherwise ignores them,
 so the only way to know whether a transmission was clean was to receive it and
 inspect the spectrum (as
-[`docs/modulation-and-throughput.md`](../../docs/modulation-and-throughput.md)
+[`docs/modulation-and-throughput.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/)
 does).
 
 The bits are sticky and read-to-clear, so they answer *did it happen*, not
@@ -515,7 +523,7 @@ printed during build stage 1, and `./devkit verify --target factory` names which
 | `STOCK_RX_FILTER=1` | 72 / 220 | 11 896 / 53 200 | `decimator on RX channel 0 only` |
 
 Full description, with spectra: [`docs/both-receive-channels.md`](../../docs/both-receive-channels.md).
-Resource figures for both builds: [`docs/block-design.md`](../../docs/block-design.md).
+Resource figures for both builds: [`docs/block-design.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/block-design/).
 
 ## 0022: give a large first block time to arrive
 
@@ -559,9 +567,9 @@ A worked example of custom DSP in the AD9361 receive chain. It adds
 points that filter at narrow-band FM coefficients, turning RX channel 0 into a
 single-station channelizer. `./devkit verify --target factory` reports `96 / 220` DSP48s and
 `rx_ddc (Fs/4 shifter) is wired in` for this build. See
-[`docs/wbfm-channelizer.md`](../../docs/wbfm-channelizer.md).
+[`docs/wbfm-channelizer.md`](https://matsvandamme.github.io/fishball7020-fpga-devkit/wbfm-channelizer/).
 
 Neither `0003` nor `0021` touches the device tree, kernel or bootloader, so the
-provenance claims in [`../README.md`](../README.md#verified-against-the-real-board)
+provenance claims in [`../README.md`](https://github.com/matsvandamme/fishball7020-fpga-devkit/blob/main/firmware/README.md#verified-against-the-real-board)
 hold with either. They are undone differently: `0003` by not applying it,
 `0021` with `STOCK_RX_FILTER=1`, which builds upstream's datapath.

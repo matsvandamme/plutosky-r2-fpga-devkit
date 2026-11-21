@@ -5,15 +5,16 @@ title: ""
 labels: hardware
 ---
 
-**Board source** (a link to where you bought it, if not the listing linked
-in the README — there are several similarly-named Zynq/AD936x boards with
-different pin constraints):
+**Which board** (this repository is for the PlutoSky R2, XC7Z020-CLG484; say
+how you know yours is one, and which variant: AD9361 or AD9363, with or without
+a power amplifier. A PlutoSky R1 belongs in the other repository):
 
-**What you flashed, and how** (SD card / over SSH / DFU — see
-`docs/flashing.md`):
+**What you built and how it got onto the board** (the commit, the timing
+summary of the FPGA build, and: a whole card with `write-card`, files copied
+from a card reader, or `./devkit flash`):
 
 **Serial console output** (a full boot log is the most useful thing you
-can attach — see "Verify your build is actually running" in
-`docs/flashing.md` for how to capture one with `screen -L`):
+can attach: the `DEBUG` socket, 115200 baud, the second of its two serial
+ports; `screen -L /dev/ttyUSB1 115200` captures it):
 
 **What you expected vs. what actually happened:**

@@ -1,72 +1,41 @@
 ---
 icon: material/chip
-description: Ports, header pins, the USER LED, the reference clock and the schematic, one question per page.
+description: What is known about the PlutoSky R2's hardware, where it comes from, and where the R1's hardware pages are.
 ---
 
 # Hardware and I/O
 
-What is on the board and how to wire to it, one question per page.
+What this site knows about the R2's hardware fits on one page, and most of it
+comes from the vendor's schematic rather than from a bench:
+**[the PlutoSky R2](../plutosky-r2.md)**.
 
-<div class="grid cards" markdown>
+| Question | Answer, and how sure |
+|---|---|
+| Which socket is which? | `ETH`, two USB-C sockets marked `DEBUG` and `USB2.0`, `10M_IN`, and the SMA ports. `DEBUG` carries the serial console (115200 baud) and power; `USB2.0` is the board's USB device port. Seen on one board |
+| How do I power it? | both USB-C sockets, as the [vendor's manual](https://blog.opensourcesdrlab.com/archives/plutosky-R2) says. [What was seen with one](../plutosky-r2.md#power-usb-and-the-vendors-manual) |
+| What voltage is the `JP5` header? | **1.8 V**, with **5 V on pin 1** and ground on pins 2, 22 and 24. From the schematic; not probed |
+| Which header pins does this firmware drive? | four, `sample_gpio0`–`3`, on pins 7, 9, 11 and 13. [The table](../plutosky-r2.md#the-sample-locked-gpio-pins-on-the-r2). Built into the design; not tested |
+| How does the 10 MHz input work? | an ADF4001 PLL, programmed by the FPGA, locks the 40 MHz reference to `10M_IN`. The design does what the vendor's does; nothing here reads the lock |
+| Where is the schematic? | [OpenSourceSDRLab/PlutoSky-R2](https://github.com/OpenSourceSDRLab/PlutoSky-R2), `hardware/PlutoSky-R2_Schematic.pdf` |
+| Where is the `BOOT` switch set? | SD: both sliders away from `ON`. QSPI, the factory firmware: `1 0` |
 
--   :material-connection:{ .lg } **[Which port is which](which-port-is-which.md)**
+!!! danger "An R1 cable or circuit does not carry over"
+    The R1's `JP5` is 2×10 pins at 3.3 V. The R2's is 2×12 at 1.8 V with 5 V
+    on pin 1. Check anything you connect against the R2 schematic.
 
+## The R1's hardware pages
 
-    The four SMAs, the U.FL sockets, the two USB-C sockets. Trust the silkscreen, not the case.
+The R1 devkit documents its board in detail: every port, the header, GPIO from
+Linux, the sample-locked outputs, the USER LED, the reference clock. Those
+pages describe **another board** and are not copied here. Two of them explain
+features this firmware also builds for the R2, and are worth reading for how
+the feature works, not for where its pins are:
 
--   :material-pin-outline:{ .lg } **[Wire something to the JP5 header](wire-to-jp5.md)**
+- [Sample-locked GPIO](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/):
+  four pins that follow the transmitted samples. The R2 build has it, on other
+  pins and at 1.8 V.
+- [The USER LED](https://matsvandamme.github.io/fishball7020-fpga-devkit/user-led/):
+  lit while a transmitter is live. The R2's LED is on another processor pin
+  (MIO 7), which its device tree accounts for; not checked on the board.
 
-
-    Four free 3.3 V pins (R1), where ground is, and what not to touch.
-
--   :material-toggle-switch-outline:{ .lg } **[Toggle a GPIO pin from Linux](toggle-a-gpio.md)**
-
-
-    Read or drive the four free pins from the board or from your PC.
-
--   :material-sine-wave:{ .lg } **[Make pins follow the transmit samples](pins-follow-transmit.md)**
-
-
-    Clocks, triggers and markers locked to the transmitted waveform.
-
--   :material-code-braces:{ .lg } **[Write a pin pattern in Python](write-a-pin-pattern.md)**
-
-
-    A complete program: a clock, a frame pulse and a sync marker on the four pins.
-
--   :material-led-outline:{ .lg } **[Control the USER LED](control-the-user-led.md)**
-
-
-    By default it is lit while a transmitter is live. Change that, or drive it yourself.
-
--   :material-clock-outline:{ .lg } **[Use an external reference clock](external-reference-clock.md)**
-
-
-    Move `R107` to `R109`, then feed `EXT_CLK` within the AD9361's limits.
-
--   :material-check-circle-outline:{ .lg } **[Check which reference the radio uses](check-the-reference.md)**
-
-
-    Lock bits, a frequency measurement, and `xo_correction`.
-
--   :material-file-document-outline:{ .lg } **[Find a part on the schematic](find-a-part.md)**
-
-
-    Which PDF to trust, which sheets matter, and the ratings everything is checked against.
-
--   :material-chip:{ .lg } **[I have a PlutoSky R2](../plutosky-r2.md)**
-
-
-    A different board: 1.8 V header pins, a `10M_IN` socket, its own build.
-
-</div>
-
-## Reference
-
-The long pages, with every table and measurement:
-
-- [What is on the board](../hardware.md): devices, clocks, connectors, supply rails.
-- [GPIO](../gpio.md): the three ways to drive a pin, and the full line map.
-- [Sample-locked GPIO](../tx-gpio-bitmap.md): the feature, how it is built, what was measured.
-- [The USER LED](../user-led.md): wiring, the `tx-active` trigger, boot-time defaults.
-- [Vendor schematic](../vendor/README.md): the schematic's provenance and the datasheet figures.
+Everything else: [the R1's hardware section](https://matsvandamme.github.io/fishball7020-fpga-devkit/hw/).

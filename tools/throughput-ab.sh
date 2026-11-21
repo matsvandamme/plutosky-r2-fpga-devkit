@@ -8,7 +8,7 @@
 #
 # WHY THIS EXISTS, and why it is a script rather than a paragraph.
 #
-# The local figures in docs/modulation-and-throughput.md were measured with
+# The local figures in https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/ were measured with
 # iio_readdev at 33.6 Msamples, and iio_readdev's process start and its buffer
 # allocation sit INSIDE the timed window. At 61.44 MS/s that run is 0.7 s, so a
 # sixth of the measurement is fixed cost. Run the identical command with four

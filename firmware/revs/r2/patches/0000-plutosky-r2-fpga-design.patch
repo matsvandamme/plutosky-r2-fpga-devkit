@@ -1,8 +1,8 @@
 The PlutoSky R2's FPGA design: pins, PL Ethernet and the reference PLL
 
 Turns the tree's FPGA project, which is the PlutoSky R1's (XC7Z020-CLG400), into
-the PlutoSky R2's (XC7Z020-CLG484). Applied FIRST on --rev r2, so the rest of
-the series lands on the R2 design.
+the PlutoSky R2's (XC7Z020-CLG484). Applied FIRST, so the rest of the series
+lands on the R2 design.
 
 What it is: the hdl/ part of OpenSourceSDRLab's own R2 port,
 
@@ -26,7 +26,7 @@ What changes for the R2:
                        40 MHz oscillator to the 10M_IN reference
 
 NOT carried from the vendor's R2 patch: its linux/, u-boot-xlnx/ and buildroot/
-hunks. --rev r2 on the factory target builds the FPGA only; the R2's kernel and
+hunks. The factory target builds the FPGA only; the R2's kernel and
 device tree are the modern target's (firmware-modern/dts/*-r2.dts).
 
 Licence: the modified files are Analog Devices' HDL, under ADI's licence terms

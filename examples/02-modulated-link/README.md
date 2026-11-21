@@ -110,7 +110,7 @@ The transmitter and the receiver share one reference clock, so there is no
 frequency offset to track and no independent phase noise. The EVM you see is a
 true measurement of a link that is easier than any real one, and better than
 the same modulation would achieve between two radios.
-[modulation-gallery.md](../../docs/modulation-gallery.md) measures this path
+[modulation-gallery.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-gallery/) measures this path
 with a *separate* radio, which is the fair comparison.
 
 ## Offset tuning, at both ends
@@ -170,7 +170,7 @@ So the default is 2 MS/s, 500 ksym/s at 4 samples per symbol, 8 MB/s in each
 direction; at that setting duplex streaming runs with no underflows over
 repeated 25-second runs. Lowering the rate buys slack *and* lowers the traffic,
 so it helps twice; raising the buffer only helps once. A wired link removes the
-problem. [modulation-and-throughput.md](../../docs/modulation-and-throughput.md)
+problem. [modulation-and-throughput.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/)
 covers the throughput side.
 
 ### `Unable to create buffer: -16`

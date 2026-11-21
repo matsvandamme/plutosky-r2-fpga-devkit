@@ -5,6 +5,14 @@ description: RX1 and RX2, sample-aligned, in one recording.
 
 # Receive on both channels
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 One command records RX1 and RX2 together, sample-aligned, in one file.
 
 ```bash

@@ -125,7 +125,7 @@ carries. Raise `buf` first and re-run (see below).
 - **The buffer size is a trade, not a setting.** `buf` defaults to 262144
   samples (1 MB, about 52 ms at the default rate), which keeps the controls
   responsive. A bigger buffer is worth about 3× the throughput over a network
-  ([modulation-and-throughput.md](../../docs/modulation-and-throughput.md)),
+  ([modulation-and-throughput.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/)),
   and you need 1048576 or more before selecting a high sample rate. It is fixed
   when the flowgraph starts, so changing it needs a re-run.
 

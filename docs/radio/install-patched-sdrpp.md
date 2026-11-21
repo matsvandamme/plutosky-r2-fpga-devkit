@@ -5,6 +5,14 @@ description: The SDR++ build that knows this board's second receiver, its FPGA d
 
 # Install the patched SDR++
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 Stock SDR++ does not know this board's second receiver or its FPGA.
 [`tools/sdrpp/`](../../tools/sdrpp/README.md) builds SDR++ with a patch that
 adds them to the PlutoSDR source panel.
@@ -27,7 +35,7 @@ adds them to the PlutoSDR source panel.
     # run from: wherever you build software
     git clone https://github.com/AlexandreRouma/SDRPlusPlus.git && cd SDRPlusPlus
     git checkout 8c9f5ee8fe405775bfcd62c8c8f8c0fc928a64af
-    patch -p1 < /path/to/fishball7020-fpga-devkit/tools/sdrpp/plutosdr-fishball.patch
+    patch -p1 < /path/to/plutosky-r2-fpga-devkit/tools/sdrpp/plutosdr-fishball.patch
     cmake -B build -DCMAKE_BUILD_TYPE=Release && make -C build -j"$(nproc)"
     sudo make -C build install
     ```

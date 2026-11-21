@@ -1,9 +1,13 @@
 # Reaching the board and changing its IP address
 
-!!! note "PlutoSky R2"
-    With an R2 build the board reaches the network the same way: Ethernet by
-    DHCP at 1 Gbit/s and `fishball.local` were checked on one R2
-    ([details](plutosky-r2.md)).
+!!! warning "Most of this page is about the R1's Buildroot firmware"
+    That firmware does not exist for the R2: here the board runs Debian, so
+    only the Debian parts apply, and `fw_setenv`, `config.txt` and the U-Boot
+    routes do not. On one R2, Ethernet by DHCP at 1 Gbit/s and `fishball.local`
+    were checked. The USB network is RNDIS, as on the R1; its address was not
+    tried, because the test PC was a Mac, which has no RNDIS driver.
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 
 Every route to the board, every address setting, and where the settings are
 stored, which decides what survives a reboot or a reflash. For the tasks, see
@@ -120,7 +124,7 @@ earlier the client (`dhclient`) ignores the cable and keeps the old address
 until its lease runs out, up to hours later: reboot the board after moving it.
 
 What a cable is worth in speed, measured:
-[on a direct cable](streaming-paths.md#on-a-direct-cable). Gigabit is not
+[on a direct cable](https://matsvandamme.github.io/fishball7020-fpga-devkit/streaming-paths/#on-a-direct-cable). Gigabit is not
 the limit; the board's CPU is, at about 600–700 Mb/s.
 
 ## Four ways to change the address (Buildroot)

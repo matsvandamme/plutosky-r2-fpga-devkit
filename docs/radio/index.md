@@ -5,8 +5,16 @@ description: Short task pages for receiving, transmitting and writing your own c
 
 # Use the radio
 
-What do you want to do with the board? Each card is one short page. The long
-pages with every measurement are under [Reference](#reference).
+What do you want to do with the board? Each card is one short page.
+
+!!! note "These guides were written on the PlutoSky R1"
+    The R2 runs the same kernel, the same Debian root and the same tools, so
+    the commands are the same. What is **not** the R2's: every measured
+    number, every photograph, and anything about transmit, which has not been
+    tested on an R2 at all. Receiving works on the one R2 that has run this
+    firmware. Where a guide names `192.168.2.1`, the USB network, use
+    `fishball.local` over Ethernet instead if your PC is a Mac.
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
 
 <div class="grid cards" markdown>
 
@@ -70,11 +78,6 @@ pages with every measurement are under [Reference](#reference).
 
     chirp-view: TX1 sweeps, RX1 receives it, live, through the 20 dB loop.
 
--   :material-sine-wave:{ .lg } **[Measure ten modulations](measure-modulations.md)**
-
-
-    Transmit them, capture them on a HackRF One, redraw the gallery.
-
 -   :material-matrix:{ .lg } **[Use MATLAB](use-matlab.md)**
 
 
@@ -89,11 +92,6 @@ pages with every measurement are under [Reference](#reference).
 
 
     A complete script: 14 frequencies, both channels, a CSV, in 15 seconds.
-
--   :material-radar:{ .lg } **[Beamform across two boards](beamform-two-boards.md)**
-
-
-    Two boards on one GPSDO as a four-antenna array: calibrate, find a direction.
 
 -   :material-stethoscope:{ .lg } **[Check the radio is healthy](check-the-radio.md)**
 
@@ -126,8 +124,10 @@ The full pages, with every measurement and caveat:
 [MATLAB](../matlab.md) ·
 [both receive channels](../both-receive-channels.md) ·
 [cyclic buffers and triggers](../cyclic-buffers.md) ·
-[chirp-view](../chirp-view.md) ·
-[modulation gallery](../modulation-gallery.md) ·
-[measured performance](../measured-performance.md) ·
-[throughput and modulation](../modulation-and-throughput.md) ·
-[faster streaming](../streaming-paths.md).
+[chirp-view](../chirp-view.md).
+
+The R1's measurement reports are on its own site:
+[modulation gallery](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-gallery/) ·
+[measured performance](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/) ·
+[throughput and modulation](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/) ·
+[faster streaming](https://matsvandamme.github.io/fishball7020-fpga-devkit/streaming-paths/).

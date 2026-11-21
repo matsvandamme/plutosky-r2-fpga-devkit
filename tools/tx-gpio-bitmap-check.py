@@ -95,7 +95,7 @@ class Board:
             raise SystemExit(
                 "this board's firmware has no tx_sample_gpio_en attribute, so it "
                 "predates the sample-locked GPIO feature (devkit patches 0006/0007). "
-                "Flash a devkit build with it first: docs/tx-gpio-bitmap.md")
+                "Flash a devkit build with it first: https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/")
         self.pins = [self.base + 54 + 18 + n for n in range(4)]
         self.control = self.base + 54 + CONTROL_OFFSET
         for n in self.pins + [self.control]:

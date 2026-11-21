@@ -1,5 +1,13 @@
 # Transmitter safety
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 What the firmware does to keep the transmitter quiet, what it cannot protect
 against, and the rules a transmitting program must follow. For the four rules
 to follow before you cable anything, see
@@ -59,7 +67,7 @@ PGA-102+ gain:
 |---|---|
 | **Do not transmit at power into an unterminated port** | neither the AD9361 datasheet (TX into a matched 100 Ω load, ~6.5 dBm max) nor the PGA-102+ datasheet states a tolerance for an open, a short or high VSWR |
 | **Fit at least 20 dB of attenuation** in any loopback | the receiver's +2.5 dBm limit |
-| **Measure through exactly 20 dB** | with 50 dB the board's internal TX→RX leak is as strong as the loop above about 1.5 GHz ([details](measured-performance.md#the-boards-own-tx-to-rx-leak)) |
+| **Measure through exactly 20 dB** | with 50 dB the board's internal TX→RX leak is as strong as the loop above about 1.5 GHz ([details](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/#the-boards-own-tx-to-rx-leak)) |
 | **Start at maximum attenuation** and raise power in steps | [`tools/selftest/`](../tools/selftest/README.md) never transmits with less than 35 dB of its own attenuation |
 
 <sub>This table and these figures are the canonical copy; `tools/selftest/README.md`

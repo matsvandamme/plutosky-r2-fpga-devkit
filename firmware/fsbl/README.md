@@ -34,7 +34,7 @@ you will meet below:
 
 **What this means for you:** `./devkit build --target factory` needs Vivado (for the FPGA) but
 not Vitis. If you only want to change Linux, you need neither: see
-[building without Vivado](../../docs/building-without-vivado.md).
+[building without Vivado](https://matsvandamme.github.io/fishball7020-fpga-devkit/building-without-vivado/).
 
 ## Quick start
 
@@ -212,7 +212,7 @@ seconds; the missing piece is where CI should get a hardware platform from.
 
 ## Further reading
 
-- [Building without Vivado](../../docs/building-without-vivado.md): the `--xsa`
+- [Building without Vivado](https://matsvandamme.github.io/fishball7020-fpga-devkit/building-without-vivado/): the `--xsa`
   build this makes possible.
 - [How it works](../../docs/how-it-works.md): the whole boot chain.
 - [Issue #7](https://github.com/matsvandamme/fishball7020-fpga-devkit/issues/7):

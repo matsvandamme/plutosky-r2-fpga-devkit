@@ -59,4 +59,4 @@ cmd "systemctl restart iiod"                               "restart the SDR serv
 cmd "systemctl restart fishball-rf-quiesce"                "mute TX, then restart iiod with it"
 cmd "reboot    poweroff"                                   "safe restart and shutdown"
 
-printf '\n%sDocs%s  https://matsvandamme.github.io/fishball7020-fpga-devkit/\n\n' "$H" "$O"
+printf '\n%sDocs%s  https://matsvandamme.github.io/plutosky-r2-fpga-devkit/\n\n' "$H" "$O"

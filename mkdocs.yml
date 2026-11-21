@@ -6,21 +6,20 @@
 #     mkdocs build --strict # what CI runs; any broken link or anchor fails it
 #
 # docs/ stays plain GitHub Markdown: docs-site/hooks.py makes the site's heading
-# anchors and out-of-docs links behave the way GitHub's do. The course
-# (docs/course/index.html) and the images are copied through unchanged.
-site_name: Fishball7020 FPGA Devkit
-site_description: Buildable firmware, documentation and an SDR/FPGA course for the Fishball7020 / PlutoSky R1 and R2 software-defined radios.
-site_url: https://matsvandamme.github.io/fishball7020-fpga-devkit/
-repo_url: https://github.com/matsvandamme/fishball7020-fpga-devkit
-repo_name: fishball7020-fpga-devkit
+# anchors and out-of-docs links behave the way GitHub's do. The images are
+# copied through unchanged.
+site_name: PlutoSky R2 FPGA Devkit
+site_description: Buildable firmware and documentation for the PlutoSky R2 software-defined radio. Zynq XC7Z020-CLG484 and AD9361.
+site_url: https://matsvandamme.github.io/plutosky-r2-fpga-devkit/
+repo_url: https://github.com/matsvandamme/plutosky-r2-fpga-devkit
+repo_name: plutosky-r2-fpga-devkit
 edit_uri: edit/main/docs/
-copyright: GPL-2.0 · every measured number comes from one board, with its conditions attached
+copyright: GPL-2.0 · the PlutoSky R2 only · radio measurements on this site were taken on an R1 unless they say otherwise
 
 docs_dir: docs
 exclude_docs: |
   check_links.py
   /README.md
-  course/README.md
 
 hooks:
   - docs-site/hooks.py
@@ -107,10 +106,9 @@ nav:
   - Home: index.md
   - Getting started:
       - start/index.md
-      - Check you have the right board: start/right-board.md
+      - Check you have an R2: start/right-board.md
       - Gather what you need: start/what-you-need.md
-      - Put the firmware on a card: start/write-the-card.md
-      - Write the card on Windows: start/write-the-card-windows.md
+      - Build the firmware and write the card: start/write-the-card.md
       - Connect and find the board: start/connect.md
       - Check what it runs: start/check-the-firmware.md
       - Before you transmit: start/before-you-transmit.md
@@ -121,8 +119,26 @@ nav:
           - Transmitter safety: transmitter-safety.md
           - Networking: networking.md
           - Flashing: flashing.md
-          - Writing the card on Windows: windows-sd-card.md
           - How it works: how-it-works.md
+  - The PlutoSky R2:
+      - plutosky-r2.md
+      - Hardware and I/O: hw/index.md
+  - Building:
+      - build/index.md
+      - Check your machine can build: build/check-your-machine.md
+      - Install Vivado 2022.2: build/install-vivado.md
+      - Build with Vivado in a container: build/build-in-a-container.md
+      - Check the build: build/verify-the-build.md
+      - Put it on the board: build/flash-your-build.md
+      - Change a kernel driver: build/change-a-driver.md
+      - Change the device tree: build/change-the-device-tree.md
+      - Add your own logic to the FPGA: build/add-fpga-logic.md
+      - Rebuild the Debian root: build/rebuild-the-debian-root.md
+      - Reference:
+          - Building in a container: building-in-a-container.md
+          - The modern kernel: modern-kernel.md
+          - Why Debian: debian-rootfs.md
+          - The Debian root reference: debian-root-reference.md
   - Using the radio:
       - radio/index.md
       - Choose where your code runs: radio/choose-where-code-runs.md
@@ -137,11 +153,9 @@ nav:
       - Transmit a waveform on repeat: radio/transmit-on-repeat.md
       - Send a burst on a trigger: radio/burst-on-trigger.md
       - Watch a sweep live: radio/watch-a-sweep.md
-      - Measure ten modulations: radio/measure-modulations.md
       - Use MATLAB: radio/use-matlab.md
       - Automate a measurement: radio/automate-measurements.md
       - Sweep both loopbacks: radio/sweep-a-loopback.md
-      - Beamform across two boards: radio/beamform-two-boards.md
       - Check the radio is healthy: radio/check-the-radio.md
       - Watch the board from Claude Code: radio/watch-from-claude-code.md
       - Let Claude use the radio: radio/let-claude-use-the-radio.md
@@ -155,54 +169,7 @@ nav:
           - Both receive channels: both-receive-channels.md
           - Cyclic buffers and triggers: cyclic-buffers.md
           - "Watching a sweep live: chirp-view": chirp-view.md
-          - Modulation gallery: modulation-gallery.md
-          - Measured performance: measured-performance.md
-          - Throughput and modulation: modulation-and-throughput.md
-          - Faster streaming, what was tried: streaming-paths.md
           - The automation server: automation.md
           - The board in a Claude Code pane: claude-code-pane.md
           - "Claude and the radio: the MCP server": mcp-server.md
-  - Hardware and I/O:
-      - hw/index.md
-      - Which port is which: hw/which-port-is-which.md
-      - Wire something to the JP5 header: hw/wire-to-jp5.md
-      - Toggle a GPIO pin from Linux: hw/toggle-a-gpio.md
-      - Make pins follow the transmit samples: hw/pins-follow-transmit.md
-      - Write a pin pattern in Python: hw/write-a-pin-pattern.md
-      - Control the USER LED: hw/control-the-user-led.md
-      - Use an external reference clock: hw/external-reference-clock.md
-      - Check which reference the radio uses: hw/check-the-reference.md
-      - Find a part on the schematic: hw/find-a-part.md
-      - Reference:
-          - What is on the board: hardware.md
-          - The PlutoSky R2: plutosky-r2.md
-          - GPIO: gpio.md
-          - Sample-locked GPIO: tx-gpio-bitmap.md
-          - The USER LED: user-led.md
-          - Vendor schematic: vendor/README.md
-  - Building:
-      - build/index.md
-      - Check your machine can build: build/check-your-machine.md
-      - Build without Vivado: build/build-without-vivado.md
-      - Check the build: build/verify-the-build.md
-      - Put it on the board: build/flash-your-build.md
-      - Change a kernel driver: build/change-a-driver.md
-      - Change the device tree: build/change-the-device-tree.md
-      - Add your own logic to the FPGA: build/add-fpga-logic.md
-      - Build with Vivado in a container: build/build-in-a-container.md
-      - Install Vivado 2022.2: build/install-vivado.md
-      - Build the FM channelizer example: build/build-the-fm-channelizer.md
-      - Rebuild the Debian root: build/rebuild-the-debian-root.md
-      - Compare with the factory firmware: build/check-provenance.md
-      - Reference:
-          - Building your own firmware: building.md
-          - Building in a container: building-in-a-container.md
-          - Building without Vivado: building-without-vivado.md
-          - The stock block design: block-design.md
-          - An FM channelizer in the FPGA: wbfm-channelizer.md
-          - Changing the kernel: kernel.md
-          - The modern kernel: modern-kernel.md
-          - Why Debian: debian-rootfs.md
-          - The Debian root reference: debian-root-reference.md
-          - Provenance: provenance.md
-  - Fabric School course: course/index.html
+  - The R1's site: https://matsvandamme.github.io/fishball7020-fpga-devkit/

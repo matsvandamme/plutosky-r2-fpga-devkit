@@ -160,7 +160,7 @@ weaker the cable loop, the more that leak distorts the result. With 50 dB on
 channel 0, above about 1.5 GHz the leak is as strong as the loop and the
 frequency response reads up to 13 dB wrong. Through 20 dB it stays within about
 ±2 dB. See
-[docs/measured-performance.md](../../docs/measured-performance.md#the-boards-own-tx-to-rx-leak).
+[docs/measured-performance.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/#the-boards-own-tx-to-rx-leak).
 
 **It asks how much attenuation is in your cable** (or takes `--pad DB`), then
 checks your answer against what it measures and warns if the two disagree by

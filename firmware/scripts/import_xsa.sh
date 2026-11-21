@@ -11,7 +11,7 @@
 #   <out_dir>    where xsa-provenance.txt is written
 #
 # SHARED by the two targets, which is the whole reason it is a separate file:
-#   firmware/scripts/build_all.sh --xsa     the factory target
+#   (in the R1 repository, also its factory target's build_all.sh --xsa)
 #   firmware-modern/build_all.sh --xsa      the modern target (which has no Vivado
 #                                           path at all, so it ALWAYS comes here)
 # Before it existed this logic lived inline in build_all.sh, and a second target
@@ -37,16 +37,16 @@ unzip -l "$XSA_FILE" >/dev/null 2>&1 || {
 unzip -l "$XSA_FILE" | grep -q ' system_top.bit$' || {
     echo "ERROR: $XSA_FILE contains no system_top.bit." >&2
     echo "       It was probably exported without the bitstream. The export" >&2
-    echo "       needs -include_bit; see docs/building-without-vivado.md" >&2
+    echo "       needs -include_bit; see https://matsvandamme.github.io/fishball7020-fpga-devkit/building-without-vivado/" >&2
     exit 1; }
 
 # Refuse a platform for another part or another tool version rather than
 # let it reach the FSBL build and fail there, where the message is about a
 # missing peripheral rather than about the file you passed.
 #
-# The part is also what tells the two hardware revisions apart - CLG400 is the
-# R1, CLG484 the R2 (rev.sh) - so this is the check that stops one revision's
-# FPGA design being packaged for the other. That mistake boots: Linux comes up
+# The part is also what tells the two PlutoSky boards apart - CLG400 is the
+# R1, CLG484 the R2 (rev.sh) - so this is the check that stops an R1
+# FPGA design being packaged for the R2. That mistake boots: Linux comes up
 # with no radio, no Ethernet and no USB.
 # shellcheck source=rev.sh
 source "$(dirname "${BASH_SOURCE[0]}")/rev.sh"
@@ -57,8 +57,8 @@ case "$sysdef" in
     *)  echo "ERROR: that XSA is not for the $REV_NAME's part ($REV_PART)." >&2
         echo "       It says: $(printf '%s' "$sysdef" | grep -o 'PART="[^\"]*"' | head -1)" >&2
         case "$sysdef" in
-            *'PART="xc7z020clg400-2"'*) echo "       That is a PlutoSky R1 design: build it without --rev (or with --rev r1)." >&2 ;;
-            *'PART="xc7z020clg484-2"'*) echo "       That is a PlutoSky R2 design: build it with --rev r2." >&2 ;;
+            *'PART="xc7z020clg400-2"'*) echo "       That is a PlutoSky R1 design. The R1 is built from its own repository:" >&2
+                                        echo "           https://github.com/matsvandamme/fishball7020-fpga-devkit" >&2 ;;
         esac
         exit 1 ;;
 esac
@@ -96,7 +96,7 @@ unzip -p "$XSA_FILE" system_top.bit > "$PLUTO_DIR/pluto.runs/impl_1/system_top.b
 # reports, and deleting them is what the import is for. Vivado's own routed
 # reports survive in pluto.runs/impl_1/ and can regenerate them from the routed
 # checkpoint in minutes rather than a 70-minute rebuild - see
-# docs/building-without-vivado.md.
+# https://matsvandamme.github.io/fishball7020-fpga-devkit/building-without-vivado/.
 rm -f "$PLUTO_DIR/timing.rpt" "$PLUTO_DIR/utilization.rpt"
 
 mkdir -p "$OUT_DIR"

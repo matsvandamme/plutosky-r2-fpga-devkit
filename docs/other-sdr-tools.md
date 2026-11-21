@@ -1,5 +1,13 @@
 # Other tools, and when they beat GNU Radio
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 Which SDR tool to reach for, by task. The [`examples/`](../examples/) use GNU
 Radio, best for building a signal chain from parts; other jobs suit other tools.
 
@@ -21,7 +29,7 @@ Radio, best for building a signal chain from parts; other jobs suit other tools.
 
 [Maia SDR](https://maia-sdr.org/) puts the FFT **on the FPGA** and a web server
 on the ARM cores, avoiding the streaming ceiling in
-[modulation-and-throughput.md](modulation-and-throughput.md):
+[modulation-and-throughput.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/):
 
 ![Maia SDR's path: the AD9361 produces 245 MB/s of IQ, the FFT runs on the FPGA, a web server runs on the ARM cores, and a few hundred kB/s reach a real-time waterfall in the browser.](img/radio-maia-light.svg#only-light)
 ![Maia SDR's path: the AD9361 produces 245 MB/s of IQ, the FFT runs on the FPGA, a web server runs on the ARM cores, and a few hundred kB/s reach a real-time waterfall in the browser.](img/radio-maia-dark.svg#only-dark)
@@ -116,10 +124,10 @@ Cortex-A9s, but its per-block scheduling eats much of the budget.
 ## At the sample clock: the fabric
 
 For anything that must keep up with 61.44 MS/s, that is what this repository is
-for: [block-design.md](block-design.md) is the stock design IP by IP,
-[tx-gpio-bitmap.md](tx-gpio-bitmap.md) a small feature end to end,
-[wbfm-channelizer.md](wbfm-channelizer.md) a real DSP block with a testbench, and
-[the course](course/index.html) the Verilog and Vivado crash course.
+for: [block-design.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/block-design/) is the stock design IP by IP,
+[tx-gpio-bitmap.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/) a small feature end to end,
+[wbfm-channelizer.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/wbfm-channelizer/) a real DSP block with a testbench, and
+[the course](https://matsvandamme.github.io/fishball7020-fpga-devkit/course/) the Verilog and Vivado crash course.
 [Amaranth](https://github.com/amaranth-lang/amaranth), a Python-based HDL (Maia
 SDR's), is an alternative way in.
 
@@ -133,7 +141,7 @@ recording it from this board.
 ## Further reading
 
 - [`examples/`](../examples/): the three graded GNU Radio showcases
-- [modulation-and-throughput.md](modulation-and-throughput.md): what the link
+- [modulation-and-throughput.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/): what the link
   carries, and why the FPGA answer exists
-- [measured-performance.md](measured-performance.md): the board's loopback
+- [measured-performance.md](https://matsvandamme.github.io/fishball7020-fpga-devkit/measured-performance/): the board's loopback
   performance

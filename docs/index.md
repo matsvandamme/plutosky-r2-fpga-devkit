@@ -8,15 +8,16 @@ hide:
 
 # What do you want to do?
 
-Firmware, guides and measurements for the Fishball7020 / PlutoSky R1: a Zynq
-XC7Z020 and an AD9361 radio, rebuilt from source. The
-[PlutoSky R2](plutosky-r2.md) is supported with its own build.
+Firmware and guides for the **PlutoSky R2**: a Zynq XC7Z020-CLG484 and an
+AD9361 radio, with the FPGA design, the boot loader, Linux 6.12 and a Debian
+root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
+[its site is here](https://matsvandamme.github.io/fishball7020-fpga-devkit/).
 
-<label class="hero-search" for="__search">:material-magnify: Search: write the card, SDR++, transmit, GPIO, reference clock…</label>
+<label class="hero-search" for="__search">:material-magnify: Search: build, write the card, Ethernet, SDR++, header pins…</label>
 
 </div>
 
-<p class="banner">New to the board? <a href="start/">Start here</a>: six short steps from the box to a working radio.</p>
+<p class="banner" markdown>Booted on one R2 so far. [What is tested and what is not](plutosky-r2.md#what-is-tested-and-what-is-not).</p>
 
 <div class="grid cards" markdown>
 
@@ -24,7 +25,24 @@ XC7Z020 and an AD9361 radio, rebuilt from source. The
 
     **[Getting started](start/index.md)**
 
-    First-time setup: the card, the cables, finding the board, the safety rules.
+    Check the board is an R2, build the firmware, write the card, connect.
+
+    <span class="count">6 steps</span>
+
+-   :material-chip:{ .lg }
+
+    **[The PlutoSky R2](plutosky-r2.md)**
+
+    What differs from the R1, the 1.8 V header, and the state of every part of
+    this port.
+
+    <span class="count">Reference</span>
+
+-   :material-hammer-wrench:{ .lg }
+
+    **[Build your own firmware](build/index.md)**
+
+    The FPGA design with Vivado; the kernel, drivers and Debian around it.
 
     <span class="count">9 articles</span>
 
@@ -32,33 +50,18 @@ XC7Z020 and an AD9361 radio, rebuilt from source. The
 
     **[Use the radio](radio/index.md)**
 
-    Capture IQ, SDR++, aircraft, a live sweep, MATLAB, your own code.
+    Capture IQ, SDR++, aircraft, MATLAB, your own code. Written on the R1; the
+    software is the same.
 
-    <span class="count">16 articles</span>
+    <span class="count">20 articles</span>
 
 -   :material-alert-octagon-outline:{ .lg }
 
     **[Transmit safely](start/before-you-transmit.md)**
 
-    This board has a power amplifier, and its receiver survives only +2.5 dBm.
+    Transmit is not tested on the R2 yet. The rules to start from.
 
     <span class="count">4 rules</span>
-
--   :material-chip:{ .lg }
-
-    **[Hardware and I/O](hw/index.md)**
-
-    Ports, the JP5 header, GPIO, the USER LED, an external reference clock.
-
-    <span class="count">9 articles</span>
-
--   :material-hammer-wrench:{ .lg }
-
-    **[Build your own firmware](build/index.md)**
-
-    Kernel, drivers and Debian with no Vivado; the FPGA with it.
-
-    <span class="count">12 articles</span>
 
 -   :material-wrench-outline:{ .lg }
 
@@ -66,79 +69,50 @@ XC7Z020 and an AD9361 radio, rebuilt from source. The
 
     Known problems by symptom, each with its cause and fix.
 
-    <span class="count">14 problems</span>
-
--   :material-school-outline:{ .lg }
-
-    **[Fabric School](course/index.html)**
-
-    A course from what a radio is to your own logic in the AD9361 datapath.
-    Assumes no Verilog, no Vivado and no signal processing.
-
-    <span class="count">54 lessons, 23 live calculators</span>
-
--   :material-chart-bell-curve:{ .lg }
-
-    **[Measured performance](measured-performance.md)**
-
-    What one board measures, with the conditions attached.
-
-    <span class="count">Reference</span>
-
--   :material-download-outline:{ .lg }
-
-    **[Prebuilt firmware](https://github.com/matsvandamme/fishball7020-fpga-devkit/releases)**
-
-    Ready-to-write SD-card files. Every release was booted on a board before it
-    was published.
-
-    <span class="count">Releases on GitHub</span>
+    <span class="count">By symptom</span>
 
 </div>
 
-## Four commands
+## From nothing to a card
 
 ```bash
 # run from: the repo root
-./devkit doctor     # can this machine build? answers in a second
-./devkit setup      # fetch the sources and apply the patches
-./devkit build --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"   # the first build takes the kernel
-./devkit flash      # onto the running board, backed up and md5-verified
+./devkit setup --target factory && ./devkit build --target factory   # the FPGA design: Vivado 2022.2
+./devkit doctor && ./devkit setup                                    # the rest: an ARM cross-compiler
+./devkit build --all --xsa firmware/src/hdl/projects/pluto/system_top.xsa
+sudo ./devkit write-card /dev/sdX                                    # DESTROYS the card
 ```
 
-- `./devkit verify --board` proves the board runs what you built.
-- Flashing goes over the network through the SD card's boot partition.
-  **Never use DFU**: it has bricked units of this board.
+- There is **no release to download yet**. The FPGA half needs Vivado 2022.2;
+  [the container](build/build-in-a-container.md) runs it on any Linux.
+- After the first card, `./devkit flash` puts a changed kernel or boot file on
+  the running board over the network. It does not check which board answers.
 - `./devkit ssh-key` first saves typing the published root password.
-- Transmitting? Read [before you transmit](start/before-you-transmit.md):
-  about +19 dBm out, a receiver that survives +2.5 dBm, at least 20 dB in any
-  TX→RX loop.
+- The `JP5` header is **1.8 V** and its pin 1 is **5 V**. An R1 cable does not
+  carry over: [the header on the R2](plutosky-r2.md#the-sample-locked-gpio-pins-on-the-r2).
 
-## Two firmware targets
-
-| | modern (the default) | factory (`--target factory`) |
-|---|---|---|
-| kernel | Linux 6.12 LTS, Analog Devices | 5.15, the vendor's fork |
-| userspace | Debian 13 + systemd, on ext4 | Buildroot, in RAM |
-| FPGA | taken from a built design (`.xsa`) | built with Vivado: the bitstream source |
-| release | v2.3 | v1.7 |
-
-Rebuilding needs nothing from AMD: the boot loader compiles from AMD's public
-embeddedsw with an ordinary `gcc-arm-none-eabi`, and `bootgen` builds from
-AMD's Apache-2.0 source. Vivado is needed only to synthesise a new bitstream.
-
-## What one board measures
+## What one board showed
 
 | | |
 |---|---|
-| Transmit power, flat out | about +19 dBm (estimated, never metered) |
-| Image rejection, after TX quadrature calibration | 44–60 dBc |
-| TX mute depth | at least 75 dB (every reading hit the noise floor) |
-| Gain slopes, 56 of them | within 1.7% of 1.000 dB/dB |
-| FPGA, default build | 94/220 DSP48s, 12 521 LUTs, WNS +0.215 ns |
+| Boot to a login prompt | about 23 s, no failed services |
+| Radio | found, receives samples |
+| Ethernet | 1 Gbit/s, DHCP, answers at `fishball.local` |
+| FPGA, default build | 12,717 LUTs, timing met, WNS +0.100 ns |
+| Transmit, header pins, 10 MHz input | not tested |
 
-Measured on one unit, with conditions attached: indicative, not a
-specification. Details: [measured performance](measured-performance.md).
+One unit, on 2026-11-20. Every measured radio figure elsewhere on this site
+(power, image rejection, throughput) was taken on a PlutoSky **R1** and is
+labelled as such where it matters.
 
-The [repository](https://github.com/matsvandamme/fishball7020-fpga-devkit) has
-the code; its [README](../README.md) gets a board running.
+## Two sites, two boards
+
+| | This site | [The R1's site](https://matsvandamme.github.io/fishball7020-fpga-devkit/) |
+|---|---|---|
+| Board | PlutoSky R2, XC7Z020-CLG484 | PlutoSky R1 / 7020-SDR / Fishball7020, XC7Z020-CLG400 |
+| Release to download | none yet | yes |
+| Hardware pages (ports, header, schematic) | [one page](plutosky-r2.md), from the vendor's schematic | measured on the board |
+| Course | no | Fabric School, 54 lessons |
+
+The [repository](https://github.com/matsvandamme/plutosky-r2-fpga-devkit) has
+the code; its [README](../README.md) is the short version of this page.

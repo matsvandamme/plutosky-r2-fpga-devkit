@@ -1,52 +1,50 @@
 ---
 icon: material/lan-connect
-description: Two USB cables, one minute, then 192.168.2.1 or fishball.local.
+description: Both USB-C sockets for power, Ethernet for the network, then fishball.local.
 ---
 
 # Connect and find the board
 
-Two USB cables and about a minute, then the board answers at `192.168.2.1`
-or `fishball.local`.
-
-![The board's three sockets and where each goes: ETH to your router by DHCP, optional; DEBUG to a mains USB charger for power, not a laptop port; USB to your PC, which reaches the board at 192.168.2.1. The BOOT switch is set to SD, 0 0.](../img/start-connect-light.svg#only-light)
-![The board's three sockets and where each goes: ETH to your router by DHCP, optional; DEBUG to a mains USB charger for power, not a laptop port; USB to your PC, which reaches the board at 192.168.2.1. The BOOT switch is set to SD, 0 0.](../img/start-connect-dark.svg#only-dark)
-
 1. With the board unpowered, put the card in.
-2. Check the **`BOOT`** DIP switch next to `RST`: both sliders away from `ON`
-   (SD mode). Boards ship like that.
-3. Connect **both** USB-C sockets: one to a **mains USB charger**, the other to
-   your PC.
-4. Wait about a minute.
-
-![The BOOT DIP switch with both sliders away from ON: 0 0, SD card boot.](../img/boot-sd-00.jpg){ width="260" }
-
-*Step 2: the BOOT switch in SD mode, both sliders away from `ON`.*
+2. Set the **`BOOT`** switch to SD: both sliders away from `ON`. A wrong
+   position is silent: nothing appears even on the serial console.
+3. Connect Ethernet to your router.
+4. Connect **both** USB-C sockets, `DEBUG` and `USB2.0`. The vendor's manual
+   says one alone can be short of power.
+5. Wait about half a minute. On the test board a login prompt was there 23 s
+   after power-on.
 
 Then reach it:
 
-| Route | Address |
-|---|---|
-| **The USB cable** (always works, the way back in) | `192.168.2.1` |
-| **By name** (mDNS, over Ethernet or USB) | `fishball.local` |
-| **Ethernet** | your router hands it an address (DHCP) |
+| Route | Address | State on the R2 |
+|---|---|---|
+| **Ethernet** | your router hands it an address (DHCP), and it answers at `fishball.local` | works: 1 Gbit/s, ping both ways |
+| **The serial console** on `DEBUG` | 115200 baud, the second of the two serial ports | works; the way in when the network is not up |
+| **The USB network** on `USB2.0` | `192.168.2.1` | the board enumerates; the address was not tried, because the test PC was a Mac and macOS has no RNDIS driver |
 
 ```bash
 # run from: your HOST
-ssh root@192.168.2.1        # password: analog
-iio_info -s                 # address, model and serial, [ip:fishball.local]
+ssh root@fishball.local     # password: analog
 ```
 
-From a clone of the repository, `./devkit net find` locates it without knowing
-the address.
+From a clone of the repository, `./devkit net find` looks for the board
+without knowing its address.
 
-**You should see:** a login prompt over ssh, and `iio_info -s` listing the board.
-SDR software reaches it at `ip:fishball.local` or `ip:192.168.2.1`.
+**You should see:** a login prompt over ssh. SDR software reaches the board at
+`ip:fishball.local`.
 
 ??? question "Nothing answers?"
-    - Give it a full minute.
-    - Check the `BOOT` switch and the mains charger.
-    - Unplug and replug the USB cable to your PC.
+    - Open the serial console on `DEBUG` and power-cycle. No text at all: check
+      the `BOOT` switch and that the card is seated.
+    - Text, then a freeze or a restart: connect the second USB-C socket.
+    - A login prompt on the console but no address: `ip addr show eth0` there.
+      The kernel prints `unable to generate target frequency: 125000000 Hz`
+      when the link comes up; on the test board the link worked regardless.
     - Then see [troubleshooting](../troubleshooting.md) and the
-      [networking reference](../networking.md).
+      [networking reference](../networking.md), both written for the R1.
+
+!!! warning "Do not send a serial BREAK to the console"
+    On the test board it flooded the console with NUL bytes until a power
+    cycle.
 
 **Next:** [check what it runs](check-the-firmware.md).

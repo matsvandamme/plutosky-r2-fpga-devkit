@@ -5,6 +5,14 @@ description: Stock SDR++ playing an FM station from the board, on any OS.
 
 # Watch a band in SDR++
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](../build/index.md)).
+    [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
+
 Stock SDR++ plays an FM station from the board over the USB cable, on any OS.
 
 ![SDR++ receiving 99.5 to 103.5 MHz from this board: eleven FM stations in the spectrum and waterfall, tuned to Radio Nova on 101.5 MHz with its RDS text decoded. The source panel on the left shows the PlutoSDR source with the FPGA /8 decimator on at 4.0 MHz.](../img/sdrpp-overview.jpg)

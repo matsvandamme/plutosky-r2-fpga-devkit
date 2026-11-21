@@ -1,11 +1,19 @@
 # The automation server
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 A gRPC server on the board, on port 7020, and a Python client for your PC:
 status, settings, the reference clock, receive captures, transmit, and
 transmit plus capture in one call, for measurement scripts. To use it, see
 [automate a measurement](radio/automate-measurements.md); for complete
 scripts to copy, [sweep both loopbacks](radio/sweep-a-loopback.md) and
-[beamform across two boards](radio/beamform-two-boards.md).
+[beamform across two boards](https://matsvandamme.github.io/fishball7020-fpga-devkit/radio/beamform-two-boards/).
 
 !!! danger "No authentication, like `iiod`"
     Anyone who can reach port 7020 can retune the radio and read what it
@@ -139,7 +147,7 @@ Over Wi-Fi, board on gigabit Ethernet, 2026-10-05.
 | The client killed with `kill -9` while TX1 and TX2 played at −40 dB | both read −89.75 dB **46 ms** later, transmit buffer released |
 | Pulsed chirp on TX1 and TX2, `TransmitCapture` on RX1 and RX2, three calls at 15.36 MS/s | the pulse landed at samples 4295, 7372 and 4439; RX1 − RX2 was −0.002 samples each time |
 | [`examples/loopback_sweep.py`](../tools/automation/examples/loopback_sweep.py), TX1 → 20 dB → RX1 and TX2 → 30 dB → RX2 | 14 frequencies, 100 MHz to 5.8 GHz, in 15 s; between two runs the tone level moved at most 1.2 dB, the image up to 14.5 dB ([the result](radio/sweep-a-loopback.md#reading-the-result)) |
-| [`examples/beamformer.py`](../tools/automation/examples/beamformer.py) `--emulate`, one board, TX1 → 20 dB → RX1 and TX2 → 30 dB → RX2 | five emulated directions from −60° to +60° found within 0.3°; lock check: coherence 1.000, phase spread 0.1° ([the page](radio/beamform-two-boards.md)) |
+| [`examples/beamformer.py`](../tools/automation/examples/beamformer.py) `--emulate`, one board, TX1 → 20 dB → RX1 and TX2 → 30 dB → RX2 | five emulated directions from −60° to +60° found within 0.3°; lock check: coherence 1.000, phase spread 0.1° ([the page](https://matsvandamme.github.io/fishball7020-fpga-devkit/radio/beamform-two-boards/)) |
 | [`examples/clock_stress.py`](../tools/automation/examples/clock_stress.py) | PASS in 66 s: 48 rate changes, 200 retunes, tones within 0.12 Hz at 433.92, 868 and 2400 MHz with the worst spur at −58.3 dBc, reference +5.5 ppm. A later run failed at 2400 MHz: [the spectra](#the-examples-figures) |
 
 - **A capture is the way to get every sample.** It is recorded into RAM on the

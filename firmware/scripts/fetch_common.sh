@@ -1,7 +1,7 @@
 #!/bin/bash
 # Pins and fetches shared by BOTH targets' setup scripts. Source it; do not run it.
 #
-#     firmware/scripts/setup.sh      the factory target
+#     firmware/scripts/setup_fpga.sh the factory target (the FPGA design)
 #     firmware-modern/setup.sh       the modern target
 #
 # ONE COPY of every commit pin, on purpose. The modern target needs the same FSBL

@@ -1,5 +1,13 @@
 # The Debian root: how it works, and why
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 What the Debian root's units and settings do, and what goes wrong without
 each. The quick start is [`firmware-modern/debian/`](../firmware-modern/debian/README.md);
 to rebuild the root, see [rebuild the Debian root](build/rebuild-the-debian-root.md).

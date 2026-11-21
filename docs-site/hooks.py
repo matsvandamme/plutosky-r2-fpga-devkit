@@ -18,7 +18,7 @@ rather than changing the Markdown:
 import os
 import re
 
-REPO = "https://github.com/matsvandamme/fishball7020-fpga-devkit"
+REPO = "https://github.com/matsvandamme/plutosky-r2-fpga-devkit"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 

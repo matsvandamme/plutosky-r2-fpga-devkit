@@ -1,5 +1,13 @@
 # Using this board in your own project
 
+!!! note "Written on the PlutoSky R1"
+    This page came with the R1's devkit and has not been redone on an R2. The
+    software is the same, so the commands apply; the measured numbers and the
+    pictures are the R1's, and transmit is untested on the R2. A command with
+    `--target factory` in it is the exception: here that target builds only
+    the FPGA design ([build your own firmware](build/index.md)).
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 The four places your code can run (your PC, the board, the kernel, the FPGA),
 what each costs, and the commands that start each one. Most projects want the
 first. To choose, see [choose where your code runs](radio/choose-where-code-runs.md);
@@ -23,7 +31,7 @@ Ask in order and stop at the first yes:
 
 | Question | If yes | The numbers |
 |---|---|---|
-| **Can my PC keep up?** | **place 1** | One channel at the full 61.44 MS/s is 245.8 MB/s; streaming over gigabit Ethernet plateaus near **44 MB/s** ([measurements](modulation-and-throughput.md)). Under that: place 1 |
+| **Can my PC keep up?** | **place 1** | One channel at the full 61.44 MS/s is 245.8 MB/s; streaming over gigabit Ethernet plateaus near **44 MB/s** ([measurements](https://matsvandamme.github.io/fishball7020-fpga-devkit/modulation-and-throughput/)). Under that: place 1 |
 | **Must it run with no PC, or is the data too big to ship?** | **place 2**, on the Debian root | On the board, capture reaches 220.0 MB/s (one channel) and 430.8 MB/s (two) |
 | **Do I need a new sysfs file, or to act between samples?** | **place 3** | |
 | **Is the input rate higher than the bus can carry, with a small output?** | **place 4** | |
@@ -129,7 +137,7 @@ Flashing takes about six seconds, and the previous kernel stays on the card as
 - **Then fold the change into a numbered patch** in `firmware-modern/patches/`,
   or the next clean `setup.sh` loses it, and add a CI assertion so it cannot
   silently stop applying.
-- See [the kernel page](kernel.md) and
+- See [the kernel page](https://matsvandamme.github.io/fishball7020-fpga-devkit/kernel/) and
   [`firmware/patches/README.md`](../firmware/patches/README.md).
 
 !!! warning "Never keep safety state in `struct ad9361_rf_phy_state`"
@@ -138,25 +146,26 @@ Flashing takes about six seconds, and the previous kernel stays on the card as
 ## 4. In the FPGA — when the rate is too high for anything else
 
 For a huge input rate and a small output: a correlator, a decimating filter, a
-packet detector, a timestamper. The course [Fabric School](course/index.html)
+packet detector, a timestamper. The course [Fabric School](https://matsvandamme.github.io/fishball7020-fpga-devkit/course/)
 teaches Verilog and this design from nothing. Two worked examples, readable as
 diffs:
 
 - [`firmware/patches/optional/0003`](../firmware/patches/optional/0003-wbfm-channelizer.patch):
   a frequency shifter and a repointed filter make RX0 an FM channelizer
-  ([write-up](wbfm-channelizer.md))
+  ([write-up](https://matsvandamme.github.io/fishball7020-fpga-devkit/wbfm-channelizer/))
 - [`firmware/patches/0006`](../firmware/patches/0006-tx-sample-nibble-to-gpio.patch):
   four bits of every transmit sample to header pins, sample-locked
-  ([write-up](tx-gpio-bitmap.md))
+  ([write-up](https://matsvandamme.github.io/fishball7020-fpga-devkit/tx-gpio-bitmap/))
 
 ```bash
-# run from: firmware/
-$EDITOR src/hdl/library/my_block/my_block.v
-./sim/run_sim.sh                             # ~1 second, against a golden model
-rm -rf src/hdl/projects/pluto/pluto.{xpr,cache,gen,hw,ip_user_files,runs,sim,srcs,sdk}
-./scripts/build_all.sh --hdl-only            # ~20 minutes (70 from cold)
-./scripts/verify_output.sh                   # before you flash, not after
-cd .. && ./devkit flash --target factory --boot-only
+# run from: the repo root
+$EDITOR firmware/src/hdl/library/my_block/my_block.v
+./devkit sim                                 # ~1 second, against a golden model
+rm -rf firmware/src/hdl/projects/pluto/pluto.{xpr,cache,gen,hw,ip_user_files,runs,sim,srcs,sdk}
+./devkit build --target factory              # the FPGA design; read its timing summary
+./devkit build --boot-only --xsa firmware/src/hdl/projects/pluto/system_top.xsa
+./devkit verify                              # before you flash, not after
+./devkit flash --boot-only
 ```
 
 | Rule | Why |
@@ -181,4 +190,4 @@ Step by step: [add your own logic to the FPGA](build/add-fpga-logic.md).
 
 - [capturing IQ](capturing-iq.md) and [other SDR tools](other-sdr-tools.md)
 - [`examples/`](../examples/README.md): GNU Radio flowgraphs
-- [the block design](block-design.md) · [the pins](gpio.md) · [the hardware](hardware.md) · [building without Vivado](building-without-vivado.md)
+- [the block design](https://matsvandamme.github.io/fishball7020-fpga-devkit/block-design/) · [the pins](https://matsvandamme.github.io/fishball7020-fpga-devkit/gpio/) · [the hardware](https://matsvandamme.github.io/fishball7020-fpga-devkit/hardware/) · [building without Vivado](https://matsvandamme.github.io/fishball7020-fpga-devkit/building-without-vivado/)

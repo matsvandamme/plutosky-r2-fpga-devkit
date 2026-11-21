@@ -1,16 +1,26 @@
 # Flashing the board, and checking what it runs
 
-!!! note "PlutoSky R2"
-    Releases, and the flashing commands as written, are for the R1. The R2
-    needs its own build and `--rev r2`: [the PlutoSky R2](plutosky-r2.md). Its
-    `BOOT` switch works the same way: both sliders away from `ON` is SD.
+!!! warning "This page describes the PlutoSky R1"
+    Its releases, its factory firmware, its JTAG adapter and the drawings of
+    its `BOOT` switch are the R1's. On the R2:
+
+    - there is no release, and the factory target builds only the FPGA design,
+      so nothing here that says `--target factory` or "five files" applies;
+    - `./devkit flash` and `./devkit verify --board` are the same tools and
+      have not been run against an R2. The test board's files were changed
+      from a card reader;
+    - the `BOOT` switch: SD is both sliders away from `ON`, QSPI (the vendor's
+      factory firmware) is `1 0`.
+
+    [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
+
 
 Every way to get a build onto the board, how to confirm the board runs it,
 the USB ports and the BOOT switch. For the tasks, see
 [put the firmware on a card](start/write-the-card.md),
 [put your build on the board](build/flash-your-build.md) and
 [check what it runs](start/check-the-firmware.md). Build first:
-[Building your own firmware](building.md).
+[Building your own firmware](https://matsvandamme.github.io/fishball7020-fpga-devkit/building/).
 
 !!! danger "Never flash with DFU on this board"
     It has bricked units, and it cannot replace `BOOT.bin` at all.
@@ -125,7 +135,7 @@ ssh $BOARD "cd $SD && cp BOOT.bin BOOT.bin.prev && mv BOOT.bin.new BOOT.bin && s
     With no clone and nothing installed: put `write-card.cmd` from the release next
     to its other files and double-click it. It makes the same two partitions (the
     root as ext3, which the kernel mounts with its ext4 driver) and backs up the
-    card first. Step by step: [writing the card on Windows](windows-sd-card.md).
+    card first. Step by step: [writing the card on Windows](https://matsvandamme.github.io/fishball7020-fpga-devkit/windows-sd-card/).
 
 Then eject, insert, power-cycle. If the board comes up with old firmware or not
 at all, check the [BOOT switch](#boot-modes-boot-dip-switch) is in SD mode.
@@ -223,7 +233,7 @@ When the design works, rebuild and flash with Option A or C so it persists.
 
 The distributor publishes the factory firmware:
 **[`OpenSourceSDRLab/PlutoSky_7020_AD936X_SDR`](https://github.com/OpenSourceSDRLab/PlutoSky_7020_AD936X_SDR)**,
-byte-identical to a working unit's SD card ([provenance](provenance.md)). Copy
+byte-identical to a working unit's SD card ([provenance](https://matsvandamme.github.io/fishball7020-fpga-devkit/provenance/)). Copy
 it onto a FAT32 card as in [Option A](#option-a--sd-card-always-works). Keep a
 local copy before experimenting.
 
@@ -329,4 +339,4 @@ marking.
 |---|---|
 | `PWR` | Power present |
 | `DONE` | FPGA configured (Vivado's `End of startup status: HIGH`) |
-| `USER` | Driven by Linux; on these builds it follows the transmitter (`tx-active` trigger), the factory firmware blinks a heartbeat ([how to control it](user-led.md)) |
+| `USER` | Driven by Linux; on these builds it follows the transmitter (`tx-active` trigger), the factory firmware blinks a heartbeat ([how to control it](https://matsvandamme.github.io/fishball7020-fpga-devkit/user-led/)) |

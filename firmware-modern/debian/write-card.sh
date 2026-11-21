@@ -34,8 +34,7 @@ FW="$(dirname "$HERE")"                      # firmware-modern/
 REPO="$(dirname "$FW")"
 TAR="$HERE/rootfs.tar"
 BOOT_MB=128
-# Which hardware revision's boot files: output/ for the R1, output-r2/ for the R2
-# (./devkit write-card --rev r2). The Debian root is the same for both.
+# The board's names (the device tree's, in particular). $REV_SUFFIX is empty here.
 # shellcheck source=../../firmware/scripts/rev.sh
 source "$REPO/firmware/scripts/rev.sh"
 
@@ -136,10 +135,9 @@ fi
 # got a kernel with no CONFIG_NAMESPACES - which boots systemd perfectly and makes
 # every unit sandbox silently do nothing. Compare rather than hope.
 #
-# The kernel tree is shared between hardware revisions and holds the uImage of
-# whichever was built last (build_all.sh notes it in .devkit-rev; a tree from
-# before that note existed is the R1's). Only compare when that is this revision,
-# or the other board's kernel would be reported as this one's stale copy.
+# build_all.sh notes in .devkit-rev which board the tree's uImage was built for.
+# Only compare when that is this one: a tree carried over from the R1 repository
+# holds the other board's kernel, which is not this one's stale copy.
 _tree_rev="$(cat "$FW/src/linux/.devkit-rev" 2>/dev/null || echo r1)"
 [ -n "$FROM" ] || [ "$_tree_rev" != "$DEVKIT_REV" ] || for pair in "arch/arm/boot/uImage:$UIMG" \
             "arch/arm/boot/dts/xilinx/$REV_DTB.dtb:$DTB"; do

@@ -20,11 +20,11 @@
 #
 # Writes firmware-modern/output/: BOOT.bin, uImage, devicetree.dtb, uEnv.txt.
 #
-# HARDWARE REVISION. DEVKIT_REV=r2 (./devkit build --rev r2) builds for the
-# PlutoSky R2: its device tree, one more kernel option, and everything written to
-# firmware-modern/output-r2/ instead, so the two boards' files cannot be mixed.
-# The XSA must be an R2 design; an R1 one is refused by its part number. There is
-# no pinned R2 XSA: build one with ./devkit build --target factory --rev r2.
+# THE BOARD. This builds for the PlutoSky R2 (firmware/scripts/rev.sh): the R2's
+# device tree, which includes the R1's and overrides it, and the R1's kernel
+# configuration plus config/r2.config. The XSA must be an R2 design; an R1 one is
+# refused by its part number. There is no pinned R2 XSA: build one with
+# ./devkit build --target factory.
 # The Debian root, firmware-modern/debian/rootfs.tar, is built only on request
 # (--rootfs-only or --all): it needs armhf emulation and takes far longer than
 # everything else here.
@@ -57,9 +57,9 @@ MONO="$BOOT/fw"
 KSRC="$FW_DIR/src/linux"
 # shellcheck source=../firmware/scripts/rev.sh
 source "$REPO/firmware/scripts/rev.sh"
-# Per revision: the output, the imported platform and the FSBL built from it.
-# U-Boot ($MONO) and the kernel tree ($KSRC) are shared - one source, built for
-# whichever revision asked last.
+# $REV_SUFFIX is empty: it kept a second board's files apart when this
+# repository built for two, and is kept so the scripts stay comparable with the
+# R1 repository's.
 OUT="$FW_DIR/output$REV_SUFFIX"
 PLUTO="$BOOT/hdl$REV_SUFFIX"      # where import_xsa.sh puts the platform
 FSBL_BUILD="$BOOT/fsbl-build$REV_SUFFIX"
@@ -167,7 +167,7 @@ if [ "$fail" -ne 0 ]; then
     [ -n "$CROSS" ] || {
         echo "No ARM Linux cross-compiler on this machine. Install either one:" >&2
         echo "    Debian/Ubuntu:  sudo apt install gcc-arm-linux-gnueabi" >&2
-        echo "    Arch:           see docs/building.md, \"An ARM cross-compiler on Arch\"" >&2
+        echo "    Arch:           see https://matsvandamme.github.io/fishball7020-fpga-devkit/building/, \"An ARM cross-compiler on Arch\"" >&2
         echo "or use the build container, which has one:" >&2
         echo "    ./devkit container build --target modern --xsa ${XSA_FILE:-FILE.xsa}" >&2; }
     command -v bc >/dev/null 2>&1 || [ "$BOOT_ONLY" -eq 1 ] || \
@@ -234,9 +234,8 @@ else
     # fishball_defconfig, never zynq_pluto_defconfig on its own - that is an
     # ADALM-Pluto, with no Ethernet, SD card or GPIO sysfs (see README.md).
     make -s -C "$KSRC" ARCH=arm CROSS_COMPILE=$CROSS fishball_defconfig
-    # A revision's own options, merged over the R1's configuration: config/r2.config
-    # for the R2. fishball_defconfig just above resets .config first, so building
-    # the R1 after the R2 in the same tree gives the R1's kernel again.
+    # The R2's own options, merged over the R1's configuration, which
+    # fishball_defconfig is: config/r2.config.
     REV_CONFIG="$FW_DIR/config/$DEVKIT_REV.config"
     if [ "$DEVKIT_REV" != r1 ]; then
         [ -f "$REV_CONFIG" ] || { echo "ERROR: $REV_CONFIG is missing" >&2; exit 1; }
@@ -251,9 +250,8 @@ else
                 echo "ERROR: $opt from $(basename "$REV_CONFIG") did not make it into .config" >&2; exit 1; }
         done < <(grep -E '^CONFIG_[A-Z0-9_]+=' "$REV_CONFIG")
     fi
-    # The kernel tree is shared between revisions, so say whose uImage is in it:
-    # write-card compares the tree's uImage with output/'s to catch a stale copy,
-    # and must not call the R2's stale because the R1 was built after it.
+    # Say whose uImage is in the tree; write-card reads it before comparing the
+    # tree's uImage with output/'s. From when the tree was shared by two boards.
     echo "$DEVKIT_REV" > "$KSRC/.devkit-rev"
     make -s -C "$KSRC" ARCH=arm CROSS_COMPILE=$CROSS uImage LOADADDR=0x8000 -j"$(nproc)"
     make -s -C "$KSRC" ARCH=arm CROSS_COMPILE=$CROSS DTC_FLAGS=-@ "xilinx/$REV_DTB.dtb"
@@ -286,7 +284,7 @@ hwh() { printf '%s' "$HWH" | grep -o -m1 "$1=\"[^\"]*\"" | head -1 | cut -d'"' -
     echo "fishball_build=$(git -C "$REPO" describe --abbrev=8 --dirty --always --tags 2>/dev/null || echo unknown) modern"
     echo "fishball_xsa=$XSA_NAME, md5 $(md5sum < "$XSA_FILE" | cut -c1-8)"
     echo "fishball_fpga=xc$(hwh DEVICE)$(hwh PACKAGE)$(hwh SPEEDGRADE), Vivado $(hwh VIVADOVERSION)"
-    # Only off the R1, so an R1 uEnv.txt is byte for byte what it was.
+    # Which board this card is for, where U-Boot and a person can both read it.
     [ "$DEVKIT_REV" = r1 ] || echo "fishball_rev=$DEVKIT_REV"
 } >> "$STAGE/uEnv.txt"
 
