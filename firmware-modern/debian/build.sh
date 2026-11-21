@@ -60,6 +60,18 @@ cid=$("$RT" create --platform linux/arm/v7 "$IMAGE" /bin/true)
 trap '"$RT" rm -f "$cid" >/dev/null 2>&1 || true' EXIT
 "$RT" export "$cid" > "$OUT"
 
+# docker's export is not the image: docker puts empty placeholders over
+# /etc/hostname, /etc/hosts and /etc/resolv.conf in every container it creates,
+# and they are what comes out. A card written from that boots a board with no
+# name. podman exports the image's own files. Found building a release with
+# docker on 2026-11-21; check-rootfs.sh catches it too, but say it here.
+if [ -z "$(tar xOf "$OUT" etc/hostname 2>/dev/null || tar xOf "$OUT" ./etc/hostname 2>/dev/null)" ]; then
+    rm -f "$OUT"
+    echo "ERROR: the exported root has an empty /etc/hostname - this runtime ($RT) exports" >&2
+    echo "       its own placeholders instead of the image's files. Build with podman." >&2
+    exit 1
+fi
+
 echo
 echo "  $OUT  $(du -h "$OUT" | cut -f1)"
 echo "  $(tar tf "$OUT" | wc -l) entries"

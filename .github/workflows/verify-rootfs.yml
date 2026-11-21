@@ -48,3 +48,15 @@ jobs:
           tar xOf firmware-modern/debian/rootfs.tar opt/VERSIONS | sed -n '1,6p'
           echo "$(tar xOf firmware-modern/debian/rootfs.tar opt/VERSIONS | grep -vc '^#\|^device-fw\|^debian\|^base\|^snapshot\|^built') packages installed"
           ls -l firmware-modern/debian/rootfs.tar
+
+      # The checked tarball, compressed the way a release carries it. This is
+      # where a release's debian-rootfs.tar.gz comes from: run this workflow on
+      # the release tag (so /opt/VERSIONS says the tag) and take the artifact.
+      - name: Compress it
+        run: gzip -9 -c firmware-modern/debian/rootfs.tar > debian-rootfs.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian-rootfs
+          path: debian-rootfs.tar.gz
+          retention-days: 14
+          compression-level: 0
