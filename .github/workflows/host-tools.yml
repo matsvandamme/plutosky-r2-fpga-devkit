@@ -240,8 +240,9 @@ jobs:
           ! grep -q "is not applied" out.txt
           ! grep -q "does not name" out.txt
 
-          # A patch the stamp does not list must be caught.
-          sed -i '$d' firmware/src/.devkit-patches-applied
+          # A patch the stamp does not list must be caught. An FPGA patch: the
+          # preflight checks only those, the rest of the series not being applied here.
+          sed -i '/ 0006-tx-sample-nibble-to-gpio.patch$/d' firmware/src/.devkit-patches-applied
           run
           grep -q "is not applied" out.txt
 
