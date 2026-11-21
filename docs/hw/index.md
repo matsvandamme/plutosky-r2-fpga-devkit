@@ -19,6 +19,9 @@ comes from the vendor's schematic rather than from a bench:
 | Where is the schematic? | [OpenSourceSDRLab/PlutoSky-R2](https://github.com/OpenSourceSDRLab/PlutoSky-R2), `hardware/PlutoSky-R2_Schematic.pdf` |
 | Where is the `BOOT` switch set? | SD: both sliders away from `ON`. QSPI, the factory firmware: `1 0` |
 
+![The PlutoSky R2's JP5 header as two rows of twelve pins, odd numbers in one row and even in the other. Pin 1 is 5 V. Pins 2, 22 and 24 are ground. Pins 7, 9, 11 and 13 are sample_gpio0 to 3, outputs at 1.8 V. The numbering is the vendor's schematic's; nothing has been probed, and pin 1 must be found on the board before connecting anything.](../img/hw-jp5-light.svg#only-light)
+![The PlutoSky R2's JP5 header as two rows of twelve pins, odd numbers in one row and even in the other. Pin 1 is 5 V. Pins 2, 22 and 24 are ground. Pins 7, 9, 11 and 13 are sample_gpio0 to 3, outputs at 1.8 V. The numbering is the vendor's schematic's; nothing has been probed, and pin 1 must be found on the board before connecting anything.](../img/hw-jp5-dark.svg#only-dark)
+
 !!! danger "An R1 cable or circuit does not carry over"
     The R1's `JP5` is 2×10 pins at 3.3 V. The R2's is 2×12 at 1.8 V with 5 V
     on pin 1. Check anything you connect against the R2 schematic.

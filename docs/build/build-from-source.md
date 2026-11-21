@@ -8,6 +8,9 @@ description: Build the boot files, kernel and Debian root around the released FP
 Three steps: an FPGA design, everything around it, the card. The first is a
 download unless you want to change the FPGA.
 
+![The FPGA design comes from one of two places: Vivado 2022.2, where build --target factory takes 10 minutes to over an hour, or release v0.1's design, which fetch-pinned-xsa.sh downloads and checks against its hash and --xsa passes to the build. Either way it is system_top.xsa, holding system_top.bit and ps7_init.c. From it the rest of the build makes the FSBL, U-Boot, the kernel, the device tree, BOOT.bin and the Debian root, with no Vivado: an ARM cross-compiler.](../img/build-xsa-light.svg#only-light)
+![The FPGA design comes from one of two places: Vivado 2022.2, where build --target factory takes 10 minutes to over an hour, or release v0.1's design, which fetch-pinned-xsa.sh downloads and checks against its hash and --xsa passes to the build. Either way it is system_top.xsa, holding system_top.bit and ps7_init.c. From it the rest of the build makes the FSBL, U-Boot, the kernel, the device tree, BOOT.bin and the Debian root, with no Vivado: an ARM cross-compiler.](../img/build-xsa-dark.svg#only-dark)
+
 ## 1. The FPGA design
 
 **Without Vivado:** use the design release v0.1 ships. Nothing to do in this
@@ -86,7 +89,8 @@ and the `BOOT` switch [goes back to it](../plutosky-r2.md#going-back-to-the-fact
 
 !!! warning "Never update this board with DFU"
     DFU has bricked units of the R1, and this firmware never uses it. Changing
-    firmware means rewriting the card, or `./devkit flash` on a running board
+    firmware means rewriting the card, or `./devkit flash` on a running
+    board, which has not been run on an R2 yet
     ([put it on the board](flash-your-build.md)).
 
 **Next:** [check the build](verify-the-build.md), then [connect and find the board](../start/connect.md).

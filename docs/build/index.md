@@ -9,18 +9,19 @@ Every file on the SD card builds from source, in two halves:
 
 | Half | Command | Needs | Writes |
 |---|---|---|---|
-| The FPGA design | `./devkit build --target factory` | Vivado 2022.2 | `firmware/src/hdl/projects/pluto/system_top.xsa` |
-| The boot loader, kernel, device tree and Debian root, around that design | `./devkit build --xsa FILE` | an ARM cross-compiler | `firmware-modern/output/`, `firmware-modern/debian/rootfs.tar` |
+| The FPGA design | `build --target factory` | Vivado 2022.2 | `system_top.xsa` |
+| The boot loader, kernel, device tree and Debian root, around that design | `build --all --xsa FILE` | an ARM cross-compiler | the four boot files and `rootfs.tar` |
 
-The second half never runs Vivado. Once you have an `.xsa`, a kernel, driver or
+Both are `./devkit` commands; [build it yourself](build-from-source.md) has the
+full paths. The second half never runs Vivado. Once you have an `.xsa`, a kernel, driver or
 device-tree change needs only the second command. Release v0.1 ships an
 `.xsa`, which `./firmware-modern/fetch-pinned-xsa.sh` downloads and checks, so
 Vivado is needed only to change the FPGA design.
 
 ## The path
 
-![The build path as five boxes joined by arrows: doctor (can this machine build?), setup (fetch the sources, apply the patches), build (the SD-card files, into output/), verify (is the build sane? with --board: is it running?) and flash (over the network, md5-verified). Each is one ./devkit command, run from the repo root.](../img/build-path-light.svg#only-light)
-![The build path as five boxes joined by arrows: doctor (can this machine build?), setup (fetch the sources, apply the patches), build (the SD-card files, into output/), verify (is the build sane? with --board: is it running?) and flash (over the network, md5-verified). Each is one ./devkit command, run from the repo root.](../img/build-path-dark.svg#only-dark)
+![The build path as five boxes joined by arrows: doctor (can this machine build?), setup (fetch the sources, apply the patches), build (the boot files and the Debian root), verify (is the build sane?) and write-card (a whole card, from a card reader). Each is one ./devkit command, run from the repo root.](../img/build-path-light.svg#only-light)
+![The build path as five boxes joined by arrows: doctor (can this machine build?), setup (fetch the sources, apply the patches), build (the boot files and the Debian root), verify (is the build sane?) and write-card (a whole card, from a card reader). Each is one ./devkit command, run from the repo root.](../img/build-path-dark.svg#only-dark)
 
 <div class="grid cards steps" markdown>
 
@@ -42,7 +43,7 @@ Vivado is needed only to change the FPGA design.
 -   :material-numeric-4-circle:{ .lg } **[Put it on the board](flash-your-build.md)**
 
 
-    A card, or `./devkit flash` over the network.
+    A card from a card reader. `./devkit flash` is not yet run on an R2.
 
 </div>
 
@@ -53,12 +54,12 @@ Vivado is needed only to change the FPGA design.
 -   :material-chip:{ .lg .middle } **[Change a kernel driver](change-a-driver.md)**
 
 
-    Build `uImage` alone, flash it alone.
+    Build `uImage` alone, replace it alone.
 
 -   :material-file-tree-outline:{ .lg .middle } **[Change the device tree](change-the-device-tree.md)**
 
 
-    Build it, audit the built `.dtb`, flash it with `--dtb-only`.
+    Build it, audit the built `.dtb`, replace it alone.
 
 -   :material-memory:{ .lg .middle } **[Add your own logic to the FPGA](add-fpga-logic.md)**
 
@@ -92,6 +93,6 @@ part of the build comes from ·
 [the Debian root reference](../debian-root-reference.md).
 
 The R1 repository documents things this one does not build: the vendor's 5.15
-kernel and Buildroot root, a build from a released FPGA design with no Vivado,
-and a comparison with the factory firmware. They are on
+kernel and Buildroot root, and a comparison with the factory firmware. They
+are on
 [the R1's site](https://matsvandamme.github.io/fishball7020-fpga-devkit/build/).

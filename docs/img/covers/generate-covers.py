@@ -1,116 +1,64 @@
 #!/usr/bin/env python3
-"""Generate GitHub cover images for the VMAT SDR repositories.
+"""Generate the GitHub cover images for the PlutoSky R2 repository.
 
-2560x1280 (2x of GitHub's 1280x640 social preview), light and dark, in the
-VMAT brand: #4069FF, the four-quadrant mark, Bitter for display type.
+    python3 docs/img/covers/generate-covers.py
+
+writes, next to this file:
+
+    devkit-stack-dark.png          2560x1280   README cover, dark theme
+    devkit-stack-light.png         2560x1280   README cover, light theme
+    devkit-stack-dark-social.png   1280x640    GitHub social preview
+    devkit-stack-light-social.png  1280x640
+
+in the VMAT brand: #4069FF, the four-quadrant mark, Bitter for display type
+and IBM Plex Mono for the small print.
+
+Each cover is an HTML page, built here and screenshotted with headless Chrome:
+
+    "$CHROME" --headless=new --screenshot=OUT.png --window-size=2560,1280 \
+        --hide-scrollbars --force-device-scale-factor=1 \
+        --virtual-time-budget=15000 file:///.../cover.html
+
+The -social files are the same page at --force-device-scale-factor=0.5. The
+HTML is written to a temporary directory and not kept.
+
+Needs Google Chrome (set CHROME to its binary if it is not in the macOS
+default place) and a network connection: the two typefaces come from Google
+Fonts. A render where they did not load is refused, not written in a fallback
+serif. The logos are read from docs/img/vmat-logo-dark.png (white wordmark,
+for the dark cover) and docs/img/vmat-logo.png (dark wordmark, for the light).
 """
-import math, random, sys, pathlib
+import base64, os, pathlib, re, struct, subprocess, sys, tempfile
 
-HERE = pathlib.Path(__file__).parent
+HERE = pathlib.Path(__file__).resolve().parent
+IMG = HERE.parent
 BLUE = "#4069FF"
+W, H = 2560, 1280
+CHROME = os.environ.get(
+    "CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+FONTS = ['800 124px Bitter', '700 46px Bitter', '600 38px Bitter',
+         '400 28px "IBM Plex Mono"']
 
 THEME = {
     "dark":  dict(bg="#0A0E14", bg2="#111823", ink="#F2F6FA", ink2="#93A3B5",
-                  rule="#1E2936", logo="logo-dark.b64", grid="#16202C"),
+                  rule="#1E2936", logo="vmat-logo-dark.png"),
     "light": dict(bg="#FFFFFF", bg2="#F2F5F9", ink="#0B1220", ink2="#54677E",
-                  rule="#DCE3EB", logo="logo-light.b64", grid="#E8EDF3"),
+                  rule="#DCE3EB", logo="vmat-logo.png"),
 }
 
 
-def spectrum(seed, w, h, peaks):
-    """A plausible spectrum trace: shaped noise floor plus named peaks."""
-    rnd = random.Random(seed)
-    n = 460
-    pts = []
-    for i in range(n):
-        x = i / (n - 1)
-        floor = 0.13 + 0.05 * math.sin(x * 5.0) + rnd.uniform(-0.022, 0.022)
-        v = floor
-        for cx, amp, width in peaks:
-            v = max(v, floor + amp * math.exp(-((x - cx) ** 2) / (2 * width ** 2)))
-        pts.append((x * w, h - v * h))
-    return " ".join(f"{px:.1f},{py:.1f}" for px, py in pts)
-
-
-def cover(concept, theme, out):
-    t = THEME[theme]
-    logo = (HERE / t["logo"]).read_text()
-    body = CONCEPTS[concept](t)
-    html = f"""<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<style>
-*{{margin:0;padding:0;box-sizing:border-box}}
-html,body{{width:2560px;height:1280px;overflow:hidden}}
-body{{background:{t['bg']};color:{t['ink']};
-  font-family:Bitter,Georgia,serif;-webkit-font-smoothing:antialiased}}
-.mono{{font-family:"IBM Plex Mono",monospace}}
-.wrap{{position:relative;width:2560px;height:1280px}}
-</style></head><body><div class="wrap">{body}</div>
-<script>document.fonts.ready.then(()=>document.body.setAttribute('data-ready','1'));</script>
-</body></html>"""
-    out.write_text(html)
-
-
-# ---------------------------------------------------------------- concepts
-
-def _logo_img(t, size=118):
-    b64 = (HERE / t["logo"]).read_text()
+def _logo_img(t, size=100):
+    b64 = base64.b64encode((IMG / t["logo"]).read_bytes()).decode()
     return (f'<img src="data:image/png;base64,{b64}" '
             f'style="height:{size}px;width:auto;display:block">')
 
 
-def devkit_signal(t):
-    """Concept A - the spectrum. What the board does, with the stack named."""
-    trace = spectrum(7, 2560, 420, [(0.22, .48, .012), (0.38, .28, .010),
-                                    (0.52, .62, .014), (0.67, .24, .009),
-                                    (0.81, .40, .011)])
-    return f"""
-<svg width="2560" height="1280" style="position:absolute;inset:0">
-  <defs>
-    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="{BLUE}" stop-opacity=".30"/>
-      <stop offset="1" stop-color="{BLUE}" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <g opacity=".5">
-    {"".join(f'<line x1="0" y1="{y}" x2="2560" y2="{y}" stroke="{t["grid"]}" stroke-width="2"/>' for y in range(760, 1281, 52))}
-    {"".join(f'<line x1="{x}" y1="740" x2="{x}" y2="1280" stroke="{t["grid"]}" stroke-width="2"/>' for x in range(0, 2561, 96))}
-  </g>
-  <polygon points="0,420 {trace} 2560,420" transform="translate(0,700)" fill="url(#fade)"/>
-  <polyline points="{trace}" transform="translate(0,700)" fill="none"
-            stroke="{BLUE}" stroke-width="5" stroke-linejoin="round"/>
-  <rect x="0" y="1112" width="2560" height="168" fill="{t['bg']}"/>
-  <line x1="0" y1="1112" x2="2560" y2="1112" stroke="{t['rule']}" stroke-width="3"/>
-</svg>
-<div style="position:absolute;left:150px;top:140px;width:1750px">
-  <div class="mono" style="font-size:30px;letter-spacing:.30em;text-transform:uppercase;color:{BLUE};margin-bottom:34px">
-    PlutoSky&nbsp;R1 &middot; Fishball7020 &middot; 7020&#8209;SDR
-  </div>
-  <div style="font-weight:800;font-size:132px;line-height:1.02;letter-spacing:-.022em">
-    Buildable firmware<br>for a radio that<br>ships without any.
-  </div>
-  <div style="font-size:42px;line-height:1.5;color:{t['ink2']};margin-top:44px;max-width:1560px">
-    Rebuild every file on the SD card from source &mdash; bitstream, boot loader,
-    kernel, root filesystem &mdash; and put your own HDL inside the AD9361 datapath.
-  </div>
-</div>
-<div style="position:absolute;left:150px;bottom:52px;display:flex;align-items:center;gap:44px">
-  {_logo_img(t, 92)}
-  <div class="mono" style="font-size:30px;color:{t['ink2']};letter-spacing:.06em">
-    Zynq&nbsp;XC7Z020 &nbsp;&middot;&nbsp; AD9361 2T2R &nbsp;&middot;&nbsp; 70&nbsp;MHz&ndash;6&nbsp;GHz
-  </div>
-</div>
-<div class="mono" style="position:absolute;right:150px;bottom:78px;font-size:28px;color:{BLUE};letter-spacing:.06em">
-  no Vitis &nbsp;&middot;&nbsp; no AMD binaries
-</div>"""
-
-
 def devkit_stack(t):
-    """Concept B - the layers, which is the thing nobody else gives you."""
-    layers = [("bitstream", "Vivado &rarr; system_top.bit"),
+    """The layers, which is the thing nobody else gives you."""
+    layers = [("bitstream", "Vivado 2022.2 &rarr; system_top.bit"),
               ("FSBL", "AMD embeddedsw + gcc-arm-none-eabi"),
               ("U-Boot", "distro cross-compiler"),
-              ("kernel", "Linux 6.12 LTS, ADI drivers"),
+              ("kernel", "Linux 6.12, ADI drivers"),
               ("root filesystem", "Debian 13 armhf")]
     rows = ""
     for i, (name, sub) in enumerate(layers):
@@ -124,103 +72,81 @@ def devkit_stack(t):
 </div>"""
     return f"""
 <div style="position:absolute;left:150px;top:190px;width:900px">
-  <div class="mono" style="font-size:29px;letter-spacing:.30em;text-transform:uppercase;color:{BLUE};margin-bottom:34px">
-    PlutoSky&nbsp;R1 &middot; 7020&#8209;SDR
+  <div class="mono" style="font-size:29px;letter-spacing:.30em;text-transform:uppercase;color:{BLUE};margin-bottom:34px;white-space:nowrap">
+    PlutoSky&nbsp;R2 &middot; XC7Z020&#8209;CLG484
   </div>
   <div style="font-weight:800;font-size:124px;line-height:1.02;letter-spacing:-.022em">
     Every<br>layer,<br>from<br>source.
   </div>
   <div style="font-size:38px;line-height:1.5;color:{t['ink2']};margin-top:40px">
-    One command rebuilds all five, and flashes them back over the network.
+    The FPGA design, the boot loader, Linux&nbsp;6.12 and Debian, built for the&nbsp;R2.
   </div>
 </div>
 {rows}
 <div style="position:absolute;left:150px;bottom:92px;display:flex;align-items:center;gap:40px">
   {_logo_img(t, 100)}
-  <div class="mono" style="font-size:28px;color:{t['ink2']}">Zynq&nbsp;XC7Z020 &middot; AD9361</div>
+  <div class="mono" style="font-size:28px;color:{t['ink2']}">Zynq&nbsp;XC7Z020&#8209;CLG484 &middot; AD9361</div>
 </div>"""
 
 
-def mcp_tools(t):
-    """MCP concept A - the radio as something an assistant can drive."""
-    trace = spectrum(11, 1180, 300, [(0.30, .60, .013), (0.58, .40, .011), (0.76, .74, .010)])
-    chips = ["sdr_spectrum", "sdr_scan_band", "sdr_capture_iq", "sdr_tune",
-             "sdr_transmit_waveform", "sdr_board_health", "sdr_tx_status",
-             "sdr_sample_gpio", "sdr_rfid_field"]
-    tags = "".join(
-        f'<span class="mono" style="display:inline-block;background:{t["bg2"]};'
-        f'border:3px solid {t["rule"]};border-radius:999px;padding:16px 34px;'
-        f'font-size:27px;color:{t["ink2"]};margin:0 16px 20px 0">{c}</span>'
-        for c in chips)
-    return f"""
-<div style="position:absolute;left:150px;top:150px;width:1460px">
-  <div class="mono" style="font-size:30px;letter-spacing:.30em;text-transform:uppercase;color:{BLUE};margin-bottom:34px">
-    Model Context Protocol &middot; 21 tools
-  </div>
-  <div style="font-weight:800;font-size:138px;line-height:1.02;letter-spacing:-.022em">
-    Give an assistant<br>a real radio.
-  </div>
-  <div style="font-size:42px;line-height:1.5;color:{t['ink2']};margin-top:40px;max-width:1380px">
-    Tune, scan a band, measure a spectrum, capture IQ as SigMF and transmit &mdash;
-    on a PlutoSky&nbsp;R1, over libiio, from a conversation.
-  </div>
-  <div style="margin-top:56px;max-width:1420px">{tags}</div>
-</div>
-<svg width="1180" height="300" style="position:absolute;right:150px;top:420px">
-  <polyline points="{trace}" fill="none" stroke="{BLUE}" stroke-width="5" stroke-linejoin="round"/>
-</svg>
-<div style="position:absolute;left:150px;bottom:92px;display:flex;align-items:center;gap:40px">
-  {_logo_img(t, 100)}
-  <div class="mono" style="font-size:28px;color:{t['ink2']}">Zynq&nbsp;XC7Z020 &middot; AD9361 &middot; 70&nbsp;MHz&ndash;6&nbsp;GHz</div>
-</div>"""
+def page(theme):
+    t = THEME[theme]
+    checks = ",".join(f"document.fonts.check('{f}')" for f in FONTS)
+    return f"""<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+html,body{{width:{W}px;height:{H}px;overflow:hidden}}
+body{{background:{t['bg']};color:{t['ink']};
+  font-family:Bitter,Georgia,serif;-webkit-font-smoothing:antialiased}}
+.mono{{font-family:"IBM Plex Mono",monospace}}
+.wrap{{position:relative;width:{W}px;height:{H}px}}
+</style></head><body><div class="wrap">{devkit_stack(t)}</div>
+<script>
+const names = new Set([...document.fonts].map(f => f.family.replace(/"/g, '')));
+Promise.all({FONTS!r}.map(f => document.fonts.load(f))).then(() => {{
+  const ok = [{checks}].every(Boolean) && names.has('Bitter') && names.has('IBM Plex Mono');
+  document.body.setAttribute('data-fonts', ok ? 'ok' : 'missing');
+}});
+</script>
+</body></html>"""
 
 
-def mcp_prompt(t):
-    """MCP concept B - what using it actually looks like."""
-    trace = spectrum(23, 1120, 340, [(0.33, .66, .012), (0.62, .88, .009), (0.79, .34, .013)])
-    return f"""
-<div style="position:absolute;left:150px;top:170px;width:1290px">
-  <div class="mono" style="font-size:30px;letter-spacing:.30em;text-transform:uppercase;color:{BLUE};margin-bottom:36px">
-    MCP server &middot; PlutoSky&nbsp;R1
-  </div>
-  <div style="font-weight:800;font-size:150px;line-height:1.0;letter-spacing:-.024em">
-    Ask the<br>spectrum<br>a question.
-  </div>
-  <div style="font-size:42px;line-height:1.5;color:{t['ink2']};margin-top:46px">
-    21 tools that tune, scan, measure, capture IQ as SigMF and transmit &mdash;
-    driving real hardware over libiio.
-  </div>
-</div>
-<div style="position:absolute;right:150px;top:250px;width:1000px">
-  <div style="background:{t['bg2']};border:3px solid {t['rule']};border-radius:20px;
-       padding:40px 46px;margin-bottom:34px">
-    <div class="mono" style="font-size:26px;color:{BLUE};margin-bottom:18px">you</div>
-    <div style="font-size:40px;line-height:1.35">What is on the air around 433&nbsp;MHz?</div>
-  </div>
-  <div style="background:{t['bg2']};border:3px solid {t['rule']};border-radius:20px;
-       padding:40px 46px 30px">
-    <div class="mono" style="font-size:26px;color:{t['ink2']};margin-bottom:22px">sdr_scan_band &rarr;</div>
-    <svg width="900" height="340" style="display:block">
-      <polyline points="{trace}" fill="none" stroke="{BLUE}" stroke-width="5" stroke-linejoin="round"/>
-    </svg>
-  </div>
-</div>
-<div style="position:absolute;left:150px;bottom:64px;display:flex;align-items:center;gap:40px">
-  {_logo_img(t, 92)}
-  <div class="mono" style="font-size:28px;color:{t['ink2']}">Zynq&nbsp;XC7Z020 &middot; AD9361 &middot; SigMF</div>
-</div>"""
+def chrome(profile, *args):
+    cmd = [CHROME, "--headless=new", "--hide-scrollbars", "--disable-gpu",
+           "--no-first-run", f"--user-data-dir={profile}",
+           f"--window-size={W},{H}", "--virtual-time-budget=15000", *args]
+    return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
 
 
-CONCEPTS = {
-    "devkit-signal": devkit_signal,
-    "devkit-stack": devkit_stack,
-    "mcp-tools": mcp_tools,
-    "mcp-prompt": mcp_prompt,
-}
+def png_size(path):
+    head = path.read_bytes()[:24]
+    return struct.unpack(">II", head[16:24])
+
+
+def render():
+    if not pathlib.Path(CHROME).exists():
+        sys.exit(f"Chrome not found at {CHROME} (set CHROME=/path/to/chrome)")
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = pathlib.Path(tmp)
+        for theme in THEME:
+            html = tmp / f"devkit-stack-{theme}.html"
+            html.write_text(page(theme))
+            url = html.as_uri()
+            dom = chrome(tmp / "profile", "--dump-dom", url)
+            if not re.search(r'data-fonts="ok"', dom):
+                sys.exit(f"{theme}: Bitter / IBM Plex Mono did not load "
+                         "(no network?) - nothing written")
+            for suffix, scale in (("", 1), ("-social", 0.5)):
+                out = HERE / f"devkit-stack-{theme}{suffix}.png"
+                chrome(tmp / "profile", f"--screenshot={out}",
+                       f"--force-device-scale-factor={scale}", url)
+                want = (int(W * scale), int(H * scale))
+                got = png_size(out)
+                if got != want:
+                    sys.exit(f"{out.name}: {got[0]}x{got[1]}, expected {want[0]}x{want[1]}")
+                print(f"  wrote {out.name}  {got[0]}x{got[1]}  {out.stat().st_size // 1024} KB")
+
 
 if __name__ == "__main__":
-    for name in CONCEPTS:
-        for theme in ("dark", "light"):
-            out = HERE / f"{name}-{theme}.html"
-            cover(name, theme, out)
-            print(f"  wrote {out.name}")
+    render()

@@ -121,8 +121,11 @@ nav:
           - Flashing: flashing.md
           - How it works: how-it-works.md
   - The PlutoSky R2:
-      - plutosky-r2.md
-      - Hardware and I/O: hw/index.md
+      - What differs, and what is tested: plutosky-r2.md
+      # In a section of its own: directly under the tab, navigation.indexes
+      # makes an index.md the tab's landing page and drops its title.
+      - Hardware and I/O:
+          - hw/index.md
   - Building:
       - build/index.md
       - Check your machine can build: build/check-your-machine.md

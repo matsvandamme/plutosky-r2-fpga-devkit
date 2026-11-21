@@ -1,6 +1,6 @@
 ---
 icon: material/sd
-description: Download release v0.1 and write it to a microSD card with the devkit's card writer, on Linux or Windows.
+description: Download release v0.1 and write it to a microSD card with the devkit's card writer.
 ---
 
 # Put the firmware on a card
@@ -27,6 +27,10 @@ enough: use the writer.
     It checks the boot files against the release's `SHA256SUMS` first and
     refuses non-removable disks, but **check the device name yourself**.
 
+    The release card itself was written with the same command into an image
+    file (`--image`) and copied to the card; that card booted. Writing
+    straight to a card reader has not been done for an R2 yet.
+
 === "Windows"
 
     Put `write-card.cmd` from the release in the folder with the other files
@@ -37,15 +41,17 @@ enough: use the writer.
 
 **You should see:** the writer end with `Done. The card boots the Debian root by default.`
 
-The release is a **pre-release**: one R2 has booted it, and transmit is
-untested. [What is tested](../plutosky-r2.md#what-is-tested-and-what-is-not).
+The release is a **pre-release**: one R2 has booted it, and it has
+transmitted at low power only.
+[What is tested](../plutosky-r2.md#what-is-tested-and-what-is-not).
 
 The R2's factory firmware is in its QSPI flash. A card does not overwrite it,
 and the `BOOT` switch [goes back to it](../plutosky-r2.md#going-back-to-the-factory-firmware).
 
 !!! warning "Never update this board with DFU"
     DFU has bricked units of the R1, and this firmware never uses it. Changing
-    firmware means rewriting the card, or `./devkit flash` on a running board
+    firmware means rewriting the card, or `./devkit flash` on a running
+    board, which has not been run on an R2 yet
     ([put it on the board](../build/flash-your-build.md)).
 
 Rather build it? [Build it yourself](../build/build-from-source.md): no Vivado

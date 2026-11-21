@@ -1,6 +1,6 @@
 ---
 icon: material/file-tree-outline
-description: Build the device tree, audit the built .dtb, and flash it with --dtb-only.
+description: Build the R2's device tree, audit the built .dtb, and put it on the board alone.
 ---
 
 # Change the device tree
@@ -11,8 +11,8 @@ changes: Ethernet, the USB reset pin, the LED pin and the model. The R1's is in
 turn an overlay on ADI's `zynq-pluto-sdr.dtsi`. Put an R2 difference in the R2
 file; a change to the shared file belongs in the R1 repository too.
 
-![ADI's zynq-pluto-sdr.dtsi, which describes an ADALM-Pluto, and this board's overlay zynq-pluto-sdr-fishball.dts, which states only where this board differs, compile into devicetree.dtb. verify_dtb.py runs 16 checks on the built file, and flash --dtb-only puts it on the running board.](../img/build-devicetree-light.svg#only-light)
-![ADI's zynq-pluto-sdr.dtsi, which describes an ADALM-Pluto, and this board's overlay zynq-pluto-sdr-fishball.dts, which states only where this board differs, compile into devicetree.dtb. verify_dtb.py runs 16 checks on the built file, and flash --dtb-only puts it on the running board.](../img/build-devicetree-dark.svg#only-dark)
+![Three files compile into devicetree.dtb: ADI's zynq-pluto-sdr.dtsi, which describes an ADALM-Pluto; the R1's zynq-pluto-sdr-fishball.dts, which states where the R1 differs from a Pluto; and the R2's zynq-pluto-sdr-fishball-r2.dts, which states where the R2 differs from the R1. verify_dtb.py runs 16 checks on the built file, and it goes onto the board with flash --dtb-only or a card reader.](../img/build-devicetree-light.svg#only-light)
+![Three files compile into devicetree.dtb: ADI's zynq-pluto-sdr.dtsi, which describes an ADALM-Pluto; the R1's zynq-pluto-sdr-fishball.dts, which states where the R1 differs from a Pluto; and the R2's zynq-pluto-sdr-fishball-r2.dts, which states where the R2 differs from the R1. verify_dtb.py runs 16 checks on the built file, and it goes onto the board with flash --dtb-only or a card reader.](../img/build-devicetree-dark.svg#only-dark)
 
 ```bash
 # run from: firmware-modern/src/linux
@@ -28,6 +28,10 @@ cp arch/arm/boot/dts/xilinx/zynq-pluto-sdr-fishball-r2.dtb ../../output/devicetr
 python3 firmware-modern/verify_dtb.py firmware-modern/output/devicetree.dtb   # stdlib only
 ./devkit flash --dtb-only
 ```
+
+`./devkit flash` has not been run on an R2 yet. Copying `devicetree.dtb` onto
+the card's first partition from a card reader does the same
+([put it on the board](flash-your-build.md)).
 
 `./devkit setup` copies both `.dts` files into the kernel tree; after editing
 one in `firmware-modern/dts/`, run it again or copy the file across yourself.

@@ -10,6 +10,9 @@ R1, 7020-SDR, Fishball7020 and Fish-Wan, looks similar and needs
 [the other repository](https://github.com/matsvandamme/fishball7020-fpga-devkit).
 The wrong image boots Linux with no radio, no Ethernet and no USB.
 
+![Two boards side by side. The PlutoSky R1 / 7020-SDR, for the other repository: XC7Z020-CLG400 printed on the Zynq, no 10M_IN socket on the case, a JP5 header of 2 by 10 pins, vendor firmware version v0.38-4-g95aad. The PlutoSky R2, for this firmware: XC7Z020-CLG484, a 10M_IN socket, a JP5 header of 2 by 12 pins, vendor firmware version v0.38-5-g76414.](../img/start-r1-or-r2-light.svg#only-light)
+![Two boards side by side. The PlutoSky R1 / 7020-SDR, for the other repository: XC7Z020-CLG400 printed on the Zynq, no 10M_IN socket on the case, a JP5 header of 2 by 10 pins, vendor firmware version v0.38-4-g95aad. The PlutoSky R2, for this firmware: XC7Z020-CLG484, a 10M_IN socket, a JP5 header of 2 by 12 pins, vendor firmware version v0.38-5-g76414.](../img/start-r1-or-r2-dark.svg#only-dark)
+
 | | PlutoSky R2: this firmware | PlutoSky R1 / 7020-SDR: the other one |
 |---|---|---|
 | Zynq package, printed on the chip | XC7Z020-**CLG484** | XC7Z020-**CLG400** |

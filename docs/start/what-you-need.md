@@ -5,6 +5,9 @@ description: A card, a card reader, two USB-C cables, Ethernet, a Linux PC that 
 
 # Gather what you need
 
+Six things. The two USB-C cables and the Ethernet cable are what differ from
+most small radios.
+
 | | Why |
 |---|---|
 | **A microSD card, 4 GB or more** | the firmware lives on it. Use a new card and keep any card that came with the board as it is |
@@ -19,7 +22,8 @@ two serial ports it presents. It works before the network does, which makes it
 the way to see why a board does not boot.
 
 !!! danger "Before anything transmits"
-    Read [before you transmit](before-you-transmit.md). Transmit has not been
-    tested on the R2.
+    Read [before you transmit](before-you-transmit.md). The R2 has
+    transmitted at low power through attenuators only, and its output power
+    is not measured.
 
 **Next:** [put the firmware on a card](write-the-card.md).

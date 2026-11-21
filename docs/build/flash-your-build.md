@@ -1,6 +1,6 @@
 ---
 icon: material/upload-network-outline
-description: A card from a card reader, or ./devkit flash over the network to a running board, backed up and md5-verified.
+description: A card from a card reader, which is how the test board was updated, or ./devkit flash over the network, which has not been run on an R2.
 ---
 
 # Put it on the board
@@ -39,8 +39,8 @@ before swapping it in, unmounts cleanly and reboots. The previous files stay
 on the card as `*.prev` and on your disk in `firmware/.flash-backups/<stamp>/`.
 After it, `./devkit verify --board` compares the card with your build.
 
-![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only. The kernel (a driver, the config): uImage, flash --kernel-only. The device tree: devicetree.dtb, flash --dtb-only. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-light.svg#only-light)
-![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only. The kernel (a driver, the config): uImage, flash --kernel-only. The device tree: devicetree.dtb, flash --dtb-only. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-dark.svg#only-dark)
+![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only or copy it onto the card. The kernel (a driver, the config): uImage, flash --kernel-only or copy it onto the card. The device tree: devicetree.dtb, flash --dtb-only or copy it onto the card. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-light.svg#only-light)
+![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only or copy it onto the card. The kernel (a driver, the config): uImage, flash --kernel-only or copy it onto the card. The device tree: devicetree.dtb, flash --dtb-only or copy it onto the card. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-dark.svg#only-dark)
 
 The Debian root cannot be flashed over the network: write a new card
 ([rebuild the Debian root](rebuild-the-debian-root.md)).

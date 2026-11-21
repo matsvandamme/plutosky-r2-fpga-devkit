@@ -64,8 +64,12 @@ console with NUL bytes.
 
 ### `unable to generate target frequency: 125000000 Hz` in the kernel log
 
-Printed when the Ethernet link comes up. On the test board the link worked at
-1 Gbit/s regardless. Not looked into.
+**Symptom.** The kernel prints it when the Ethernet link comes up.
+
+**Cause.** Not looked into.
+
+**Fix.** None needed so far: on the test board the link worked at 1 Gbit/s
+regardless.
 
 ### Vivado prints its banner and then hangs
 
@@ -77,6 +81,8 @@ Printed when the Ethernet link comes up. On the test board the link worked at
 --target factory` from a terminal is not affected.
 
 ## The board
+
+*Seen on a PlutoSky R1, on its USB network at `192.168.2.1`.*
 
 ### The board stops responding after a while
 
@@ -191,6 +197,10 @@ its own.
 the package: on Arch that would take `dtc` with it.
 
 ## Flashing
+
+*Written for the R1. On the R2, `./devkit flash` has not been run: the test
+board's files were replaced from a card reader
+([put it on the board](build/flash-your-build.md)).*
 
 ### `dfu-util -l` shows nothing
 

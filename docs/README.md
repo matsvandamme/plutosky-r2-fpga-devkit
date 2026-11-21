@@ -13,7 +13,7 @@ stands. The PlutoSky R1 / 7020-SDR has
 | [Start here](start/index.md) | go from a board in its box to one running this firmware, in six steps |
 | [Hardware and I/O](hw/index.md) | know the header voltage, the pins this firmware drives, and where the schematic is |
 | [How it works](how-it-works.md) | understand what a build produces and why, assuming nothing (written for the R1) |
-| [Transmitter safety](transmitter-safety.md) | transmit anything at all. Transmit is untested on the R2; the R1's measurements and rules |
+| [Transmitter safety](transmitter-safety.md) | transmit anything at all. The R1's measurements and rules; the R2 has transmitted only at low power, and its power is not measured |
 | [Reaching the board and changing its IP address](networking.md) | log in, fix the address (mostly the R1's Buildroot firmware; the Debian parts apply) |
 | [Flashing the board](flashing.md) | the R1's flashing reference, with what differs on the R2 at the top |
 | [Troubleshooting](troubleshooting.md) | fix a build or a board that misbehaves |
@@ -31,7 +31,7 @@ stands. The PlutoSky R1 / 7020-SDR has
 ## Using the radio
 
 Written on the R1. The software is the same on the R2; the measured numbers
-are not the R2's, and transmit is untested there.
+are not the R2's, and the R2's transmit power is not measured.
 
 | Page | Read it when you want to |
 |---|---|

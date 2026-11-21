@@ -1,33 +1,33 @@
 #!/usr/bin/env python3
-"""Draw the Getting started figures: diagrams in a light and a dark variant,
-and labelled crops of the board photographs.
+"""Draw the Getting started figures for the PlutoSky R2, each in a light and a
+dark variant.
 
     # run from: the repo root
-    python3 docs/img/make_start_figures.py        # stdlib only; the photo figures need ImageMagick
+    python3 docs/img/make_start_figures.py        # stdlib only
 
 Writes into docs/img/:
 
-    start-loopback-{light,dark}.svg     TX -> 20 dB attenuator -> RX, with the levels
-    start-card-{light,dark}.svg         the two partitions of the modern firmware's card
-    start-connect-{light,dark}.svg      which socket goes where
-    start-network-{light,dark}.svg      the board's two network interfaces
+    start-r1-or-r2-{light,dark}.svg     what tells an R2 from an R1
+    start-card-{light,dark}.svg         the two partitions of the card
+    start-connect-{light,dark}.svg      which socket goes where, on the R2
+    start-boot-switch-{light,dark}.svg  the BOOT switch set to SD
+    start-attenuator-{light,dark}.svg   TX -> attenuator -> RX, with no power figure:
+                                        the R2's output power is not measured
+    start-loopback-{light,dark}.svg     the same loop with the R1's levels, for the
+                                        pages that came with the R1's devkit
+    start-network-{light,dark}.svg      the R1's two network interfaces (same pages)
     start-bootchain-{light,dark}.svg    BootROM to root filesystem
-    start-buildstages-{light,dark}.svg  build_all.sh's seven stages
-    start-netconfig-{light,dark}.svg    where the Buildroot address settings live
-    start-ports.svg                     the case's sockets, labelled (from plutosky-r1-ports.jpg)
-    start-board.svg                     the bare board, labelled (from board.jpg)
-    start-login-message.svg             the board's login message, from start-login-message.ansi
+    start-buildstages-{light,dark}.svg  the build's seven stages
+    start-netconfig-{light,dark}.svg    where the R1's Buildroot address settings live
 
-The login message is real output, captured with
-
-    # run from: the repo root, with the board reachable
-    ssh fishball 'run-parts /etc/update-motd.d' > docs/img/start-login-message.ansi
-
-and drawn here line for line, colours included, up to its Health line.
+The R1's repository also draws labelled photographs of its board and its login
+message from this script. Their sources are not in this repository, so main()
+skips them here: an R1 photograph is not a picture of the R2.
 
 Pages show a diagram as `![alt](img/x-light.svg#only-light)` plus the
 `-dark.svg#only-dark` twin, so it follows the site's colour-scheme switch.
-Every number and name drawn here comes from the pages that show the figure.
+Every number and name drawn here comes from the pages that show the figure,
+and for the R2 from docs/plutosky-r2.md.
 """
 import base64
 import pathlib
@@ -95,7 +95,92 @@ def both(name, title, draw):
         (HERE / f"{name}-{theme}.svg").write_text(f.svg(title))
 
 
-# --- TX -> attenuator -> RX ---------------------------------------------------
+# --- R1 or R2 ----------------------------------------------------------------
+
+def r1_or_r2(t):
+    f = Fig(760, 262, t)
+    f.box(20, 14, 240, 232, "", ())
+    f.box(500, 14, 240, 232, "", (), fill="accent_soft", stroke="accent")
+    f.text(140, 42, "PlutoSky R1 / 7020-SDR", 14, "ink", 600)
+    f.text(140, 61, "the other repository", 12, "muted")
+    f.text(620, 42, "PlutoSky R2", 14, "ink", 600)
+    f.text(620, 61, "this firmware", 12, "accent")
+    rows = (
+        ("printed on the Zynq", "XC7Z020-CLG400", "XC7Z020-CLG484", True),
+        ("socket on the case", "no 10M_IN", "10M_IN", False),
+        ("JP5 header", "2 × 10 pins", "2 × 12 pins", False),
+        ("vendor firmware says", "v0.38-4-g95aad", "v0.38-5-g76414", True),
+    )
+    for i, (what, r1, r2, mono) in enumerate(rows):
+        y = 98 + i * 40
+        f.text(380, y, what, 12.5, "muted")
+        f.line(268, y - 4, 300, y - 4, "line")
+        f.line(460, y - 4, 492, y - 4, "line")
+        f.text(140, y, r1, 13, "body", mono=mono)
+        f.text(620, y, r2, 13, "ink", 600, mono=mono)
+    return f
+
+
+# --- which socket goes where, on the R2 ---------------------------------------
+
+def connect(t):
+    f = Fig(760, 300, t)
+    f.box(280, 30, 200, 240, "", ())
+    f.text(380, 58, "The PlutoSky R2", 14, "ink", 600)
+    f.text(380, 77, "BOOT switch: SD", 12, "muted")
+    for i, (name, sub) in enumerate((("ETH", "RJ45"), ("DEBUG", "USB-C"), ("USB2.0", "USB-C"))):
+        y = 100 + i * 56
+        f.box(300, y, 160, 42, name, sub, fill="accent_soft", stroke="accent")
+    f.box(20, 94, 180, 54, "Your router", "hands out the address")
+    f.arrow(300, 121, 202, 121, colour="accent")
+    f.text(250, 112, "network", 12, "accent")
+    f.text(110, 176, "then, from your PC:", 12, "muted")
+    f.text(110, 195, "ssh root@fishball.local", 12.5, "accent", mono=True)
+    f.box(560, 150, 180, 54, "USB power", "and the serial console")
+    f.arrow(558, 177, 462, 177, "power")
+    f.box(560, 212, 180, 54, "USB power", "the second socket")
+    f.arrow(558, 233, 462, 233, "power")
+    f.text(650, 100, "Connect both: one alone", 12, "muted")
+    f.text(650, 117, "can be short of power", 12, "muted")
+    return f
+
+
+# --- the BOOT switch ----------------------------------------------------------
+
+def boot_switch(t):
+    f = Fig(760, 150, t)
+    f.box(20, 20, 170, 110, "", ())
+    f.text(105, 44, "ON", 13, "ink", 600)
+    for i in range(2):
+        x = 58 + i * 58
+        f.raw(f'<rect x="{x}" y="56" width="36" height="60" rx="5" fill="{t["surface"]}" '
+              f'stroke="{t["line"]}" stroke-width="1.5"/>')
+        f.raw(f'<rect x="{x + 4}" y="86" width="28" height="26" rx="4" fill="{t["accent"]}"/>')
+    f.text(220, 52, "SD card: both sliders away from ON", 14, "ink", 600, "start")
+    f.text(220, 76, "What this firmware boots from. Set it with the board off.", 12.5, "body", anchor="start")
+    f.text(220, 100, "A wrong position is silent: nothing appears,", 12.5, "muted", anchor="start")
+    f.text(220, 118, "not even on the serial console.", 12.5, "muted", anchor="start")
+    return f
+
+
+# --- TX -> attenuator -> RX, without the R1's power figures --------------------
+
+def attenuator(t):
+    f = Fig(760, 250, t)
+    f.text(20, 28, "With the attenuator", 14, "ink", 600, "start")
+    f.box(20, 44, 150, 64, "TX1", "power not measured")
+    f.arrow(170, 76, 300, 76)
+    f.box(300, 44, 160, 64, "Attenuator", "20 dB, better 30", fill="accent_soft", stroke="accent")
+    f.arrow(460, 76, 590, 76, "20 dB less or more")
+    f.box(590, 44, 150, 64, "RX1", "limit: about +2.5 dBm")
+    f.text(20, 158, "Without it", 14, "ink", 600, "start")
+    f.box(20, 174, 150, 56, "TX1", "power not measured")
+    f.arrow(170, 202, 590, 202, "everything the transmitter puts out", "danger")
+    f.box(590, 174, 150, 56, "RX1", "can be destroyed", fill="danger_soft", stroke="danger")
+    return f
+
+
+# --- TX -> attenuator -> RX, with the R1's levels ------------------------------
 
 def loopback(t):
     f = Fig(760, 250, t)
@@ -128,28 +213,6 @@ def card(t):
     f.text(515, 122, "the rest of the card", 12.5, "body")
     f.text(515, 144, "unpacked from debian-rootfs.tar.gz", 12.5, "body")
     f.text(515, 172, "Windows cannot create this one: use the card writer", 12, "muted")
-    return f
-
-
-# --- which socket goes where --------------------------------------------------
-
-def connect(t):
-    f = Fig(760, 300, t)
-    f.box(280, 30, 200, 240, "", ())
-    f.text(380, 58, "The board", 14, "ink", 600)
-    f.text(380, 77, "BOOT switch: SD (0 0)", 12, "muted")
-    for i, (name, sub) in enumerate((("ETH", "RJ45"), ("DEBUG", "USB-C"), ("USB", "USB-C"))):
-        y = 100 + i * 56
-        f.box(300, y, 160, 42, name, sub, fill="accent_soft", stroke="accent")
-    f.box(20, 100, 180, 42, "Your router", "optional")
-    f.arrow(300, 121, 202, 121, colour="muted", dash=True)
-    f.text(250, 112, "DHCP", 12, "muted")
-    f.box(560, 150, 180, 54, "Mains USB charger", "not a laptop port")
-    f.arrow(460, 177, 558, 177, "power")
-    f.box(20, 206, 180, 54, "Your PC", "reaches it at 192.168.2.1")
-    f.arrow(300, 233, 202, 233, "network", "accent")
-    f.text(650, 240, "On a laptop's USB power", 12, "muted")
-    f.text(650, 257, "alone the board can hang", 12, "muted")
     return f
 
 
@@ -284,10 +347,13 @@ def login_message():
 
 
 def main():
-    login_message()
+    both("start-r1-or-r2", "What tells a PlutoSky R2 from a PlutoSky R1", r1_or_r2)
+    both("start-card", "The two partitions of the microSD card", card)
+    both("start-connect", "Which of the PlutoSky R2's sockets goes where", connect)
+    both("start-boot-switch", "The BOOT switch set to SD: both sliders away from ON", boot_switch)
+    both("start-attenuator", "A transmit port joined to a receive port through an attenuator", attenuator)
+    # For the pages that came with the R1's devkit and say so.
     both("start-loopback", "A transmit port joined to a receive port through a 20 dB attenuator", loopback)
-    both("start-card", "The two partitions of the modern firmware's microSD card", card)
-    both("start-connect", "Which of the board's sockets goes where", connect)
     both("start-network", "The board's USB and Ethernet interfaces and their addresses", network)
     both("start-bootchain", "The boot chain, from BootROM to the root filesystem",
          row("", (("BootROM", "in silicon"), ("FSBL", "on-chip RAM"), ("bitstream", "into the FPGA"),
@@ -296,24 +362,8 @@ def main():
          row("", (("HDL", ""), ("bitstream", ""), ("FSBL", "needs the bitstream"), ("U-Boot", ""), ("kernel", ""),
                   ("root filesystem", ""), ("BOOT.bin", "the package")), width=1080, h=86))
     both("start-netconfig", "On Buildroot the address settings live in the U-Boot environment", netconfig)
-    # The case, from the front: plutosky-r1-ports.jpg is 1228x1104.
-    photo_figure("start-ports", "The case's sockets", "plutosky-r1-ports.jpg", "1010x770+150+318", (505, 385), (
-        ("ETH", "Ethernet, to your router", "left", 200, (70, 148)),
-        ("DEBUG", "USB-C: console, JTAG, power", "left", 265, (132, 206)),
-        ("microSD slot", "under the DEBUG socket", "left", 330, (140, 233)),
-        ("USB", "USB-C: to your PC, 192.168.2.1", "right", 290, (188, 243)),
-        ("GPIO header (JP5)", "2 × 10 pins", "right", 40, (186, 24)),
-    ))
-    # The bare board: board.jpg is 800x800.
-    photo_figure("start-board", "The bare board", "board.jpg", "330x600+238+118", (275, 500), (
-        ("4 × SMA", "read the silkscreen for which", "left", 40, (70, 40)),
-        ("AD9361", "the radio chip", "left", 150, (128, 156)),
-        ("Zynq XC7Z020", "ARM processor + FPGA", "right", 260, (124, 268)),
-        ("JP5 header", "", "left", 250, (28, 232)),
-        ("Ethernet", "", "left", 420, (58, 420)),
-        ("2 × USB-C", "USB and DEBUG", "right", 440, (182, 452)),
-        ("microSD card", "", "right", 500, (150, 480)),
-    ))
+    # photo_figure() and login_message() are the R1 repository's: their sources
+    # (the R1's photographs, a captured login message) are not in this one.
 
 
 if __name__ == "__main__":

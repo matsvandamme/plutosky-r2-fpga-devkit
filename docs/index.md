@@ -27,7 +27,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
     Check the board is an R2, download the release, write the card, connect.
 
-    <span class="count">6 steps</span>
+    <span class="count">8 articles</span>
 
 -   :material-chip:{ .lg }
 
@@ -38,13 +38,22 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
     <span class="count">Reference</span>
 
+-   :material-connection:{ .lg }
+
+    **[Hardware and I/O](hw/index.md)**
+
+    The sockets, power, the header's pins, the 10 MHz input: what the
+    schematic says, and how sure.
+
+    <span class="count">From the schematic</span>
+
 -   :material-hammer-wrench:{ .lg }
 
     **[Build your own firmware](build/index.md)**
 
     Kernel, drivers and Debian with no Vivado; the FPGA design with it.
 
-    <span class="count">9 articles</span>
+    <span class="count">10 articles</span>
 
 -   :material-radio-tower:{ .lg }
 
@@ -53,7 +62,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
     Capture IQ, SDR++, aircraft, MATLAB, your own code. Written on the R1; the
     software is the same.
 
-    <span class="count">20 articles</span>
+    <span class="count">18 articles</span>
 
 -   :material-alert-octagon-outline:{ .lg }
 
@@ -69,7 +78,25 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
     Known problems by symptom, each with its cause and fix.
 
-    <span class="count">By symptom</span>
+    <span class="count">19 problems, 8 seen on the R2</span>
+
+-   :material-download-outline:{ .lg }
+
+    **[Prebuilt firmware](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1)**
+
+    The card files and the FPGA design. A pre-release, booted on one R2
+    before it was published.
+
+    <span class="count">Release v0.1 on GitHub</span>
+
+-   :material-swap-horizontal:{ .lg }
+
+    **[I have a PlutoSky R1](https://matsvandamme.github.io/fishball7020-fpga-devkit/)**
+
+    Also sold as 7020-SDR and Fishball7020. A different board: this firmware
+    does not fit it.
+
+    <span class="count">Its own site</span>
 
 </div>
 
@@ -81,14 +108,23 @@ repository on Linux:
 ```bash
 # run from: the repo root
 gunzip -c ~/Downloads/debian-rootfs.tar.gz > firmware-modern/debian/rootfs.tar
-sudo ./devkit write-card --from ~/Downloads /dev/sdX    # DESTROYS the card
+./devkit write-card --dry-run --from ~/Downloads /dev/sdX    # checks the device, writes nothing
+sudo ./devkit write-card --from ~/Downloads /dev/sdX         # DESTROYS the card
 ```
+
+The card that booted was made with `--image` and copied to the card; writing
+straight to a reader, as above, has not been done for an R2 yet.
+
+Then [connect it](start/connect.md): both USB-C sockets for power, Ethernet
+for the network, and the board answers at `fishball.local`.
 
 - To build it yourself instead, no Vivado needed:
   `./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"`.
   Only [changing the FPGA](build/add-fpga-logic.md) needs Vivado 2022.2.
-- After the first card, `./devkit flash` puts a changed kernel or boot file on
-  the running board over the network. It does not check which board answers.
+- After the first card, `./devkit flash` is meant to put a changed kernel or
+  boot file on the running board over the network. It has **not been run on
+  an R2**, and it does not check which board answers:
+  [put it on the board](build/flash-your-build.md).
 - `./devkit ssh-key` first saves typing the published root password.
 - The `JP5` header is **1.8 V** and its pin 1 is **5 V**. An R1 cable does not
   carry over: [the header on the R2](plutosky-r2.md#the-sample-locked-gpio-pins-on-the-r2).

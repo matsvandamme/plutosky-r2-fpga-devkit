@@ -18,10 +18,10 @@ description: The R2 transmits at low power, tested; its full power is unmeasured
 On the R1, with its power amplifier: about **+19 dBm** out, against a receiver
 that survives **+2.5 dBm**. The R2 is sold with and without an amplifier.
 
-![Two rows. With the attenuator: TX1A at about +19 dBm, through a 20 dB attenuator, reaches RX1A at about -1 dBm, under its +2.5 dBm limit. Without it: +19 dBm goes straight into RX1A, about 16 dB over the limit, and destroys it.](../img/start-loopback-light.svg#only-light)
-![Two rows. With the attenuator: TX1A at about +19 dBm, through a 20 dB attenuator, reaches RX1A at about -1 dBm, under its +2.5 dBm limit. Without it: +19 dBm goes straight into RX1A, about 16 dB over the limit, and destroys it.](../img/start-loopback-dark.svg#only-dark)
+![Two rows. With the attenuator: TX1, whose power is not measured, goes through an attenuator of 20 dB, better 30, so that much less reaches RX1, whose limit is about +2.5 dBm. Without it: everything the transmitter puts out goes straight into RX1, which can be destroyed.](../img/start-attenuator-light.svg#only-light)
+![Two rows. With the attenuator: TX1, whose power is not measured, goes through an attenuator of 20 dB, better 30, so that much less reaches RX1, whose limit is about +2.5 dBm. Without it: everything the transmitter puts out goes straight into RX1, which can be destroyed.](../img/start-attenuator-dark.svg#only-dark)
 
-*The R1's figures.*
+*No level is drawn for the transmitter because nobody has measured the R2's. The receiver's limit is the AD9361's, as on the R1; 20 dB is the R1's minimum, and the R2 may need more. It was tested through 30 dB on one channel and 20 dB on the other, at low power.*
 
 | Rule | |
 |---|---|

@@ -1,25 +1,30 @@
 #!/usr/bin/env python3
-"""Draw the Hardware and I/O figures, in the same style as the Getting started
-ones (the helpers come from make_start_figures.py).
+"""Draw the Hardware and I/O figure for the PlutoSky R2, in the same style as
+the Getting started ones (the helpers come from make_start_figures.py).
 
     # run from: the repo root
-    python3 docs/img/make_hw_figures.py        # stdlib only; the photo figure needs ImageMagick
+    python3 docs/img/make_hw_figures.py        # stdlib only
 
 Writes into docs/img/:
 
-    hw-refclock-{light,dark}.svg    the three R107/R109 configurations of the reference clock
-    hw-pin-owner-{light,dark}.svg   who drives the four free JP5 pins
-    hw-user-led-{light,dark}.svg    what drives the USER LED
-    hw-sma-ports.svg                the case's antenna end, labelled (from plutosky-r1-antennas.jpg)
+    hw-jp5-{light,dark}.svg    the R2's 2x12 JP5 header: 5 V, ground, and the four
+                               pins this firmware drives
 
-Every name and number drawn here comes from docs/hardware.md, docs/gpio.md,
-docs/tx-gpio-bitmap.md and docs/user-led.md.
+Pin numbers, the 5 V pin, the grounds and the 1.8 V level are from the vendor's
+schematic by way of docs/plutosky-r2.md and
+firmware/revs/r2/patches/0006-tx-sample-nibble-to-gpio.patch. Nothing on the
+header has been probed on a board, and where pin 1 sits physically has not
+been looked up, so the drawing says to find it instead of guessing.
+
+refclock(), pin_owner() and user_led() draw the R1's hardware (its R107/R109
+links, its 3.3 V pins, its LED on MIO 0) for pages only the R1's repository
+has; main() does not draw them here.
 """
 import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from make_start_figures import Fig, both, photo_figure  # noqa: E402
+from make_start_figures import Fig, both  # noqa: E402
 
 
 # --- the reference clock: three configurations ---------------------------------
@@ -94,16 +99,39 @@ def user_led(t):
     return f
 
 
+# --- the R2's JP5 header --------------------------------------------------------
+
+def jp5(t):
+    f = Fig(790, 250, t)
+    f.text(20, 26, "JP5 on the PlutoSky R2: 2 × 12 pins, 1.8 V logic", 14, "ink", 600, "start")
+    kinds = {1: "danger", 2: "ink", 22: "ink", 24: "ink", 7: "accent", 9: "accent", 11: "accent", 13: "accent"}
+    x0, pitch = 62, 60.5
+    f.raw(f'<rect x="20" y="62" width="750" height="92" rx="8" fill="{t["surface"]}" stroke="{t["line"]}" '
+          f'stroke-width="1.5"/>')
+    for col in range(12):
+        x = x0 + col * pitch
+        for pin, y, ty in ((2 * col + 1, 86, 55), (2 * col + 2, 130, 172)):
+            kind = kinds.get(pin)
+            fill = t[kind + "_soft"] if kind in ("danger", "accent") else (t["ink"] if kind else "none")
+            stroke = t[kind] if kind else t["muted"]
+            f.raw(f'<circle cx="{x}" cy="{y}" r="11" fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
+            f.text(x, ty, str(pin), 12, kind if kind in ("danger", "accent") else "muted", 600 if kind else 400)
+    legend = (
+        (20, "danger", True, "pin 1: 5 V"),
+        (150, "ink", False, "pins 2, 22, 24: ground"),
+        (350, "accent", True, "pins 7, 9, 11, 13: sample_gpio0 to 3, outputs at 1.8 V"),
+    )
+    for x, kind, soft, label in legend:
+        fill = t[kind + "_soft"] if soft else t[kind]
+        f.raw(f'<circle cx="{x + 8}" cy="204" r="7" fill="{fill}" stroke="{t[kind]}" stroke-width="2"/>')
+        f.text(x + 24, 209, label, 12.5, "body", anchor="start")
+    f.text(20, 236, "Numbered as on the vendor's schematic; nothing here has been probed. "
+           "Find pin 1 on the board before you connect anything.", 12, "muted", anchor="start")
+    return f
+
+
 def main():
-    both("hw-refclock", "The three configurations of R107 and R109 around the reference clock", refclock)
-    both("hw-pin-owner", "Who drives the four free JP5 pins", pin_owner)
-    both("hw-user-led", "What drives the USER LED", user_led)
-    # The case from the antenna end: plutosky-r1-antennas.jpg is 1337x1086.
-    photo_figure("hw-sma-ports", "The case's antenna end", "plutosky-r1-antennas.jpg", "710x590+140+470", (426, 354), (
-        ("Which is which?", "read the board's silkscreen, lid off", "left", 120, (84, 150)),
-        ("4 × SMA", "TX1A, RX1A, TX2A, RX2A", "left", 230, (150, 196)),
-        ("Case labels", "in the wrong order on some units", "right", 300, (262, 250)),
-    ))
+    both("hw-jp5", "The PlutoSky R2's JP5 header: 5 V on pin 1, ground, and the four pins this firmware drives", jp5)
 
 
 if __name__ == "__main__":

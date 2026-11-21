@@ -10,9 +10,9 @@ What do you want to do with the board? Each card is one short page.
 !!! note "These guides were written on the PlutoSky R1"
     The R2 runs the same kernel, the same Debian root and the same tools, so
     the commands are the same. What is **not** the R2's: every measured
-    number, every photograph, and anything about transmit, which has not been
-    tested on an R2 at all. Receiving works on the one R2 that has run this
-    firmware. Where a guide names `192.168.2.1`, the USB network, use
+    number, every photograph, and every transmit level: the R2 has
+    transmitted at low power through attenuators only, and its output power is
+    not measured. Receiving works on the one R2 that has run this firmware. Where a guide names `192.168.2.1`, the USB network, use
     `fishball.local` over Ethernet instead if your PC is a Mac.
     [What is tested on the R2](../plutosky-r2.md#what-is-tested-and-what-is-not).
 

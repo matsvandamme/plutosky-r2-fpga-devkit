@@ -5,6 +5,9 @@ description: One command sets up a dedicated ssh key, so ssh fishball logs strai
 
 # Log in with a key
 
+One command sets up a dedicated ssh key. After it, `ssh fishball` logs
+straight in.
+
 ```bash
 # run from: the repo root
 ./devkit ssh-key            # idempotent; --check reports whether it is done

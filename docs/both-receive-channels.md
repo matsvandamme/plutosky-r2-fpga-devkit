@@ -3,7 +3,7 @@
 !!! note "Written on the PlutoSky R1"
     This page came with the R1's devkit and has not been redone on an R2. The
     software is the same, so the commands apply; the measured numbers and the
-    pictures are the R1's, and transmit is untested on the R2. A command with
+    pictures are the R1's, and the R2's transmit power is unmeasured. A command with
     `--target factory` in it is the exception: here that target builds only
     the FPGA design ([build your own firmware](build/index.md)).
     [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
@@ -25,8 +25,9 @@ the cost. To capture both channels, see
 ## Using it
 
 Nothing to do: `./devkit setup --target factory` applies it with the rest of the
-patch series, on the R2's design too. Receiving on both channels with the
-decimator engaged has not been tried on an R2.
+patch series, on the R2's design too. On one R2 the decimators were checked with the AD9361's built-in test tone
+([what is tested](plutosky-r2.md#what-is-tested-and-what-is-not)); the capture
+below has not been redone on an R2.
 Engage the decimator and capture both channels:
 
 ```bash

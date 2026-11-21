@@ -5,6 +5,12 @@ description: Both USB-C sockets for power, Ethernet for the network, then fishba
 
 # Connect and find the board
 
+Both USB-C sockets for power, Ethernet for the network, about half a minute,
+then the board answers at `fishball.local`.
+
+![The PlutoSky R2's three sockets and where each goes. ETH goes to your router, which hands out the address; from your PC, ssh root@fishball.local. DEBUG goes to USB power and is also the serial console. USB2.0 goes to USB power as the second socket. Connect both USB-C sockets: one alone can be short of power. The BOOT switch is set to SD.](../img/start-connect-light.svg#only-light)
+![The PlutoSky R2's three sockets and where each goes. ETH goes to your router, which hands out the address; from your PC, ssh root@fishball.local. DEBUG goes to USB power and is also the serial console. USB2.0 goes to USB power as the second socket. Connect both USB-C sockets: one alone can be short of power. The BOOT switch is set to SD.](../img/start-connect-dark.svg#only-dark)
+
 1. With the board unpowered, put the card in.
 2. Set the **`BOOT`** switch to SD: both sliders away from `ON`. A wrong
    position is silent: nothing appears even on the serial console.
@@ -13,6 +19,12 @@ description: Both USB-C sockets for power, Ethernet for the network, then fishba
    says one alone can be short of power.
 5. Wait about half a minute. On the test board a login prompt was there 23 s
    after power-on.
+
+![A two-slider DIP switch marked ON along one edge, with both sliders at the opposite edge: SD card boot, what this firmware boots from. Set it with the board off. A wrong position is silent: nothing appears, not even on the serial console.](../img/start-boot-switch-light.svg#only-light)
+![A two-slider DIP switch marked ON along one edge, with both sliders at the opposite edge: SD card boot, what this firmware boots from. Set it with the board off. A wrong position is silent: nothing appears, not even on the serial console.](../img/start-boot-switch-dark.svg#only-dark)
+
+*Step 2, as a drawing: it shows where the sliders go, not what the R2's
+switch looks like.*
 
 Then reach it:
 

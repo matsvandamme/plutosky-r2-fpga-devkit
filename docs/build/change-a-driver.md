@@ -1,21 +1,26 @@
 ---
 icon: material/chip
-description: Build the kernel alone in about two minutes and flash it alone; the board is back in about fifteen seconds.
+description: Build the kernel alone in about two minutes and replace it alone, from a card reader or with ./devkit flash --kernel-only.
 ---
 
 # Change a kernel driver
 
-Build `uImage` alone (about two minutes), then flash it alone: the board is
-back in about fifteen seconds.
+Build `uImage` alone (about two minutes), then replace it alone. Over the
+network that is `./devkit flash --kernel-only`: about fifteen seconds on an
+R1, and not run on an R2 yet.
 
-![The kernel loop as four boxes: edit the driver and add dev_warn(); build uImage, about two minutes; flash --kernel-only, back in about fifteen seconds; read dmesg on the board. A dashed arrow leads back to the start: and again.](../img/build-kernel-loop-light.svg#only-light)
-![The kernel loop as four boxes: edit the driver and add dev_warn(); build uImage, about two minutes; flash --kernel-only, back in about fifteen seconds; read dmesg on the board. A dashed arrow leads back to the start: and again.](../img/build-kernel-loop-dark.svg#only-dark)
+![The kernel loop as four boxes: edit the driver and add dev_warn(); build uImage, the kernel alone; put it on the board with flash --kernel-only or a card reader; read dmesg on the board. A dashed arrow leads back to the start: and again.](../img/build-kernel-loop-light.svg#only-light)
+![The kernel loop as four boxes: edit the driver and add dev_warn(); build uImage, the kernel alone; put it on the board with flash --kernel-only or a card reader; read dmesg on the board. A dashed arrow leads back to the start: and again.](../img/build-kernel-loop-dark.svg#only-dark)
 
 ```bash
 # run from: the repo root
 ./devkit build --xsa firmware/src/hdl/projects/pluto/system_top.xsa   # rebuilds what changed
 ./devkit flash --kernel-only
 ```
+
+Without `flash`: copy `firmware-modern/output/uImage` onto the card's first
+partition from a card reader, which is how the test board's files were
+replaced ([put it on the board](flash-your-build.md)).
 
 Or the kernel alone, by hand. The R2's kernel is `fishball_defconfig` with
 `config/r2.config` merged over it, which is what the build does:

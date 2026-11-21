@@ -121,6 +121,9 @@ over: 1.8 V on the R2, 3.3 V on the R1.**
 | `sample_gpio2` | 11 | `EXT_IO5_P` | M21 |
 | `sample_gpio3` | 13 | `EXT_IO5_N` | M22 |
 
+![The PlutoSky R2's JP5 header as two rows of twelve pins, odd numbers in one row and even in the other. Pin 1 is 5 V. Pins 2, 22 and 24 are ground. Pins 7, 9, 11 and 13 are sample_gpio0 to 3, outputs at 1.8 V. The numbering is the vendor's schematic's; nothing has been probed, and pin 1 must be found on the board before connecting anything.](img/hw-jp5-light.svg#only-light)
+![The PlutoSky R2's JP5 header as two rows of twelve pins, odd numbers in one row and even in the other. Pin 1 is 5 V. Pins 2, 22 and 24 are ground. Pins 7, 9, 11 and 13 are sample_gpio0 to 3, outputs at 1.8 V. The numbering is the vendor's schematic's; nothing has been probed, and pin 1 must be found on the board before connecting anything.](img/hw-jp5-dark.svg#only-dark)
+
 Pin 1 of the R2's `JP5` is `VCC5V`, and pins 2, 22 and 24 are ground. Do not
 plug an R1 wiring harness in without checking it against the R2 schematic.
 
@@ -134,6 +137,7 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 | Ethernet on Linux 6.12 through the converter core | works at 1 Gbit/s. The device tree says `rgmii-id`, not the vendor tree's `rgmii-rxid`: with the vendor's value the board receives and cannot send |
 | Transmit, both channels, at low power through attenuators | tested on one board, 2026-11-21, with `./devkit selftest --loopback` (TX1 to RX1 through 30 dB, TX2 to RX2 through 20 dB) and the stream-end cases of `tools/tx-idle-cases/cases123.sh`. Both transmitters produce a clean tone at 900 MHz (harmonics below -71 dBc, image rejection 52 to 58 dBc after calibration), the attenuator is linear (1.00 dB per dB), and the path is smooth from 100 MHz to 5 GHz. Each transmitter mutes on a clean stop, within 0.1 s of its client being killed, and after 250 ms without data; the transmit gate refuses without an affirmation. The self-test passed in 13 of 14 runs; one run reported a failure that did not repeat and was not identified |
 | Transmit power | **not measured.** Never taken above 30 dB of attenuation (the self-test's own floor is 35 dB), and no power meter was used. With the attenuators at their marked values, the loop has about 7.5 dB more gain than the self-test's R1 model expects, the same on both channels, so the R2's transmitter or receiver has more gain than the R1's. Do not assume the R1's +19 dBm |
+| The FPGA decimators, both receive channels | checked on one board with the AD9361's built-in test tone and the ÷8 decimator engaged: a 960 kHz tone arrives intact on both channels, and a 3.84 MHz tone, outside the decimated band, is removed on both. The alias measurement of [both receive channels](both-receive-channels.md) has not been redone on an R2 |
 | The sample-locked `JP5` outputs | not tested on the R2 |
 | `./devkit write-card` | `--from` a release into an image file (`--image`), copied to the card: that card booted. Writing straight to a card reader on Linux has not been done for an R2 |
 | `./devkit flash` | not run on an R2 |

@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""Draw the Building section's diagrams, each in a light and a dark variant.
+"""Draw the Building section's diagrams for the PlutoSky R2, each in a light
+and a dark variant.
 
     # run from: the repo root
     python3 docs/img/make_build_figures.py        # stdlib only
 
 Writes into docs/img/:
 
-    build-path-{light,dark}.svg           doctor -> setup -> build -> verify -> flash
-    build-xsa-{light,dark}.svg            the FPGA half from Vivado, or from an XSA
-    build-change-map-{light,dark}.svg     what you changed -> the file -> the flash flag
-    build-kernel-loop-{light,dark}.svg    edit, build uImage, flash it, read dmesg
-    build-devicetree-{light,dark}.svg     dtsi + overlay -> .dtb -> verify_dtb -> flash
+    build-path-{light,dark}.svg           doctor -> setup -> build -> verify -> write-card
+    build-xsa-{light,dark}.svg            the FPGA design from Vivado, or from release v0.1
+    build-change-map-{light,dark}.svg     what you changed -> the file -> how it reaches the board
+    build-kernel-loop-{light,dark}.svg    edit, build uImage, put it on the board, read dmesg
+    build-devicetree-{light,dark}.svg     dtsi + the R1's tree + the R2's -> .dtb -> verify_dtb
     build-container-{light,dark}.svg      what runs in the container and what on the host
-    build-insert-points-{light,dark}.svg  upstream's datapath and where your logic goes
-    build-wbfm-datapath-{light,dark}.svg  the receive path with the FM channelizer
+
+The path ends at a card and every route onto the board names the card reader
+beside `flash`, because `./devkit flash` has not been run on an R2
+(docs/plutosky-r2.md). insert_points() and wbfm() draw figures for pages only
+the R1's repository has; main() does not draw them here.
 
 The look comes from make_start_figures.py (same helpers, same colours). Pages
 show a diagram as `![alt](img/x-light.svg#only-light)` plus the
@@ -36,7 +40,7 @@ def chain(f, y, stages, x0=20, bw=132, gap=22, h=74, colour="accent"):
             f.arrow(x + bw + 2, y + h / 2, x + bw + gap - 2, y + h / 2, colour=colour)
 
 
-# --- doctor -> setup -> build -> verify -> flash -------------------------------
+# --- doctor -> setup -> build -> verify -> write-card ---------------------------
 
 def path(t):
     f = Fig(790, 132, t)
@@ -44,9 +48,9 @@ def path(t):
     chain(f, 14, (
         ("doctor", ("can this", "machine build?"), *plain),
         ("setup", ("fetch the sources,", "apply the patches"), *plain),
-        ("build", ("the SD-card files,", "into output/"), "accent_soft", "accent"),
-        ("verify", ("is the build sane?", "--board: is it running?"), *plain),
-        ("flash", ("over the network,", "md5-verified"), "ok_soft", "ok"),
+        ("build --all", ("the boot files and", "the Debian root"), "accent_soft", "accent"),
+        ("verify", ("is the build", "sane?"), *plain),
+        ("write-card", ("a whole card,", "from a card reader"), "ok_soft", "ok"),
     ))
     f.text(20, 116, "Each is one ./devkit command, run from the repo root.", 12, "muted", anchor="start")
     return f
@@ -55,44 +59,46 @@ def path(t):
 # --- with or without Vivado ----------------------------------------------------
 
 def xsa(t):
-    f = Fig(790, 250, t)
-    f.text(20, 26, "The FPGA half: build it, or take it from an XSA", 14, "ink", 600, "start")
-    f.box(20, 44, 230, 74, "Vivado 2022.2", ("about 50 GB installed,", "20 to 70 min of every build"))
-    f.box(20, 150, 230, 74, "An XSA you already have", ("a release's system_top.xsa,", "or one saved from a full build"),
+    f = Fig(790, 262, t)
+    f.text(20, 26, "The FPGA design: build it, or take the released one", 14, "ink", 600, "start")
+    f.box(20, 44, 230, 74, "Vivado 2022.2", ("build --target factory:", "10 minutes to over an hour"))
+    f.box(20, 162, 230, 74, "Release v0.1's design", ("fetch-pinned-xsa.sh downloads", "it and checks its hash"),
           fill="ok_soft", stroke="ok")
-    f.box(330, 97, 150, 74, "The XSA", ("system_top.bit", "ps7_init.c"), fill="accent_soft", stroke="accent", mono_sub=True)
-    f.arrow(250, 81, 328, 120, colour="muted")
-    f.arrow(250, 187, 328, 148, colour="ok")
-    f.text(292, 84, "builds", 12, "muted")
-    f.text(292, 196, "--xsa", 12, "ok", mono=True)
-    f.box(560, 60, 210, 148, "", ())
-    f.text(665, 86, "The rest of the build", 14, "ink", 600)
-    for i, s in enumerate(("FSBL", "U-Boot", "kernel", "root filesystem", "BOOT.bin")):
-        f.text(665, 110 + i * 19, s, 12.5, "body")
-    f.arrow(480, 134, 558, 134, colour="accent")
-    f.text(665, 228, "minutes, nothing from AMD installed", 12, "muted")
+    f.box(330, 103, 150, 74, "system_top.xsa", ("system_top.bit", "ps7_init.c"), fill="accent_soft", stroke="accent",
+          mono_sub=True)
+    f.arrow(250, 81, 328, 124, colour="muted")
+    f.arrow(250, 199, 328, 156, colour="ok")
+    f.text(292, 86, "builds", 12, "muted")
+    f.text(292, 206, "--xsa", 12, "ok", mono=True)
+    f.box(560, 54, 210, 172, "", ())
+    f.text(665, 80, "The rest of the build", 14, "ink", 600)
+    for i, s in enumerate(("FSBL", "U-Boot", "kernel", "device tree", "BOOT.bin", "Debian root")):
+        f.text(665, 106 + i * 19, s, 12.5, "body")
+    f.arrow(480, 140, 558, 140, colour="accent")
+    f.text(665, 246, "no Vivado: cross-compilers and a container", 12, "muted")
     return f
 
 
-# --- what you changed -> file -> flag ------------------------------------------
+# --- what you changed -> file -> how it reaches the board -----------------------
 
 def change_map(t):
     f = Fig(790, 276, t)
     for x, s in ((120, "You changed"), (395, "The file that changes"), (660, "How it reaches the board")):
         f.text(x, 24, s, 13, "muted", 600)
+    card = "or copy it onto the card"
     rows = (
-        ("The FPGA", "HDL, block design", "BOOT.bin", "flash --boot-only", "accent_soft", "accent"),
-        ("The kernel", "a driver, the config", "uImage", "flash --kernel-only", "accent_soft", "accent"),
-        ("The device tree", "", "devicetree.dtb", "flash --dtb-only", "accent_soft", "accent"),
-        ("The Debian root", "the overlay, packages", "rootfs.tar", "write-card: a new card", "surface", "line"),
+        ("The FPGA", "HDL, block design", "BOOT.bin", "flash --boot-only", card, "accent_soft", "accent"),
+        ("The kernel", "a driver, the config", "uImage", "flash --kernel-only", card, "accent_soft", "accent"),
+        ("The device tree", "", "devicetree.dtb", "flash --dtb-only", card, "accent_soft", "accent"),
+        ("The Debian root", "the overlay, packages", "rootfs.tar", "write-card", "a new card", "surface", "line"),
     )
-    for i, (what, sub, name, how, fill, stroke) in enumerate(rows):
+    for i, (what, sub, name, how, how_sub, fill, stroke) in enumerate(rows):
         y = 38 + i * 58
         f.box(20, y, 200, 46, what, sub)
         f.arrow(222, y + 23, 298, y + 23, colour="muted")
         f.box(300, y, 190, 46, name, (), fill=fill, stroke=stroke)
         f.arrow(492, y + 23, 548, y + 23, colour="muted")
-        f.box(550, y, 220, 46, how, (), title_fill="body")
+        f.box(550, y, 220, 46, how, how_sub, title_fill="body")
     return f
 
 
@@ -103,8 +109,8 @@ def kernel_loop(t):
     plain = ("surface", "line")
     chain(f, 20, (
         ("Edit the driver", ("add dev_warn()",), *plain),
-        ("Build uImage", ("about two minutes",), "accent_soft", "accent"),
-        ("flash --kernel-only", ("back in about", "fifteen seconds"), "ok_soft", "ok"),
+        ("Build uImage", ("the kernel alone",), "accent_soft", "accent"),
+        ("Put it on the board", ("flash --kernel-only,", "or a card reader"), "ok_soft", "ok"),
         ("Read dmesg", ("on the board",), *plain),
     ), bw=170, gap=23)
     # the way back: under the row, from the last box to the first
@@ -115,20 +121,22 @@ def kernel_loop(t):
     return f
 
 
-# --- the modern device tree ----------------------------------------------------
+# --- the device tree: three layers ---------------------------------------------
 
 def devicetree(t):
-    f = Fig(790, 196, t)
-    f.box(20, 20, 220, 62, "zynq-pluto-sdr.dtsi", ("ADI's: an ADALM-Pluto",))
-    f.box(20, 112, 220, 62, "zynq-pluto-sdr-fishball.dts", ("the overlay: only where", "this board differs"),
+    f = Fig(790, 266, t)
+    f.box(20, 20, 262, 62, "zynq-pluto-sdr.dtsi", ("ADI's: an ADALM-Pluto",))
+    f.box(20, 102, 262, 62, "zynq-pluto-sdr-fishball.dts", ("the R1's: where it differs from a Pluto",))
+    f.box(20, 184, 262, 62, "zynq-pluto-sdr-fishball-r2.dts", ("the R2's: where it differs from the R1",),
           fill="accent_soft", stroke="accent")
-    f.box(320, 66, 150, 62, "devicetree.dtb", ("the built tree",), fill="accent_soft", stroke="accent")
-    f.arrow(240, 51, 318, 88, colour="muted")
-    f.arrow(240, 143, 318, 106, colour="accent")
-    f.box(540, 20, 230, 62, "verify_dtb.py", ("16 checks on the built .dtb",), fill="ok_soft", stroke="ok")
-    f.box(540, 112, 230, 62, "flash --dtb-only", ("onto the running board",))
-    f.arrow(470, 88, 538, 55, colour="ok")
-    f.arrow(655, 82, 655, 110, colour="muted")
+    f.box(352, 102, 150, 62, "devicetree.dtb", ("the built tree",), fill="accent_soft", stroke="accent")
+    f.arrow(282, 51, 350, 114, colour="muted")
+    f.arrow(282, 133, 350, 133, colour="muted")
+    f.arrow(282, 215, 350, 152, colour="accent")
+    f.box(566, 40, 204, 62, "verify_dtb.py", ("16 checks on the built .dtb",), fill="ok_soft", stroke="ok")
+    f.box(566, 164, 204, 62, "Onto the board", ("flash --dtb-only,", "or a card reader"))
+    f.arrow(502, 122, 564, 78, colour="ok")
+    f.arrow(668, 102, 668, 162, colour="muted")
     return f
 
 
@@ -218,14 +226,12 @@ def wbfm(t):
 
 
 def main():
-    both("build-path", "The build path: doctor, setup, build, verify, flash", path)
-    both("build-xsa", "The FPGA half of a build comes from Vivado or from an XSA", xsa)
+    both("build-path", "The build path: doctor, setup, build, verify, write-card", path)
+    both("build-xsa", "The FPGA design comes from Vivado or from release v0.1", xsa)
     both("build-change-map", "Which file each kind of change rebuilds, and how it reaches the board", change_map)
-    both("build-kernel-loop", "The kernel loop: edit, build uImage, flash it, read dmesg", kernel_loop)
-    both("build-devicetree", "The modern device tree: ADI's dtsi plus this board's overlay", devicetree)
+    both("build-kernel-loop", "The kernel loop: edit, build uImage, put it on the board, read dmesg", kernel_loop)
+    both("build-devicetree", "The R2's device tree: ADI's dtsi, the R1's tree, and the R2's over both", devicetree)
     both("build-container", "What runs in the build container and what stays on the host", container)
-    both("build-insert-points", "Upstream's datapath, and where your own logic goes", insert_points)
-    both("build-wbfm-datapath", "The receive path with the FM channelizer patch applied", wbfm)
 
 
 if __name__ == "__main__":
