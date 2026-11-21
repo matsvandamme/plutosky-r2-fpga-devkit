@@ -26,7 +26,7 @@ the cost. To capture both channels, see
 
 Nothing to do: `./devkit setup --target factory` applies it with the rest of the
 patch series, on the R2's design too. On one R2 the same sweep was run through
-loops at 30.72 MSPS: both channels reject out-of-window tones by 89 dB or more
+loops at 61.44 MSPS: both channels reject tones from 7 to 20 MHz by 86 dB or more
 ([what is tested](plutosky-r2.md#what-is-tested-and-what-is-not)). The figures and
 the pictures below are the R1's.
 Engage the decimator and capture both channels:
