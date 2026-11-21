@@ -57,12 +57,19 @@ expect("--target=bogus (the = form) is refused too",
        [DEVKIT, "setup", "--target=bogus"], 1, "unknown --target")
 
 # ---- 2. the modern build refuses what it must ----------------------------------
-expect("modern build refuses to run without --xsa",
-       [DEVKIT, "build", "--target", "modern"], 1, "needs --xsa")
+# On macOS the modern build stops one step earlier, at "use ./devkit container"
+# (firmware-modern/build_all.sh): nothing below that line builds natively there.
+if sys.platform == "darwin":
+    expect("modern build on macOS sends you to the container, before asking for --xsa",
+           [DEVKIT, "build", "--target", "modern"], 1, "./devkit container build --xsa")
+else:
+    expect("modern build refuses to run without --xsa",
+           [DEVKIT, "build", "--target", "modern"], 1, "needs --xsa")
 expect("bare build is the modern target: without --xsa it says how to get one",
        [DEVKIT, "build"], 1, "fetch-pinned-xsa.sh")
-expect("bare build without --xsa also names the factory target, for Vivado",
-       [DEVKIT, "build"], 1, "./devkit build --target factory")
+if sys.platform != "darwin":
+    expect("bare build without --xsa also names the factory target, for Vivado",
+           [DEVKIT, "build"], 1, "./devkit build --target factory")
 expect("bare build --hdl-only (an old factory guide) names --target factory",
        [DEVKIT, "build", "--hdl-only"], 1, "./devkit build --target factory --hdl-only")
 expect("DEVKIT_TARGET with an unknown value is refused, and named",
@@ -82,11 +89,14 @@ for flag in ("--rootfs-only", "--all"):
 # --rootfs-only needs no --xsa: it goes straight to debian/build.sh. A fake podman
 # that can run nothing, first on PATH, makes that script stop at its emulation
 # check - which is proof it got there, without building a root filesystem.
+# DEVKIT_RUNTIME names it, because being first on PATH is no longer enough: on
+# macOS build.sh takes docker before podman, and on a Mac with Colima running
+# this test then built a real root and replaced firmware-modern/debian/rootfs.tar.
 with tempfile.TemporaryDirectory() as d:
     fake = pathlib.Path(d) / "podman"
     fake.write_text("#!/bin/sh\nexit 1\n")
     fake.chmod(0o755)
-    env = {"PATH": d + os.pathsep + os.environ["PATH"], "container": ""}
+    env = {"PATH": d + os.pathsep + os.environ["PATH"], "container": "", "DEVKIT_RUNTIME": "podman"}
     expect("modern build --rootfs-only needs no --xsa and runs debian/build.sh",
            [DEVKIT, "build", "--target", "modern", "--rootfs-only"], 1,
            "cannot run armhf containers", env=env)
@@ -150,8 +160,14 @@ expect("--rev with an unknown value is refused",
        [DEVKIT, "build", "--rev", "r9"], 1, "unknown --rev 'r9'")
 expect("--rev r2 (a command line from the two-board days) is still accepted",
        [DEVKIT, "build", "--rev", "r2"], 1, "fetch-pinned-xsa.sh")
-expect("factory doctor is the FPGA build's preflight",
-       [DEVKIT, "doctor", "--target", "factory"], 1, "./devkit setup --target factory")
+# On macOS it stops one step earlier, as the modern build does: Vivado does not
+# run there, so firmware/scripts/build_fpga.sh names the container instead.
+if sys.platform == "darwin":
+    expect("factory doctor on macOS sends you to the container: Vivado does not run there",
+           [DEVKIT, "doctor", "--target", "factory"], 1, "./devkit container build --target factory")
+else:
+    expect("factory doctor is the FPGA build's preflight",
+           [DEVKIT, "doctor", "--target", "factory"], 1, "./devkit setup --target factory")
 
 # ---- 4. import_xsa.sh: each refusal, and a good import, on synthetic XSAs ------
 IMPORT = str(ROOT / "firmware" / "scripts" / "import_xsa.sh")

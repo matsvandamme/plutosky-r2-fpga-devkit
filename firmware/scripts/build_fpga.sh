@@ -41,6 +41,21 @@ if [ "$DEVKIT_REV" = r1 ]; then
     exit 1
 fi
 
+# macOS. Vivado is Linux-only (and x86-64 only), so the design is built in the
+# container there, never on the Mac itself. Say that in one sentence, for doctor
+# as well as for build, rather than as a missing /tools/Xilinx.
+if [ "$(uname -s)" = Darwin ]; then
+    echo "ERROR: Vivado does not run on macOS itself; build the FPGA design with ./devkit container:" >&2
+    echo "           ./devkit container build-image --target factory     # once: the x86-64 image" >&2
+    echo "           ./devkit container doctor --target factory$REV_FLAG" >&2
+    echo "           ./devkit container setup --target factory$REV_FLAG" >&2
+    echo "           ./devkit container build --target factory$REV_FLAG" >&2
+    echo "       It needs Docker (Colima) and Vivado 2022.2 in a volume; see" >&2
+    echo "       docs/building-in-a-container.md. The host tools need none of this:" >&2
+    echo "           ./devkit doctor --host" >&2
+    exit 1
+fi
+
 SRC_DIR="$FW1_DIR/src$REV_SUFFIX"
 PLUTO="$SRC_DIR/hdl/projects/pluto"
 XILINX_DIR="${XILINX_DIR:-/tools/Xilinx}"
