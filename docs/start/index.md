@@ -48,4 +48,5 @@ From a PlutoSky R2 in its box to one running this firmware: six short steps, one
 - **Change the address or name:** [change the IP address](change-the-address.md).
 - **Stop typing the password:** [log in with a key](log-in-with-a-key.md).
 - **Go back to the factory firmware:** [set the `BOOT` switch to QSPI](../plutosky-r2.md#going-back-to-the-factory-firmware).
+- **On macOS:** [use the devkit on a Mac](use-a-mac.md).
 - **Something is wrong:** [troubleshooting](../troubleshooting.md).

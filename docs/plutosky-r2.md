@@ -140,7 +140,13 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 | The FPGA decimators, both receive channels | checked on one board with the AD9361's built-in test tone and the ÷8 decimator engaged: a 960 kHz tone arrives intact on both channels, and a 3.84 MHz tone, outside the decimated band, is removed on both. The alias measurement of [both receive channels](both-receive-channels.md) has not been redone on an R2 |
 | The sample-locked `JP5` outputs | not tested on the R2 |
 | `./devkit write-card` | `--from` a release into an image file (`--image`), copied to the card: that card booted. Writing straight to a card reader on Linux has not been done for an R2 |
-| `./devkit flash` | run on one board, 2026-11-21: `--dtb-only --no-reboot`, then the default (`BOOT.bin` and `uImage`) with its reboot. Backup, checksum before the swap, `*.prev` copies and the check after the reboot all worked, and the board came back with no failed units, the radio found and both transmitters muted. The files sent were release v0.1's, the ones already on the card, so this shows the mechanism and not a changed file taking effect. It leaves `/boot` mounted read-only until the next reboot. The host was a Mac without `sshpass`, so the login used a key in place of the password |
+| `./devkit flash` | run on one board, 2026-11-21, from a Mac. First with the tool as the R1 repository had it, the login through a key in place of `sshpass`: `--dtb-only --no-reboot`, then the default (`BOOT.bin` and `uImage`) with its reboot. Backup, checksum before the swap, `*.prev` copies and the check after the reboot all worked, and the board came back with no failed units, the radio found and both transmitters muted; that run left `/boot` mounted read-only until the next reboot. Then with the reworked tool, which logs in with the key itself and puts `/boot` back as it found it: `--kernel-only --no-reboot`, and a flash with the reboot. Every file sent was release v0.1's, the ones already on the card, so this shows the mechanism and not a changed file taking effect |
+| The host tools from a Mac (bash 3.2, no `sshpass`) | run on one board, 2026-11-21: `./devkit ssh-key`, `net`, `net find`, `status`, `selftest --ssh` and `flash` (the row above). Not run from a Mac or any other host: `verify --board`, `gpio-check` |
+| The USB network switched to `ncm`, with the board's DHCP server on `usb0` | tested on one board with an Apple Silicon Mac, 2026-11-21, with firmware newer than v0.1 (it is in the next release): with `ncm` set in `/etc/default/fishball-usb-gadget` the Mac got a network port and the address `192.168.2.10`; ping, ssh and `./devkit selftest` worked over `192.168.2.1`; the mode survived a reboot, and switching to `rndis` and back worked. Not tested: `ecm`, the `uEnv.txt` line, `fishball-usb-mode` writing the U-Boot environment, `ncm` with a Windows PC, and the DHCP server with a Linux or Windows PC |
+| Fast TCP (`zc-stream`) at 20 MS/s | measured on one board from a Mac with a script, 2026-11-21: 20 MS/s arrived in full on both receive ports. The figures on [stream 20 MS/s](radio/stream-20-msps.md) are still the R1's |
+| The macOS card writer (`./devkit write-card` on a Mac) | **not tested for an R2.** It wrote the R1's release v2.3 to a 32 GB card, which booted in an R1 (2026-11-21). For the R2 it has only laid release v0.1 out into an image file, which was not booted |
+| `./devkit container` on an Apple Silicon Mac (Docker, Colima, Rosetta) | **not run for the R2 from this repository.** In the R1's repository it built that board's boot files, Debian root and whole factory firmware (timing met); none of those was booted. The R2's design was built on the same Mac earlier with Vivado started by hand in the container image: 9 minutes, timing met |
+| SDR++ with the patch, built on macOS (`tools/sdrpp/build-macos.sh`) | builds and starts on one Mac; receiving in its window was not checked with any board |
 | `./devkit selftest` | run on one board, 2026-11-21: 24 of 24 checks pass without a cable, including the internal digital loopback. Its baselines and its power model are the R1's |
 | `./devkit tx-guard` | works: affirm, status, refusal and revoke, over ssh with a key |
 | `verify --board`, `gpio-check`, `clock` | not run on an R2 |
@@ -158,9 +164,12 @@ USB-C sockets. On the test board, one freeze and one restart were seen with
 only `DEBUG` connected and none after `USB2.0` was connected as well; that
 fits the manual, and is not proven to be the cause.
 
-The USB network is RNDIS, as on the R1. macOS has no driver for it, so from a
-Mac use Ethernet or the serial console on `DEBUG` (115200 baud, the second of
-the two serial ports the socket presents). Do not send that console a serial
+The USB network is RNDIS by default, as on the R1. macOS has no driver for it,
+so from a Mac use Ethernet or the serial console on `DEBUG` (115200 baud, the
+second of the two serial ports the socket presents). From the next release
+`fishball-usb-mode ncm` on the board switches it to a function macOS drives,
+and the board hands the PC its address
+([use the devkit on a Mac](start/use-a-mac.md#reach-the-board-over-the-usb-cable)). Do not send that console a serial
 BREAK: on the test board it flooded the console with NUL bytes.
 
 On link-up the kernel prints `unable to generate target frequency: 125000000

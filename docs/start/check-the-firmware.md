@@ -32,6 +32,10 @@ dmesg | grep -E 'PRODUCT_ID|Could not attach PHY'   # prints nothing on a good b
 ip -br addr show eth0                                # an address from your router
 ```
 
+From a clone, `./devkit status` says the same in one line without logging in.
+A release card reads `modern` and its release, `v0.1`; a build between
+releases reads `modern (Debian)` with its `git describe`.
+
 **Built it yourself and the board is on the network?** Compare the card with
 your build:
 

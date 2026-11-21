@@ -72,14 +72,18 @@ One PlutoSky R2 has run this firmware. Release **[v0.1](https://github.com/matsv
 | boots to Debian 13 / Linux 6.12 from the SD card, about 21 s to a running system, no failed services | **works** |
 | radio found, receives samples; both transmitters come up muted (89.75 dB) | **works** |
 | Ethernet: 1 Gbit/s, DHCP, `fishball.local`, ssh and iiod | **works** |
-| USB: the board enumerates and its network interface comes up | **works** on the board's side (the host was a Mac, which has no driver for it) |
+| USB: the board enumerates and its network interface comes up | **works** on the board's side with release v0.1 (the host was a Mac, which has no driver for RNDIS) |
+| USB network to a Mac: the board switched to `ncm`, handing the Mac its address by DHCP | **works**, with firmware built after v0.1: it is in the next release |
 | a card made with `./devkit write-card --from` a release, through an image file (`--image`) copied to the card | **works** |
 | `./devkit write-card` straight to a card reader | **not done** for an R2 |
 | transmit, both channels, at low power through attenuators; mutes when its program stops, is killed or starves | **works** |
 | transmit power | **not measured** |
 | the four sample-locked header pins, the 10 MHz reference input | **not tested** |
 | `./devkit selftest` and `./devkit tx-guard` | **work** |
-| `./devkit flash`: boot loader, kernel and device tree onto the running board, with a reboot | **works**, run once with the files already on the card |
+| `./devkit flash`: boot loader, kernel and device tree onto the running board, with a reboot | **works**, run from a Mac, with the files already on the card |
+| the host tools from a Mac: `ssh-key`, `net`, `status`, `selftest --ssh`, `flash` | **work** |
+| the Mac card writer | **not run** for an R2: the card it wrote was the R1's release, booted in an R1 |
+| `./devkit container` on an Apple Silicon Mac | **not run** for the R2 from this repository: it built the R1 repository's targets |
 | the Windows card writer | **not run** for an R2 |
 | a second R2, an AD9363 unit, a unit with a power amplifier | **none tried** |
 
@@ -147,6 +151,8 @@ sudo ./devkit write-card --from ~/Downloads /dev/sdX      # DESTROYS the card
 
 The card that booted was made with `--image` and copied to the card; writing straight to a reader, as above, has not been done for an R2 yet.
 
+**On macOS** the same command takes `/dev/diskN` (`diskutil list external physical` names it) and needs no `gunzip` line: with `--from`, the Mac writer takes `debian-rootfs.tar.gz` as it is. That writer was tested with the R1's release: a card it wrote booted in an R1 on 2026-11-21. It has not written an R2 card. [Use the devkit on a Mac](docs/start/use-a-mac.md#write-a-card).
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/img/start-card-dark.svg">
@@ -163,6 +169,8 @@ The card that booted was made with `--image` and copied to the card; writing str
 ./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"
 sudo ./devkit write-card /dev/sdX        # DESTROYS the card
 ```
+
+**On a Mac** the host tools (`ssh-key`, `status`, `net`, `flash`, `selftest --ssh`) run as they are, with no `sshpass`: they were run from a Mac on the R2. The build runs in `./devkit container` with Docker through Colima, which has built the R1 repository's targets and not yet the R2 from this one. The USB network needs the board switched to `ncm`, with firmware from the next release. What was tested, and on which board: [use the devkit on a Mac](docs/start/use-a-mac.md).
 
 **Changing the FPGA** needs Vivado 2022.2 (on Ubuntu 18.04 to 22.04, or in the container `./devkit container` builds for you):
 
@@ -189,17 +197,17 @@ ssh root@fishball.local    # password: analog
 ./devkit selftest          # is the radio damaged? no cable, never transmits
 ```
 
-The self-test's baselines are the R1's. From a Mac, use Ethernet: the board's USB network is RNDIS, which macOS has no driver for.
+The self-test's baselines are the R1's. From a Mac, use Ethernet with release v0.1: the board's USB network is RNDIS, which macOS has no driver for. From the next release the board can be switched to `ncm`, which macOS drives ([on a Mac](docs/start/use-a-mac.md#reach-the-board-over-the-usb-cable)).
 
 Then pick a starting point under [use the radio](docs/radio/index.md): [capture IQ](docs/capturing-iq.md), [SDR++](docs/sdrpp.md) or [aircraft overhead](docs/adsb.md). Those guides were written on the R1.
 
-After the first card, `./devkit flash --kernel-only` puts a changed kernel on the running board over the network. It has been run once on an R2, with the release's own files. It does not check which board answers: do not point it at an R1.
+After the first card, `./devkit flash --kernel-only` puts a changed kernel on the running board over the network. It has been run on one R2, from a Mac, each time with the release's own files. It does not check which board answers: do not point it at an R1.
 
 > [!CAUTION]
 > ### Before you ever transmit
 > Transmit has been tested on one R2 only at low power, through attenuators, and **its output power has not been measured**: the loop showed about 7.5 dB more gain than on the R1, so do not assume the R1's figures. The rules written for the R1 are the ones to start from: the receive port of an AD9361 board survives about **+2.5 dBm**, a board with a power amplifier puts out far more than that, so **never loop TX back to RX without at least 20 dB of attenuation**, and never transmit at power into an open port. The devkit's transmitting tools refuse to run until you record `./devkit tx-guard affirm`. Read [transmitter safety](docs/transmitter-safety.md) first.
 
-`./devkit help` lists every command and `./devkit help <command>` explains one; `./devkit completion install` adds tab completion.
+`./devkit help` lists every command and `./devkit help <command>` explains one; `./devkit completion install` adds tab completion (bash and zsh; for the current shell only, `eval "$(./devkit completion)"`).
 
 ## 💭 Feedback and contributing
 

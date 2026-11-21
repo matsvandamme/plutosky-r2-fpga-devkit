@@ -56,11 +56,19 @@ console with NUL bytes.
 
 **Fix.** Power-cycle, and do not send one.
 
-### The board does not appear as a network interface over USB on a Mac
+### On a Mac, `192.168.2.1` does not answer and no network port appears
 
-**Cause.** Its USB network function is RNDIS, which macOS has no driver for.
+**Symptom.** The USB cable is in and the board runs, but macOS shows no new
+network port. `iio_info -s` may still list the board as a `usb:` context.
 
-**Fix.** Use Ethernet (`fishball.local`) or the serial console on `DEBUG`.
+**Cause.** The board's USB network is RNDIS by default, and macOS has no RNDIS
+driver.
+
+**Fix.** Reach the board over Ethernet (`ssh root@fishball.local`) or the
+serial console on `DEBUG`, and run `fishball-usb-mode ncm`. This needs firmware
+from the next release; it is not in v0.1. On v0.1, use Ethernet. Tested on an
+R2 with a Mac, with the mode set in `/etc/default/fishball-usb-gadget`:
+[reach the board over the USB cable](start/use-a-mac.md#reach-the-board-over-the-usb-cable).
 
 ### `unable to generate target frequency: 125000000 Hz` in the kernel log
 
@@ -78,7 +86,7 @@ regardless.
 **Cause.** Its standard input was an open pipe.
 
 **Fix.** Close it: `vivado -mode batch ... </dev/null`. `./devkit build
---target factory` from a terminal is not affected.
+--target factory` now closes it itself, so this is for Vivado started by hand.
 
 ## The board
 
@@ -100,6 +108,16 @@ signature.
 **Fix.** Put the board's second USB cable on a **mains charger**, not another
 port on the same laptop. To confirm, run `./devkit selftest`: on mains it reports
 `25 passed, 0 warnings, 0 failed` and `HEALTHY`, with no Calibration TIMEOUTs.
+
+### A tool stops with `No way to log in to the board without typing a password`
+
+**Cause.** The machine has neither the devkit's key nor `sshpass`. A stock Mac
+has no `sshpass`.
+
+**Fix.** `./devkit ssh-key`. It needs no `sshpass`: it asks for the board's
+password (`analog`) once, in the terminal. `./devkit doctor --host` shows what
+the host tools find. Older versions of the tools stopped with `need sshpass`
+instead; the key now replaces it.
 
 ### ssh works, but nothing can open the radio (Debian root)
 
@@ -198,8 +216,8 @@ the package: on Arch that would take `dtc` with it.
 
 ## Flashing
 
-*Written for the R1. On the R2, `./devkit flash` was run once
-([put it on the board](build/flash-your-build.md)).*
+*Written for the R1. On the R2, `./devkit flash` was run on one board, from a
+Mac ([put it on the board](build/flash-your-build.md)).*
 
 ### `dfu-util -l` shows nothing
 

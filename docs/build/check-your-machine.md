@@ -11,8 +11,10 @@ description: ./devkit doctor checks the compilers, host packages, disk and sourc
 ./devkit doctor --target factory    # the FPGA design: Vivado, the source tree and its patch stamp
 ```
 
-It checks the compilers, host packages, disk and the sources, in about a
-second. Every check is a failure that once cost somebody an hour: run it before
+It checks the host tools (ssh, python3, a way to log in to the board), then the
+compilers, host packages, disk and the sources, in about a second.
+`./devkit doctor --host` stops after the host tools: the whole answer on a
+machine that only flashes and tests. Every check is a failure that once cost somebody an hour: run it before
 the build, not during.
 
 **You should see** every line say `ok`, as on a machine that can build
@@ -54,6 +56,15 @@ sudo apt install -y git build-essential bison flex libssl-dev \
     libgmp-dev libmpc-dev libmpfr-dev sshpass iverilog libiio-utils \
     gcc-arm-none-eabi libnewlib-arm-none-eabi gcc-arm-linux-gnueabi
 ```
+
+??? question "On a Mac?"
+    macOS cannot build the firmware natively, and `./devkit doctor` says so,
+    for either target, after the host tools' lines. `./devkit doctor --host`
+    checks what flashing and testing a board need (ssh, python3 and a way to
+    log in); `./devkit container doctor` checks the build, inside the
+    container. The container build has not been run for the R2 from this
+    repository:
+    [use the devkit on a Mac](../start/use-a-mac.md#build-the-firmware).
 
 ??? question "On Arch, or another distribution?"
     Arch has no ARM Linux cross-compiler in its official repositories: use Arm's

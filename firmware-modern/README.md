@@ -38,7 +38,8 @@ front and the build runs in a container that has one:
 
 Then put it on the board. **Over the network**, onto a board that is already
 running this firmware, with a backup and an md5 check before anything is
-swapped. Not run against an R2 yet, and it does not check which board answers:
+swapped. Run on one R2, from a Mac, with the release's own files; it does not
+check which board answers:
 
 ```bash
 # run from: the repo root
@@ -55,6 +56,14 @@ swapped. Not run against an R2 yet, and it does not check which board answers:
 ./devkit write-card --target modern --dry-run /dev/sdX    # checks the device, writes nothing
 sudo ./devkit write-card --target modern /dev/sdX         # refuses any non-removable disk
 ```
+
+On macOS the card is `/dev/diskN` (`diskutil list external physical`), and the
+writer makes the root ext3 instead of ext4. The card written this way and
+booted (2026-11-21) was the R1's release in an R1; no R2 card has been. The
+build itself runs in `./devkit container` there, and `--rootfs-only` on the Mac
+with `docker buildx`; both were run for the R1 repository's targets, not yet
+for the R2 from this one:
+[use the devkit on a Mac](../docs/start/use-a-mac.md).
 
 `./devkit build --target modern --all --xsa "$XSA"` builds the boot files and
 the root in one go. The root is built in its own container, so run that on your
@@ -102,7 +111,8 @@ hard-float compiler, needs `CC="${CROSS}gcc -mfloat-abi=soft"`;
 
 - **Keep the serial console open** (`DEBUG`, 115200 baud). It is the way back
   in when Ethernet does not come up. The USB network at `192.168.2.1` is
-  another, from a PC with an RNDIS driver (not a Mac).
+  another, from a PC with an RNDIS driver; a Mac needs the board switched to
+  `ncm` first (`fishball-usb-mode`, from the next release).
 - **Ethernet's `phy-mode` is `rgmii-id`.** The vendor's `rgmii-rxid` gives a
   board that receives and cannot send on this kernel; the `.dts` says why.
 - **Never ship a kernel without the SD card driver.** Flashing over the network

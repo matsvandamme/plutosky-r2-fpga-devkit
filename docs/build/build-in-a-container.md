@@ -19,14 +19,25 @@ build in a pinned Ubuntu 22.04 container, so your distribution does not matter.
 !!! note "How the R2's design was actually built"
     In this container image, started by hand under Docker on an Apple Silicon
     Mac, with Vivado running under x86-64 emulation: about 9 minutes, timing
-    met. `./devkit container` itself, which uses podman on a Linux host, has
-    not been run for an R2 build. Two things that mattered there: Vivado hangs
-    at start unless its standard input is closed (`</dev/null`), and
+    met. `./devkit container` itself has not been run for an R2 build, on a
+    Linux host (where it uses podman) or on a Mac. Two things that mattered
+    there: Vivado waits for ever unless its standard input is closed
+    (`</dev/null`), which `./devkit build --target factory` now does, and
     `tools/env-vivado.sh`, not Vivado's own `settings64.sh`, supplies the old
     libraries it needs.
 
 **Build in the container; flash from the host:** `flash`, `selftest`,
 `gpio-check` and `verify --board` are host commands.
+
+**On an Apple Silicon Mac** `./devkit container` takes the same commands, with
+Docker through Colima: an x86-64 image under Rosetta runs Vivado, and the
+sources and Vivado live in Docker volumes, so `system_top.xsa` is written into
+a volume and not onto the Mac's disk. Start with
+`./devkit container build-image --target factory`. This route built the R1
+repository's whole factory firmware on one Mac (1 h 04 min, timing met); it has
+not built the R2's design from this repository, and nothing built this way was
+booted. Setup and what was not proven:
+[macOS on Apple Silicon](../building-in-a-container.md#macos-on-apple-silicon).
 
 **No Vivado installed yet?** [Install Vivado 2022.2](install-vivado.md) first:
 the container runs the installer too. Budget an hour.

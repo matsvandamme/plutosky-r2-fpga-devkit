@@ -115,13 +115,104 @@ Abnormal program termination (6)
 the crash above happens on both, and `tools/legacy-libs/` was extracted on
 22.04 (its copies need `GLIBC_2.33` and cannot load on 20.04).
 
+## macOS on Apple Silicon
+
+!!! warning "Run for the R1's targets, not yet for the R2 from this repository"
+    Everything measured in this section was measured in the R1's repository,
+    for the R1: its boot files, its Debian root, and its factory target, which
+    there is Vivado, a 5.15 kernel and Buildroot. Here the factory target is
+    the FPGA design alone. The R2's design was built on the same Mac earlier,
+    by hand in this container image (9 minutes, timing met:
+    [build with Vivado in a container](build/build-in-a-container.md));
+    `./devkit container` as it is in this repository has not built the R2.
+
+`./devkit container` works on an Apple Silicon Mac with Docker through Colima,
+its VM started with Apple's virtualisation framework and Rosetta. Native builds
+on macOS are not supported, and `./devkit build` says so.
+
+```bash
+# run from: anywhere, on the Mac, once
+brew install colima docker docker-buildx
+colima start --vm-type vz --vz-rosetta --mount-type virtiofs --cpu 8 --memory 16 --disk 120
+```
+
+The commands are the ones above. Everything around the FPGA design, with no
+Vivado:
+
+```bash
+# run from: the repo root, on the Mac
+./devkit container build-image                    # once: a native arm64 image
+./devkit container doctor
+./devkit container setup
+./devkit container build --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"
+./devkit container verify                         # on the Mac itself ./devkit verify is not supported
+./devkit build --rootfs-only                      # the Debian root, on the Mac itself
+```
+
+The FPGA design, with Vivado:
+
+```bash
+# run from: the repo root, on the Mac
+./devkit container build-image --target factory   # once: an x86-64 image, run under Rosetta
+./devkit container doctor --target factory
+./devkit container setup --target factory
+./devkit container build --target factory         # Vivado -> system_top.xsa, inside a volume
+./devkit container build --boot-only --xsa firmware/src/hdl/projects/pluto/system_top.xsa
+```
+
+Three things differ from Linux, and `tools/container/run.sh` handles them:
+
+| | On a Mac |
+|---|---|
+| **two images** | Vivado is x86-64 only, so `install` and every command with `--target factory` use a `linux/amd64` image under Rosetta. The modern target uses a native `arm64` image. `DEVKIT_CONTAINER_ARCH=amd64` or `arm64` overrides the choice |
+| **sources in Docker volumes** | `firmware/src`, `firmware-modern/src` and `firmware-modern/boot` are named volumes, not directories on the Mac's disk: the kernel tree has file names that differ only in case, which a default APFS volume cannot hold, and a build through the VM's file sharing is several times slower. `./devkit container shell` looks inside |
+| **outputs** | `firmware-modern/output/` is not in a volume: the boot files land on the Mac's disk. The FPGA build's `system_top.xsa` is written under `firmware/src/`, so it is inside a volume; pass that same path to `./devkit container build --xsa`, which mounts the volume too |
+| **Vivado in a Docker volume** | named by `XILINX_VOLUME`, default `fbmac-xilinx`, mounted at `/tools/Xilinx`. `./devkit container install` creates and fills it |
+| **the checkout** | must be under a directory Colima shares with its VM: by default, your home directory |
+
+A Mac has no display for the installer's GUI, so `./devkit container install`
+passes its extra arguments to AMD's `xsetup` for a batch install:
+
+```bash
+# run from: the repo root, on the Mac. Read AMD's licence agreements first: -a accepts them for you
+./devkit container install ~/Downloads/Xilinx_Unified_2022.2_*.bin -b AuthTokenGen
+./devkit container install ~/Downloads/Xilinx_Unified_2022.2_*.bin \
+    -a XilinxEULA,3rdPartyEULA -b Install \
+    -c tools/container/vivado-2022.2-install_config.txt
+```
+
+**Measured** on 2026-11-21 on one Apple Silicon Mac, **in the R1's repository
+and for the R1**:
+
+| Step | Time | Result, for the R1 |
+|---|---|---|
+| `container setup` (modern) | 1 min 36 s | sources fetched and patched |
+| `container build --xsa` (modern) | 46 s | the four boot files; `container verify` passed |
+| `build --rootfs-only` | 1 min 43 s | `rootfs.tar`, 291 MB; `check-rootfs.sh` passed |
+| `container build --target factory` (there: Vivado, the 5.15 kernel and Buildroot) | 1 h 04 min, Vivado about 7 min of it | timing met for the R1's design: WNS 0.215 ns, 12521 Slice LUTs, 94/220 DSP48s, the figures of a Linux build |
+
+**Not proven:**
+
+- Any of it for the R2 from this repository. The R2's design met timing in
+  this image on the same Mac when Vivado was started by hand (9 minutes).
+- `./devkit container install` with AMD's real installer. Only its plumbing
+  was tested; the Vivado used came from an existing volume, named with
+  `XILINX_VOLUME`.
+- Nothing built this way was booted on a board.
+- podman on macOS. Docker is tried first there.
+- Intel Macs.
+
+Build in the container; flash from the Mac. The host tools run on macOS
+directly: [use the devkit on a Mac](start/use-a-mac.md).
+
 ## Other operating systems
 
-Only Linux hosts are tested. Flashing never needs the container.
+Linux hosts are the tested case, and one Apple Silicon Mac for the R1's
+targets ([above](#macos-on-apple-silicon)). Flashing never needs the container.
 
 | | |
 |---|---|
 | **Any Linux** | Yes, the tested case. |
 | **Windows** | Very likely, through WSL2. Simpler: run the devkit directly in WSL2 Ubuntu, with WSLg for the GUI. Keep the checkout inside the WSL2 filesystem, never on `/mnt/c/` (slow, and Vivado's project files need case sensitivity and POSIX permissions). Reaching the board may need mirrored networking. |
-| **macOS, Intel** | Plausible: the Linux VM is x86-64. Needs XQuartz for the GUI and 44 GB in the VM. |
-| **macOS, Apple Silicon** | Realistically no: the VM is ARM64 and Vivado is x86-64 only, and it is the kind of software that breaks under Rosetta translation. |
+| **macOS, Intel** | Not tested. The Linux VM is x86-64, so one image serves both targets. The installer's GUI would need XQuartz listening on TCP; the batch install needs no display. |
+| **macOS, Apple Silicon** | Yes, with Docker through Colima: Vivado runs in an x86-64 container under Rosetta. One Mac, one full build of the R1's firmware; see [above](#macos-on-apple-silicon) for what was not proven, which includes the R2. |

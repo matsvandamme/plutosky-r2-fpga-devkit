@@ -38,7 +38,7 @@ Then reach it:
 |---|---|---|
 | **Ethernet** | your router hands it an address (DHCP), and it answers at `fishball.local` | works: 1 Gbit/s, ping both ways |
 | **The serial console** on `DEBUG` | 115200 baud, the second of the two serial ports | works; the way in when the network is not up |
-| **The USB network** on `USB2.0` | `192.168.2.1` | the board enumerates; the address was not tried, because the test PC was a Mac and macOS has no RNDIS driver |
+| **The USB network** on `USB2.0` | `192.168.2.1` | with release v0.1 the board enumerates; the address was not tried, because the test PC was a Mac and macOS has no RNDIS driver. With firmware from the next release, switched to `ncm`: works from a Mac |
 
 ```bash
 # run from: your HOST
@@ -50,6 +50,13 @@ without knowing its address.
 
 **You should see:** a login prompt over ssh. SDR software reaches the board at
 `ip:fishball.local`.
+
+!!! note "On a Mac, `192.168.2.1` does not answer by default"
+    The board's USB network is RNDIS, and macOS has no driver for it. Use
+    Ethernet (`ssh root@fishball.local`). With firmware from the next
+    release the board can be switched to `ncm`, which was tested on an R2
+    with a Mac:
+    [reach the board over the USB cable](use-a-mac.md#reach-the-board-over-the-usb-cable).
 
 ??? question "Nothing answers?"
     - Open the serial console on `DEBUG` and power-cycle. No text at all: check

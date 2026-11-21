@@ -122,8 +122,8 @@ for the network, and the board answers at `fishball.local`.
   `./devkit build --all --xsa "$(./firmware-modern/fetch-pinned-xsa.sh)"`.
   Only [changing the FPGA](build/add-fpga-logic.md) needs Vivado 2022.2.
 - After the first card, `./devkit flash` puts a changed kernel or boot file
-  on the running board over the network. It was run once on an R2, and it
-  does not check which board answers:
+  on the running board over the network. It was run on one R2, from a Mac,
+  and it does not check which board answers:
   [put it on the board](build/flash-your-build.md).
 - `./devkit ssh-key` first saves typing the published root password.
 - The `JP5` header is **1.8 V** and its pin 1 is **5 V**. An R1 cable does not

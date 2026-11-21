@@ -1,6 +1,6 @@
 ---
 icon: material/upload-network-outline
-description: A card from a card reader, which is how the test board was updated, or ./devkit flash over the network, run once on an R2.
+description: A card from a card reader, which is how the test board was updated, or ./devkit flash over the network, run on one R2 from a Mac.
 ---
 
 # Put it on the board
@@ -10,7 +10,8 @@ already running this firmware.
 
 !!! warning "`./devkit flash` does not check which board answers"
     Pointed at an R1 it writes R2 files onto it. It is the R1 repository's
-    tool, unchanged, and was run once on an R2 (2026-11-21) with the files
+    tool, and was run on one R2 (2026-11-21), from a Mac, before and after
+    that tool was reworked to log in with a key, each time with the files
     already on the card: the mechanism works, a changed file taking effect
     this way is still to be seen.
 
@@ -37,8 +38,10 @@ the ones you replace. That is how the test board was updated.
 It backs up the current files, checks the md5 of each new file on the board
 before swapping it in, unmounts cleanly and reboots. The previous files stay
 on the card as `*.prev` and on your disk in `firmware/.flash-backups/<stamp>/`.
-It needs `sshpass` on your PC. After it, `/boot` on the board stays read-only
-until the next reboot (`mount -o remount,rw /boot` undoes that).
+It logs in with the key `./devkit ssh-key` makes, or with `sshpass` where
+that is installed, so it runs from Linux and from macOS. It leaves `/boot`
+read-write or read-only, as it found it; the first run on the R2, with the
+older tool, left it read-only until the next reboot.
 `./devkit verify --board` compares the card with your build; that command
 has not been run on an R2.
 
