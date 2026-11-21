@@ -27,6 +27,11 @@ docs/img/boot-sd-00.jpg, boot-qspi-10.jpg, boot-jtag-11.jpg
     PlutoSky R1 write-up:
     https://blog.opensourcesdrlab.com/archives/PlutoSky-R1
 
+docs/img/plutosky-r2-ports.jpg, plutosky-r2-top.jpg
+    Photographs of the PlutoSky R2 in its case, unmodified, from
+    https://github.com/OpenSourceSDRLab/PlutoSky-R2 (images/, at commit
+    5519426f), which that repository publishes under Apache-2.0.
+
 firmware/revs/r2/patches/0000-plutosky-r2-fpga-design.patch
     The hdl/ part of OpenSourceSDRLab's own PlutoSky R2 port, re-expressed
     against this repository's pinned tree. From

@@ -9,6 +9,12 @@ What this site knows about the R2's hardware fits on one page, and most of it
 comes from the vendor's schematic rather than from a bench:
 **[the PlutoSky R2](../plutosky-r2.md)**.
 
+<figure markdown>
+![The PlutoSky R2 in its silver aluminium case, ports end: a small coaxial socket labelled 10M_IN, an RJ45 Ethernet jack, and two USB-C sockets labelled DEBUG and USB2.0; the JP5 header shows through a slot in the top of the case](../img/plutosky-r2-ports.jpg){ width="320" style="display:inline-block" }
+![The PlutoSky R2 in its case seen from above: the OpenSourceSDRLab logo, cooling fins, the JP5 header in a slot at one side, and four SMA connectors at the antenna end](../img/plutosky-r2-top.jpg){ width="320" style="display:inline-block" }
+<figcaption>The PlutoSky R2 in its case: ports end, and from above. Photos: OpenSourceSDRLab.</figcaption>
+</figure>
+
 | Question | Answer, and how sure |
 |---|---|
 | Which socket is which? | `ETH`, two USB-C sockets marked `DEBUG` and `USB2.0`, `10M_IN`, and the SMA ports. `DEBUG` carries the serial console (115200 baud) and power; `USB2.0` is the board's USB device port. Seen on one board |

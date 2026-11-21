@@ -13,6 +13,13 @@ The wrong image boots Linux with no radio, no Ethernet and no USB.
 ![Two boards side by side. The PlutoSky R1 / 7020-SDR, for the other repository: XC7Z020-CLG400 printed on the Zynq, no 10M_IN socket on the case, a JP5 header of 2 by 10 pins, vendor firmware version v0.38-4-g95aad. The PlutoSky R2, for this firmware: XC7Z020-CLG484, a 10M_IN socket, a JP5 header of 2 by 12 pins, vendor firmware version v0.38-5-g76414.](../img/start-r1-or-r2-light.svg#only-light)
 ![Two boards side by side. The PlutoSky R1 / 7020-SDR, for the other repository: XC7Z020-CLG400 printed on the Zynq, no 10M_IN socket on the case, a JP5 header of 2 by 10 pins, vendor firmware version v0.38-4-g95aad. The PlutoSky R2, for this firmware: XC7Z020-CLG484, a 10M_IN socket, a JP5 header of 2 by 12 pins, vendor firmware version v0.38-5-g76414.](../img/start-r1-or-r2-dark.svg#only-dark)
 
+<figure markdown>
+![The PlutoSky R2 in its silver aluminium case, ports end: a small coaxial socket labelled 10M_IN, an RJ45 Ethernet jack, and two USB-C sockets labelled DEBUG and USB2.0; the JP5 header shows through a slot in the top of the case](../img/plutosky-r2-ports.jpg){ width="320" style="display:inline-block" }
+![The PlutoSky R2 in its case seen from above: the OpenSourceSDRLab logo, cooling fins, the JP5 header in a slot at one side, and four SMA connectors at the antenna end](../img/plutosky-r2-top.jpg){ width="320" style="display:inline-block" }
+<figcaption>The PlutoSky R2 in its case: ports end, and from above. Photos: OpenSourceSDRLab.</figcaption>
+</figure>
+
+
 | | PlutoSky R2: this firmware | PlutoSky R1 / 7020-SDR: the other one |
 |---|---|---|
 | Zynq package, printed on the chip | XC7Z020-**CLG484** | XC7Z020-**CLG400** |

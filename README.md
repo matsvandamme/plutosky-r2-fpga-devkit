@@ -19,6 +19,12 @@
   <a href="../../actions/workflows/verify-modern.yml"><img src="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/actions/workflows/verify-modern.yml/badge.svg" alt="Verify the modern firmware CI status"></a>
 </p>
 
+<p align="center">
+  <img src="docs/img/plutosky-r2-ports.jpg" alt="The PlutoSky R2 in its silver aluminium case, ports end: a small coaxial socket labelled 10M_IN, an RJ45 Ethernet jack, and two USB-C sockets labelled DEBUG and USB2.0; the JP5 header shows through a slot in the top of the case" height="260">
+  <img src="docs/img/plutosky-r2-top.jpg" alt="The PlutoSky R2 in its case seen from above: the OpenSourceSDRLab logo, cooling fins, the JP5 header in a slot at one side, and four SMA connectors at the antenna end" height="260">
+  <br><sub>The PlutoSky R2 in its case: ports end, and from above. Photos: OpenSourceSDRLab.</sub>
+</p>
+
 > **This repository is for the PlutoSky R2 only.** The PlutoSky R1 / 7020-SDR / Fishball7020 is a different board with its own repository: **[fishball7020-fpga-devkit](https://github.com/matsvandamme/fishball7020-fpga-devkit)**. An image for one does not work on the other: an R1 image on an R2 boots with no radio, no Ethernet and no USB. Not sure which you have? [Is this your board?](#is-this-your-board)
 
 > **A young port.** One PlutoSky R2 has run this firmware, and its transmit power has not been measured. Read [where this stands](#-where-this-stands) before you rely on it.

@@ -11,6 +11,12 @@ then the board answers at `fishball.local`.
 ![The PlutoSky R2's three sockets and where each goes. ETH goes to your router, which hands out the address; from your PC, ssh root@fishball.local. DEBUG goes to USB power and is also the serial console. USB2.0 goes to USB power as the second socket. Connect both USB-C sockets: one alone can be short of power. The BOOT switch is set to SD.](../img/start-connect-light.svg#only-light)
 ![The PlutoSky R2's three sockets and where each goes. ETH goes to your router, which hands out the address; from your PC, ssh root@fishball.local. DEBUG goes to USB power and is also the serial console. USB2.0 goes to USB power as the second socket. Connect both USB-C sockets: one alone can be short of power. The BOOT switch is set to SD.](../img/start-connect-dark.svg#only-dark)
 
+<figure markdown>
+![The PlutoSky R2 in its silver aluminium case, ports end: a small coaxial socket labelled 10M_IN, an RJ45 Ethernet jack, and two USB-C sockets labelled DEBUG and USB2.0; the JP5 header shows through a slot in the top of the case](../img/plutosky-r2-ports.jpg){ width="420" }
+<figcaption>The ports end of the case. Photo: OpenSourceSDRLab.</figcaption>
+</figure>
+
+
 1. With the board unpowered, put the card in.
 2. Set the **`BOOT`** switch to SD: both sliders away from `ON`. A wrong
    position is silent: nothing appears even on the serial console.
