@@ -140,7 +140,7 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 | The FPGA decimators, both receive channels | checked on one board with the AD9361's built-in test tone and the ÷8 decimator engaged: a 960 kHz tone arrives intact on both channels, and a 3.84 MHz tone, outside the decimated band, is removed on both. The alias measurement of [both receive channels](both-receive-channels.md) has not been redone on an R2 |
 | The sample-locked `JP5` outputs | not tested on the R2 |
 | `./devkit write-card` | `--from` a release into an image file (`--image`), copied to the card: that card booted. Writing straight to a card reader on Linux has not been done for an R2 |
-| `./devkit flash` | not run on an R2 |
+| `./devkit flash` | run on one board, 2026-11-21: `--dtb-only --no-reboot`, then the default (`BOOT.bin` and `uImage`) with its reboot. Backup, checksum before the swap, `*.prev` copies and the check after the reboot all worked, and the board came back with no failed units, the radio found and both transmitters muted. The files sent were release v0.1's, the ones already on the card, so this shows the mechanism and not a changed file taking effect. It leaves `/boot` mounted read-only until the next reboot. The host was a Mac without `sshpass`, so the login used a key in place of the password |
 | `./devkit selftest` | run on one board, 2026-11-21: 24 of 24 checks pass without a cable, including the internal digital loopback. Its baselines and its power model are the R1's |
 | `./devkit tx-guard` | works: affirm, status, refusal and revoke, over ssh with a key |
 | `verify --board`, `gpio-check`, `clock` | not run on an R2 |

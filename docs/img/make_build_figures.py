@@ -15,7 +15,7 @@ Writes into docs/img/:
     build-container-{light,dark}.svg      what runs in the container and what on the host
 
 The path ends at a card and every route onto the board names the card reader
-beside `flash`, because `./devkit flash` has not been run on an R2
+beside `flash`, because `./devkit flash` was run only once on an R2
 (docs/plutosky-r2.md). insert_points() and wbfm() draw figures for pages only
 the R1's repository has; main() does not draw them here.
 

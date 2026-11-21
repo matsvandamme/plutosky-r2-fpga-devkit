@@ -29,7 +29,7 @@ python3 firmware-modern/verify_dtb.py firmware-modern/output/devicetree.dtb   # 
 ./devkit flash --dtb-only
 ```
 
-`./devkit flash` has not been run on an R2 yet. Copying `devicetree.dtb` onto
+`./devkit flash --dtb-only` was run once on an R2. Copying `devicetree.dtb` onto
 the card's first partition from a card reader does the same
 ([put it on the board](flash-your-build.md)).
 

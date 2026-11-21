@@ -7,7 +7,7 @@ description: Build the kernel alone in about two minutes and replace it alone, f
 
 Build `uImage` alone (about two minutes), then replace it alone. Over the
 network that is `./devkit flash --kernel-only`: about fifteen seconds on an
-R1, and not run on an R2 yet.
+R1, and not timed on an R2.
 
 ![The kernel loop as four boxes: edit the driver and add dev_warn(); build uImage, the kernel alone; put it on the board with flash --kernel-only or a card reader; read dmesg on the board. A dashed arrow leads back to the start: and again.](../img/build-kernel-loop-light.svg#only-light)
 ![The kernel loop as four boxes: edit the driver and add dev_warn(); build uImage, the kernel alone; put it on the board with flash --kernel-only or a card reader; read dmesg on the board. A dashed arrow leads back to the start: and again.](../img/build-kernel-loop-dark.svg#only-dark)

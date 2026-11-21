@@ -1,6 +1,6 @@
 ---
 icon: material/upload-network-outline
-description: A card from a card reader, which is how the test board was updated, or ./devkit flash over the network, which has not been run on an R2.
+description: A card from a card reader, which is how the test board was updated, or ./devkit flash over the network, run once on an R2.
 ---
 
 # Put it on the board
@@ -8,11 +8,11 @@ description: A card from a card reader, which is how the test board was updated,
 Two ways: a card from a card reader, or over the network to a board that is
 already running this firmware.
 
-!!! warning "Over the network is untested on the R2"
-    `./devkit flash` is the R1 repository's tool, unchanged, and has not been
-    run against an R2. The test board's files were replaced from a card
-    reader. It also does not check **which** board answers: pointed at an R1
-    it writes R2 files onto it.
+!!! warning "`./devkit flash` does not check which board answers"
+    Pointed at an R1 it writes R2 files onto it. It is the R1 repository's
+    tool, unchanged, and was run once on an R2 (2026-11-21) with the files
+    already on the card: the mechanism works, a changed file taking effect
+    this way is still to be seen.
 
 ## From a card reader
 
@@ -37,7 +37,10 @@ the ones you replace. That is how the test board was updated.
 It backs up the current files, checks the md5 of each new file on the board
 before swapping it in, unmounts cleanly and reboots. The previous files stay
 on the card as `*.prev` and on your disk in `firmware/.flash-backups/<stamp>/`.
-After it, `./devkit verify --board` compares the card with your build.
+It needs `sshpass` on your PC. After it, `/boot` on the board stays read-only
+until the next reboot (`mount -o remount,rw /boot` undoes that).
+`./devkit verify --board` compares the card with your build; that command
+has not been run on an R2.
 
 ![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only or copy it onto the card. The kernel (a driver, the config): uImage, flash --kernel-only or copy it onto the card. The device tree: devicetree.dtb, flash --dtb-only or copy it onto the card. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-light.svg#only-light)
 ![Four rows, each from what you changed, to the file that changes, to how it reaches the board. The FPGA (HDL, block design): BOOT.bin, flash --boot-only or copy it onto the card. The kernel (a driver, the config): uImage, flash --kernel-only or copy it onto the card. The device tree: devicetree.dtb, flash --dtb-only or copy it onto the card. The Debian root (the overlay, packages): rootfs.tar, write-card, a new card.](../img/build-change-map-dark.svg#only-dark)

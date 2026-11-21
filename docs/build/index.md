@@ -43,7 +43,7 @@ Vivado is needed only to change the FPGA design.
 -   :material-numeric-4-circle:{ .lg } **[Put it on the board](flash-your-build.md)**
 
 
-    A card from a card reader. `./devkit flash` is not yet run on an R2.
+    A card from a card reader, or `./devkit flash` over the network.
 
 </div>
 

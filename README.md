@@ -79,7 +79,8 @@ One PlutoSky R2 has run this firmware. Release **[v0.1](https://github.com/matsv
 | transmit power | **not measured** |
 | the four sample-locked header pins, the 10 MHz reference input | **not tested** |
 | `./devkit selftest` and `./devkit tx-guard` | **work** |
-| `./devkit flash`, the Windows card writer | **not run** for an R2 |
+| `./devkit flash`: boot loader, kernel and device tree onto the running board, with a reboot | **works**, run once with the files already on the card |
+| the Windows card writer | **not run** for an R2 |
 | a second R2, an AD9363 unit, a unit with a power amplifier | **none tried** |
 
 The full list, with how each item was checked: [what is tested and what is not](docs/plutosky-r2.md#what-is-tested-and-what-is-not).
@@ -192,7 +193,7 @@ The self-test's baselines are the R1's. From a Mac, use Ethernet: the board's US
 
 Then pick a starting point under [use the radio](docs/radio/index.md): [capture IQ](docs/capturing-iq.md), [SDR++](docs/sdrpp.md) or [aircraft overhead](docs/adsb.md). Those guides were written on the R1.
 
-After the first card, `./devkit flash --kernel-only` puts a changed kernel on the running board over the network. It has not been run on an R2 yet, and it does not check which board answers: do not point it at an R1.
+After the first card, `./devkit flash --kernel-only` puts a changed kernel on the running board over the network. It has been run once on an R2, with the release's own files. It does not check which board answers: do not point it at an R1.
 
 > [!CAUTION]
 > ### Before you ever transmit

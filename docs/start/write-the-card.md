@@ -51,7 +51,7 @@ and the `BOOT` switch [goes back to it](../plutosky-r2.md#going-back-to-the-fact
 !!! warning "Never update this board with DFU"
     DFU has bricked units of the R1, and this firmware never uses it. Changing
     firmware means rewriting the card, or `./devkit flash` on a running
-    board, which has not been run on an R2 yet
+    board
     ([put it on the board](../build/flash-your-build.md)).
 
 Rather build it? [Build it yourself](../build/build-from-source.md): no Vivado

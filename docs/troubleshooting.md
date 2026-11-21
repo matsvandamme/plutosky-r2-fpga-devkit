@@ -198,8 +198,7 @@ the package: on Arch that would take `dtc` with it.
 
 ## Flashing
 
-*Written for the R1. On the R2, `./devkit flash` has not been run: the test
-board's files were replaced from a card reader
+*Written for the R1. On the R2, `./devkit flash` was run once
 ([put it on the board](build/flash-your-build.md)).*
 
 ### `dfu-util -l` shows nothing
