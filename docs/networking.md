@@ -6,7 +6,7 @@
     routes do not. On one R2, Ethernet by DHCP at 1 Gbit/s and `fishball.local`
     were checked. The USB network is RNDIS by default, as on the R1, and a
     Mac has no driver for that: with release v0.1 its address was not tried.
-    With firmware from the next release the board was switched to `ncm` and
+    With release v0.2 the board was switched to `ncm` and
     reached from a Mac at `192.168.2.1`
     ([below](#the-usb-network-rndis-ncm-or-ecm)).
     [What is tested on the R2](plutosky-r2.md#what-is-tested-and-what-is-not).
@@ -70,8 +70,8 @@ cat /etc/os-release      # "Debian GNU/Linux 13" -> see the Debian column
 | boot-time extras | `/mnt/jffs2/autorun.sh` | a systemd unit; `autorun.sh` is **never run** |
 | `config.txt` on a USB drive | yes | **no**: there is no mass-storage gadget |
 | USB network at **192.168.2.1** | yes, always the way back in | yes, always the way back in; also a serial console on the same cable (`/dev/ttyACM0`) |
-| your PC's address on the USB cable | `udhcpd` hands it `ipaddr_host`, default `192.168.2.10` | from the next release, `fishball-usb-dhcp` hands it `192.168.2.10`. On release v0.1 there is no DHCP server on `usb0`: set `192.168.2.10/24` by hand |
-| USB network function | the `usb_ethernet_mode` variable | from the next release: `fishball-usb-mode`, [below](#the-usb-network-rndis-ncm-or-ecm). On release v0.1: RNDIS only |
+| your PC's address on the USB cable | `udhcpd` hands it `ipaddr_host`, default `192.168.2.10` | from v0.2, `fishball-usb-dhcp` hands it `192.168.2.10`. On release v0.1 there is no DHCP server on `usb0`: set `192.168.2.10/24` by hand |
+| USB network function | the `usb_ethernet_mode` variable | from v0.2: `fishball-usb-mode`, [below](#the-usb-network-rndis-ncm-or-ecm). On release v0.1: RNDIS only |
 
 ## Reaching the board
 
@@ -95,7 +95,7 @@ avahi-browse -tpr _iio._tcp         # the iiod service on port 30431
 
 ## The USB network: RNDIS, NCM or ECM
 
-!!! warning "Needs firmware from the next release"
+!!! warning "Needs firmware v0.2 or later"
     Release v0.1 carries RNDIS only, and no DHCP server on `usb0`.
 
 The USB cable carries one network function. It is RNDIS by default, which
@@ -144,9 +144,10 @@ time it brings `usb0` up. A PC with a static `192.168.2.10` is not affected.
 mode set in `/etc/default/fishball-usb-gadget`: `ncm` gave the Mac a network
 port named `PlutoSDR (ADALM-PLUTO)` and the address `192.168.2.10`; ping, ssh
 and `./devkit selftest` worked over `192.168.2.1`; the mode survived a
-reboot; switching back to `rndis` and again to `ncm` worked. Not tested on a
-board: `ecm`, the `uEnv.txt` line, `fishball-usb-mode` writing the U-Boot
-environment, and `ncm` with a Windows PC.
+reboot; switching back to `rndis` and again to `ncm` worked. With release v0.2,
+`fishball-usb-mode ncm` was run on the R2: the Mac got `192.168.2.10` and
+reached `192.168.2.1`. Not tested on a board: `ecm`, the `uEnv.txt` line, and
+`ncm` with a Windows PC.
 
 ## A direct cable to your PC
 
@@ -303,7 +304,7 @@ On Buildroot the addresses are **not in any file on the SD card**:
 | `ipaddr_host` | `192.168.2.10` | The single address the board's DHCP server hands *your PC* over USB. Debian does not read it: there the address is fixed at `192.168.2.10` |
 | `netmask` | `255.255.255.0` | The USB netmask |
 | `hostname` | the contents of `/etc/hostname`: `fishball` | The hostname, and therefore the mDNS name `fishball.local` |
-| `usb_ethernet_mode` | `rndis` | USB Ethernet flavour: `rndis`, `ncm` or `ecm`. From the next release the Debian root reads it too ([the USB network](#the-usb-network-rndis-ncm-or-ecm)) |
+| `usb_ethernet_mode` | `rndis` | USB Ethernet flavour: `rndis`, `ncm` or `ecm`. From v0.2 the Debian root reads it too ([the USB network](#the-usb-network-rndis-ncm-or-ecm)) |
 | `ethaddr` | *(stored in the environment)* | The Ethernet MAC; Linux uses it for `eth0` with patch `0013` |
 | `ssid_wlan`, `pwd_wlan`, `ipaddr_wlan` | *(unset)* | A USB Wi-Fi dongle, if you fit one |
 
@@ -317,7 +318,7 @@ On Buildroot the addresses are **not in any file on the SD card**:
     `fw_printenv` reads `/dev/mtd1`. An edit that seemed to work did so because
     192.168.2.1 is also `S40network`'s built-in default. Use Route 1 or Route 3.
 
-    One exception, on the Debian root from the next release: the line
+    One exception, on the Debian root from v0.2: the line
     `usb_ethernet_mode=ncm`, which `fishball-usb-gadget` reads from the file
     itself ([the USB network](#the-usb-network-rndis-ncm-or-ecm)).
 
@@ -384,7 +385,7 @@ The MAC is the `ethaddr` variable (omitted if unset). A static stanza gets
 | 30431/tcp | `iiod` | **none** |
 | 80/tcp | httpd, the info page | none; discloses serial, MACs, kernel and firmware versions |
 | 5353/udp | avahi (mDNS) | n/a |
-| 67/udp | udhcpd (Buildroot); `fishball-usb-dhcp` (Debian, from the next release) | limited to `usb0`, so it does not serve your LAN |
+| 67/udp | udhcpd (Buildroot); `fishball-usb-dhcp` (Debian, from v0.2) | limited to `usb0`, so it does not serve your LAN |
 
 !!! danger "Anyone who reaches port 30431 can tune, receive and transmit"
     Isolate the board on a separate VLAN or behind the router's firewall. A static

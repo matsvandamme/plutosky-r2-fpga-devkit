@@ -13,7 +13,7 @@ download unless you want to change the FPGA.
 
 ## 1. The FPGA design
 
-**Without Vivado:** use the design release v0.1 ships. Nothing to do in this
+**Without Vivado:** use the design release v0.1 ships (v0.2 carries the same one). Nothing to do in this
 step; step 2 fetches it and checks its hash:
 
 ```bash

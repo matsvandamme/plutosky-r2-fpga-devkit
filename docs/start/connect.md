@@ -38,7 +38,7 @@ Then reach it:
 |---|---|---|
 | **Ethernet** | your router hands it an address (DHCP), and it answers at `fishball.local` | works: 1 Gbit/s, ping both ways |
 | **The serial console** on `DEBUG` | 115200 baud, the second of the two serial ports | works; the way in when the network is not up |
-| **The USB network** on `USB2.0` | `192.168.2.1` | with release v0.1 the board enumerates; the address was not tried, because the test PC was a Mac and macOS has no RNDIS driver. With firmware from the next release, switched to `ncm`: works from a Mac |
+| **The USB network** on `USB2.0` | `192.168.2.1` | with release v0.1 the board enumerates; the address was not tried, because the test PC was a Mac and macOS has no RNDIS driver. From release v0.2, switched to `ncm`: works from a Mac |
 
 ```bash
 # run from: your HOST

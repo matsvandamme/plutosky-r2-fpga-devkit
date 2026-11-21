@@ -193,12 +193,15 @@ and for the R1**:
 
 **Not proven:**
 
-- Any of it for the R2 from this repository. The R2's design met timing in
+- For the R2 from this repository, anything but the boot files:
+  `container build --xsa` built release v0.2's, around v0.1's design, and they
+  booted on the R2 (2026-11-21). The R2's design met timing in
   this image on the same Mac when Vivado was started by hand (9 minutes).
 - `./devkit container install` with AMD's real installer. Only its plumbing
   was tested; the Vivado used came from an existing volume, named with
   `XILINX_VOLUME`.
-- Nothing built this way was booted on a board.
+- Booting a factory-target build. The R1's modern boot files and Debian root
+  built this way booted in an R1.
 - podman on macOS. Docker is tried first there.
 - Intel Macs.
 

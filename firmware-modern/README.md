@@ -112,7 +112,7 @@ hard-float compiler, needs `CC="${CROSS}gcc -mfloat-abi=soft"`;
 - **Keep the serial console open** (`DEBUG`, 115200 baud). It is the way back
   in when Ethernet does not come up. The USB network at `192.168.2.1` is
   another, from a PC with an RNDIS driver; a Mac needs the board switched to
-  `ncm` first (`fishball-usb-mode`, from the next release).
+  `ncm` first (`fishball-usb-mode`, from v0.2).
 - **Ethernet's `phy-mode` is `rgmii-id`.** The vendor's `rgmii-rxid` gives a
   board that receives and cannot send on this kernel; the `.dts` says why.
 - **Never ship a kernel without the SD card driver.** Flashing over the network

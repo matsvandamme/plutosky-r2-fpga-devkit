@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://matsvandamme.github.io/plutosky-r2-fpga-devkit/"><img src="https://img.shields.io/badge/docs-matsvandamme.github.io-4069FF" alt="The documentation site"></a>
-  <a href="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1"><img src="https://img.shields.io/badge/release-v0.1%20%C2%B7%20pre--release%2C%20booted%20on%20one%20board-orange" alt="Release v0.1: a pre-release, booted on one board"></a>
+  <a href="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2"><img src="https://img.shields.io/badge/release-v0.2%20%C2%B7%20pre--release%2C%20booted%20on%20one%20board-orange" alt="Release v0.2: a pre-release, booted on one board"></a>
   <img src="https://img.shields.io/badge/board-PlutoSky%20R2%20%C2%B7%20XC7Z020--CLG484%20%2B%20AD9361-blue" alt="Board: PlutoSky R2, Zynq XC7Z020-CLG484 + AD9361">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0-lightgrey" alt="License: GPL-2.0"></a>
   <a href="../../actions/workflows/verify-patches.yml"><img src="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/actions/workflows/verify-patches.yml/badge.svg" alt="Verify patches CI status"></a>
@@ -64,7 +64,7 @@ Each line is in the R2's firmware, with what was checked on an R2 and where the 
 
 ## 🧪 Where this stands
 
-One PlutoSky R2 has run this firmware. Release **[v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1)**, a pre-release, was booted on it on 2026-11-21.
+One PlutoSky R2 has run this firmware. Release **[v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)**, a pre-release, was booted on it on 2026-11-21, as v0.1 was before it.
 
 | | State on the R2 |
 |---|---|
@@ -73,9 +73,9 @@ One PlutoSky R2 has run this firmware. Release **[v0.1](https://github.com/matsv
 | radio found, receives samples; both transmitters come up muted (89.75 dB) | **works** |
 | Ethernet: 1 Gbit/s, DHCP, `fishball.local`, ssh and iiod | **works** |
 | USB: the board enumerates and its network interface comes up | **works** on the board's side with release v0.1 (the host was a Mac, which has no driver for RNDIS) |
-| USB network to a Mac: the board switched to `ncm`, handing the Mac its address by DHCP | **works**, with firmware built after v0.1: it is in the next release |
+| USB network to a Mac: the board switched to `ncm`, handing the Mac its address by DHCP | **works**, from release v0.2 |
 | a card made with `./devkit write-card --from` a release, through an image file (`--image`) copied to the card | **works** |
-| `./devkit write-card` straight to a card reader | **not done** for an R2 |
+| `./devkit write-card` straight to a card reader | **works** from a Mac: release v0.2's card was written that way and booted. **Not done** on Linux for an R2 |
 | transmit, both channels, at low power through attenuators; mutes when its program stops, is killed or starves | **works** |
 | transmit power | **not measured** |
 | the four sample-locked header pins, the 10 MHz reference input | **not tested** |
@@ -139,7 +139,7 @@ This repository started as a copy of [fishball7020-fpga-devkit](https://github.c
 
 The card does not touch the firmware the board shipped with: that is in its QSPI flash, and setting the `BOOT` switch to QSPI (`1 0`) boots it again.
 
-**From the release**, on a Linux PC with a card reader. Download every file of **[v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1)** into one folder, then:
+**From the release**, on a Linux PC with a card reader. Download every file of **[v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)** into one folder, then:
 
 ```bash
 # run from: wherever you want the devkit to live (e.g. ~)
@@ -170,7 +170,7 @@ The card that booted was made with `--image` and copied to the card; writing str
 sudo ./devkit write-card /dev/sdX        # DESTROYS the card
 ```
 
-**On a Mac** the host tools (`ssh-key`, `status`, `net`, `flash`, `selftest --ssh`) run as they are, with no `sshpass`: they were run from a Mac on the R2. The build runs in `./devkit container` with Docker through Colima, which has built the R1 repository's targets and not yet the R2 from this one. The USB network needs the board switched to `ncm`, with firmware from the next release. What was tested, and on which board: [use the devkit on a Mac](docs/start/use-a-mac.md).
+**On a Mac** the host tools (`ssh-key`, `status`, `net`, `flash`, `selftest --ssh`) run as they are, with no `sshpass`: they were run from a Mac on the R2. The build runs in `./devkit container` with Docker through Colima, which built release v0.2's boot files from this repository, around v0.1's FPGA design; the R2's FPGA design and Debian root have not been built that way. `./devkit write-card` on a Mac wrote release v0.2's card, which booted. The USB network needs the board switched to `ncm`, with firmware v0.2 or later. What was tested, and on which board: [use the devkit on a Mac](docs/start/use-a-mac.md).
 
 **Changing the FPGA** needs Vivado 2022.2 (on Ubuntu 18.04 to 22.04, or in the container `./devkit container` builds for you):
 
@@ -197,7 +197,7 @@ ssh root@fishball.local    # password: analog
 ./devkit selftest          # is the radio damaged? no cable, never transmits
 ```
 
-The self-test's baselines are the R1's. From a Mac, use Ethernet with release v0.1: the board's USB network is RNDIS, which macOS has no driver for. From the next release the board can be switched to `ncm`, which macOS drives ([on a Mac](docs/start/use-a-mac.md#reach-the-board-over-the-usb-cable)).
+The self-test's baselines are the R1's. From a Mac, use Ethernet with release v0.1: the board's USB network is RNDIS, which macOS has no driver for. From v0.2 the board can be switched to `ncm`, which macOS drives ([on a Mac](docs/start/use-a-mac.md#reach-the-board-over-the-usb-cable)).
 
 Then pick a starting point under [use the radio](docs/radio/index.md): [capture IQ](docs/capturing-iq.md), [SDR++](docs/sdrpp.md) or [aircraft overhead](docs/adsb.md). Those guides were written on the R1.
 

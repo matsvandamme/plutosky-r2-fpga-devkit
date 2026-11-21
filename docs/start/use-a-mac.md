@@ -1,13 +1,13 @@
 ---
 icon: material/apple
-description: What works from macOS with a PlutoSky R2, what needs the next release's firmware, and what was tested only on the R1 or not at all.
+description: What works from macOS with a PlutoSky R2, what needs firmware v0.2 or later, and what was tested only on the R1 or not at all.
 ---
 
 # Use the devkit on a Mac
 
 The host tools, the card writer, the container build and the patched SDR++ run
-on macOS. The USB network needs one setting on the board, and firmware from the
-next release.
+on macOS. The USB network needs one setting on the board, and firmware v0.2 or
+later.
 
 This work was done in the R1's repository and carried over. Everything on this
 page was tested on 2026-11-21 on one Apple Silicon Mac, with the `/bin/bash`
@@ -17,10 +17,10 @@ R2**: each row says which board. Intel Macs were not tested.
 | Task | On a Mac | Tested on |
 |---|---|---|
 | Log in, `status`, `net`, `selftest --ssh`, `flash` | the same commands as on Linux | a PlutoSky R2 |
-| Reach the board over the USB cable | switch the board to `ncm` | a PlutoSky R2; needs firmware from the next release |
+| Reach the board over the USB cable | switch the board to `ncm` | a PlutoSky R2; needs firmware v0.2 or later |
 | Fast TCP (`zc-stream`) at 20 MS/s | a script on the Mac | a PlutoSky R2 |
-| Write a card | `./devkit write-card` with `/dev/diskN` | an **R1**, with the R1's release: that card booted. No R2 card was written this way |
-| Build the firmware | `./devkit container`, with Docker through Colima | the **R1 repository's** targets. `./devkit container` has not built the R2 from this repository; nothing built this way was booted |
+| Write a card | `./devkit write-card` with `/dev/diskN` | a PlutoSky R2: release v0.2's card was written this way and booted. Before that an R1, with the R1's release |
+| Build the firmware | `./devkit container`, with Docker through Colima | a PlutoSky R2 for the boot files: release v0.2's were built this way, around v0.1's FPGA design, and booted. The FPGA design and the Debian root only in the **R1 repository**, for the R1 |
 | SDR++ with the patch | `tools/sdrpp/build-macos.sh` | no board: it builds and starts; receiving in the window was not checked |
 
 ## Set up the host tools
@@ -60,14 +60,14 @@ bash, whose startup file on a Mac is `~/.bash_profile`.
 
 ## Write a card
 
-!!! warning "Not yet done for an R2"
-    The Mac writer has written the R1's release to a card, and that card booted
-    in an R1. It has not written a card that an R2 then booted. The R2's
-    release card was made with the Linux writer, through an image file
+!!! note "Done once for an R2"
+    The Mac writer wrote release v0.2's card, and that card booted in the R2
+    on 2026-11-21: the first R2 card made this way. Release v0.1's card was
+    made with the Linux writer, through an image file
     ([put the firmware on a card](write-the-card.md)).
 
 With every file of release
-[v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1)
+[v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)
 in `~/Downloads`:
 
 ```bash
@@ -104,6 +104,10 @@ the card.
 v2.3: 926 MB written in 81 s and read back identical. That card booted in an
 R1 on 2026-11-21.
 
+**Tested, on the R2:** release v0.2 written straight to a card, which booted
+in the R2 on 2026-11-21: 32 s to a running system on its first boot, no failed
+units, `/boot` on the board matching `SHA256SUMS`, self-test 24 of 24.
+
 **Tested, for the R2, without a board:** release v0.1 laid out into an image
 file with `--from` and `--image`, every file matching its `SHA256SUMS` and the
 image read back identical. That image was not written to a card or booted.
@@ -120,7 +124,7 @@ answer. Three things still work in that state:
 - **libiio over USB:** the `usb:` transport needs no network. A scan from the
   Mac listed the boards over USB in either mode.
 
-!!! warning "Needs firmware from the next release"
+!!! warning "Needs firmware v0.2 or later"
     The switch below is not in release v0.1. On v0.1 a Mac reaches the board
     over Ethernet.
 
@@ -144,8 +148,9 @@ Settings on the Mac. The board hands the Mac `192.168.2.10`, and
 `/etc/default/fishball-usb-gadget` the port appeared, the Mac got
 `192.168.2.10` from the board's DHCP server, and ping, ssh and
 `./devkit selftest` worked over `192.168.2.1`. The setting survived a reboot,
-and switching back to `rndis` worked. Not tested on a board: `ecm`, the
-`uEnv.txt` line below, and `fishball-usb-mode` writing the U-Boot environment.
+and switching back to `rndis` worked. With release v0.2, `fishball-usb-mode ncm`
+was run on the R2: the Mac got `192.168.2.10` and reached `192.168.2.1`. Not
+tested on a board: `ecm`, and the `uEnv.txt` line below.
 
 | Mode | Windows | Linux | macOS |
 |---|---|---|---|
@@ -169,14 +174,16 @@ does not. All three places the mode is read from, and their order:
 
 ## Build the firmware
 
-!!! warning "Not yet run for the R2 from this repository"
-    `./devkit container` on a Mac built the R1 repository's targets: its boot
+!!! warning "Run for the R2's boot files only"
+    `./devkit container` on a Mac built release v0.2's boot files from this
+    repository, around v0.1's FPGA design (`--xsa`), and they booted on the R2.
+    For the rest it built the R1 repository's targets: its boot
     files, its Debian root and its factory firmware with Vivado. The R2's FPGA
     design was built on the same Mac earlier, by hand in the same container
     image: 9 minutes, timing met
-    ([how](../build/build-in-a-container.md)). The commands below are what
-    this repository's `./devkit container` should do for the R2, and have not
-    been run. Nothing built on the Mac was booted on a board.
+    ([how](../build/build-in-a-container.md)). Of the commands below, the
+    Debian root (`--rootfs-only`) and the FPGA design have not been run for
+    the R2 from this repository.
 
 macOS cannot build the firmware natively, and `./devkit build` says so. The
 build runs in a Linux container, with Docker through Colima:
@@ -246,10 +253,10 @@ Details: [install the patched SDR++](../radio/install-patched-sdrpp.md).
 
 ## Not tested
 
-- An R2 card written by the Mac writer, and booted.
-- `./devkit container` building the R2's boot files, Debian root or FPGA
-  design from this repository.
-- Booting anything built in the container on the Mac.
+- `./devkit container` building the R2's FPGA design, and
+  `./devkit build --rootfs-only` building its Debian root, from this
+  repository on a Mac.
+- The `uEnv.txt` line, `ecm` mode, and NCM or ECM with a Windows PC.
 - `./devkit container install` with AMD's real installer. Vivado came from an
   existing Docker volume.
 - Intel Macs, and podman on macOS.

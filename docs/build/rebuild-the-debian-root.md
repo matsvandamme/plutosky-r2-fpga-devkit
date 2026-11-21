@@ -16,9 +16,10 @@ sudo ./devkit write-card /dev/sdX   # refuses anything not removable
 ```
 
 On a Mac both commands run on the Mac itself, with `/dev/diskN` for the card:
-the build drives `docker buildx`, and the writer makes the root ext3. Neither
-has been done for an R2: the R1's root was built this way on an Apple Silicon
-Mac (1 min 43 s) and not booted, and the card the Mac writer made was an R1's.
+the build drives `docker buildx`, and the writer makes the root ext3. The
+writer made release v0.2's card, which booted in the R2. The build has not
+been done for an R2: the R1's root was built this way on an Apple Silicon Mac
+(1 min 43 s) and booted in an R1.
 [Use the devkit on a Mac](../start/use-a-mac.md).
 
 `write-card` refuses a `rootfs.tar` older than the overlay, and lists what it

@@ -24,7 +24,7 @@ Buildroot firmware; on Debian they refuse and print the command to run instead.
 |---|---|
 | a DHCP reservation in your router is usually the better answer | the board keeps its gateway and DNS |
 | the serial console on `DEBUG` does not depend on the network | it is the way back in after a wrong address |
-| the USB network at `192.168.2.1` does not change with these | on a PC with an RNDIS driver; on a Mac, once the board is [switched to `ncm`](use-a-mac.md#reach-the-board-over-the-usb-cable) (from the next release) |
+| the USB network at `192.168.2.1` does not change with these | on a PC with an RNDIS driver; on a Mac, once the board is [switched to `ncm`](use-a-mac.md#reach-the-board-over-the-usb-cable) (from v0.2) |
 
 Every route and recovery from a lock-out, written for the R1:
 [networking reference](../networking.md).

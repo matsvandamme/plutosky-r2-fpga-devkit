@@ -35,8 +35,9 @@ sources and Vivado live in Docker volumes, so `system_top.xsa` is written into
 a volume and not onto the Mac's disk. Start with
 `./devkit container build-image --target factory`. This route built the R1
 repository's whole factory firmware on one Mac (1 h 04 min, timing met); it has
-not built the R2's design from this repository, and nothing built this way was
-booted. Setup and what was not proven:
+not built the R2's design from this repository. For the R2 it built release
+v0.2's boot files, around v0.1's design, and those booted. Setup and what was
+not proven:
 [macOS on Apple Silicon](../building-in-a-container.md#macos-on-apple-silicon).
 
 **No Vivado installed yet?** [Install Vivado 2022.2](install-vivado.md) first:

@@ -1,11 +1,11 @@
 ---
 icon: material/sd
-description: Download release v0.1 and write it to a microSD card with the devkit's card writer, on Linux or macOS.
+description: Download release v0.2 and write it to a microSD card with the devkit's card writer, on Linux or macOS.
 ---
 
 # Put the firmware on a card
 
-Download **every file** of release [v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1) into one folder. The card needs
+Download **every file** of release [v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2) into one folder. The card needs
 **two partitions** (boot files, then Debian), so copying files onto it is not
 enough: use the writer.
 
@@ -27,9 +27,9 @@ enough: use the writer.
     It checks the boot files against the release's `SHA256SUMS` first and
     refuses non-removable disks, but **check the device name yourself**.
 
-    The release card itself was written with the same command into an image
+    Release v0.1's card was written with the same command into an image
     file (`--image`) and copied to the card; that card booted. Writing
-    straight to a card reader has not been done for an R2 yet.
+    straight to a card reader on Linux has not been done for an R2 yet.
 
 === "macOS"
 
@@ -49,10 +49,9 @@ enough: use the writer.
     disks, but **check the disk name yourself**. The root partition is ext3,
     as from the Windows writer.
 
-    It has **not** written an R2 card that was then booted. What was tested:
-    a 32 GB card with the R1's release v2.3, written on a Mac, booted in an R1
-    on 2026-11-21; and release v0.1 laid out into an image file (`--image`),
-    which was not booted.
+    Release v0.2's card was written this way and booted in the R2 on
+    2026-11-21: the one R2 card the Mac writer has made. Before that, a 32 GB
+    card with the R1's release v2.3, written on a Mac, booted in an R1.
     More: [use the devkit on a Mac](use-a-mac.md#write-a-card).
 
 === "Windows"

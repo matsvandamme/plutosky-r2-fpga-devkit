@@ -15,7 +15,7 @@ Every file on the SD card builds from source, in two halves:
 Both are `./devkit` commands; [build it yourself](build-from-source.md) has the
 full paths. The second half never runs Vivado. Once you have an `.xsa`, a kernel, driver or
 device-tree change needs only the second command. Release v0.1 ships an
-`.xsa`, which `./firmware-modern/fetch-pinned-xsa.sh` downloads and checks, so
+`.xsa` (v0.2 carries the same one), which `./firmware-modern/fetch-pinned-xsa.sh` downloads and checks, so
 Vivado is needed only to change the FPGA design.
 
 ## The path

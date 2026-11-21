@@ -83,7 +83,7 @@ is a faster interface over a smaller feature set; [GQRX](https://gqrx.dk/) is th
 simplest. All reach the board through libiio or SoapySDR at `ip:fishball.local`.
 On a Mac, libiio's `usb:` transport reaches the board in the default USB mode;
 `ip:192.168.2.1` over the USB cable needs the board switched to `ncm`, with
-firmware from the next release
+firmware v0.2 or later
 ([use the devkit on a Mac](start/use-a-mac.md#reach-the-board-over-the-usb-cable)).
 SDR++'s PlutoSDR source reads only RX1;
 [Using SDR++ with this board](sdrpp.md) covers its settings, the rates USB

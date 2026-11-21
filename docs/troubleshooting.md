@@ -32,6 +32,27 @@ off, and nothing the board sends arrives.
 **Fix.** `rgmii-id`, which is what this repository's tree says. If you see this
 on a current build, the device tree on the card is not the one built here.
 
+### Two boards with the same MAC address
+
+**Symptom.** With an R2 and another board on one network (an R1, or a second
+R2), one drops off the network when the other comes up.
+
+**Cause.** The R2 came with the vendor's default `ethaddr` in its U-Boot
+environment, `00:0a:35:00:01:22`, which is also the R1's. Seen with the one R2
+here next to an R1.
+
+**Fix.** Give one of the two boards an address of its own, and reboot it:
+
+```bash
+# run on: the board
+fw_printenv ethaddr
+fw_setenv ethaddr <locally administered address>   # for example 02:0a:35:00:01:23
+reboot
+```
+
+The environment is in the QSPI flash, so the address survives a rewritten
+card, and the factory firmware in QSPI reads the same environment.
+
 ### The board freezes or restarts shortly after boot
 
 **Seen** once each on the test board, with only the `DEBUG` socket connected,
@@ -66,8 +87,7 @@ driver.
 
 **Fix.** Reach the board over Ethernet (`ssh root@fishball.local`) or the
 serial console on `DEBUG`, and run `fishball-usb-mode ncm`. This needs firmware
-from the next release; it is not in v0.1. On v0.1, use Ethernet. Tested on an
-R2 with a Mac, with the mode set in `/etc/default/fishball-usb-gadget`:
+v0.2 or later; on v0.1, use Ethernet. Tested on an R2 with a Mac:
 [reach the board over the USB cable](start/use-a-mac.md#reach-the-board-over-the-usb-cable).
 
 ### `unable to generate target frequency: 125000000 Hz` in the kernel log
