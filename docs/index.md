@@ -59,7 +59,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
     **[Transmit safely](start/before-you-transmit.md)**
 
-    Transmit is not tested on the R2 yet. The rules to start from.
+    Tested at low power only; output power is not measured. The rules.
 
     <span class="count">4 rules</span>
 
@@ -101,7 +101,8 @@ sudo ./devkit write-card --from ~/Downloads /dev/sdX    # DESTROYS the card
 | Radio | found, receives samples |
 | Ethernet | 1 Gbit/s, DHCP, answers at `fishball.local` |
 | FPGA, default build | 12,717 LUTs, timing met, WNS +0.100 ns |
-| Transmit, header pins, 10 MHz input | not tested |
+| Transmit, both channels | works at low power through attenuators; mutes when the program stops or is killed. Power not measured |
+| Header pins, 10 MHz input | not tested |
 
 One unit, on 2026-11-20 and 2026-11-21. Every measured radio figure elsewhere on this site
 (power, image rejection, throughput) was taken on a PlutoSky **R1** and is

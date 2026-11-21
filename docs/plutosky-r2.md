@@ -15,7 +15,8 @@ the two were one, with a `--rev` switch, until 2026-11-21.
     [v0.1](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.1), a pre-release, is built with Vivado 2022.2 (timing met, WNS
     +0.100 ns) and was booted from a card on one PlutoSky R2: the radio is found
     and receives, both transmitters come up muted, Ethernet gets a DHCP address
-    at 1 Gbit/s, and USB enumerates. Transmit, the `JP5` outputs and the 10 MHz
+    at 1 Gbit/s, and USB enumerates. Transmit works on both channels at low
+    power through attenuators; its output power is not measured. The `JP5` outputs and the 10 MHz
     input are not tested yet.
 
 ## Which board do you have
@@ -131,10 +132,14 @@ plug an R1 wiring harness in without checking it against the R2 schematic.
 | The boot loader's generated headers (`firmware/fsbl/generated/`) | made from an R1 design; the build's check accepts them for the R2 XSA, and the pin and memory setup is taken from the XSA itself |
 | Booting the result on an R2 | done on one board. Release v0.1, 2026-11-21: 20.7 s to a running system, no failed units, radio probed and receiving, both transmitters at 89.75 dB of attenuation, Ethernet and `fishball.local`, ssh and iiod reachable, `usb0` up. `/boot` read back and matched the release's `SHA256SUMS` |
 | Ethernet on Linux 6.12 through the converter core | works at 1 Gbit/s. The device tree says `rgmii-id`, not the vendor tree's `rgmii-rxid`: with the vendor's value the board receives and cannot send |
-| Transmit, the sample-locked `JP5` outputs | not tested on the R2 |
+| Transmit, both channels, at low power through attenuators | tested on one board, 2026-11-21, with `./devkit selftest --loopback` (TX1 to RX1 through 30 dB, TX2 to RX2 through 20 dB) and the stream-end cases of `tools/tx-idle-cases/cases123.sh`. Both transmitters produce a clean tone at 900 MHz (harmonics below -71 dBc, image rejection 52 to 58 dBc after calibration), the attenuator is linear (1.00 dB per dB), and the path is smooth from 100 MHz to 5 GHz. Each transmitter mutes on a clean stop, within 0.1 s of its client being killed, and after 250 ms without data; the transmit gate refuses without an affirmation. The self-test passed in 13 of 14 runs; one run reported a failure that did not repeat and was not identified |
+| Transmit power | **not measured.** Never taken above 30 dB of attenuation (the self-test's own floor is 35 dB), and no power meter was used. With the attenuators at their marked values, the loop has about 7.5 dB more gain than the self-test's R1 model expects, the same on both channels, so the R2's transmitter or receiver has more gain than the R1's. Do not assume the R1's +19 dBm |
+| The sample-locked `JP5` outputs | not tested on the R2 |
 | `./devkit write-card` | `--from` a release into an image file (`--image`), copied to the card: that card booted. Writing straight to a card reader on Linux has not been done for an R2 |
 | `./devkit flash` | not run on an R2 |
-| `./devkit selftest`, `verify --board`, `gpio-check`, `clock` | not run on an R2. The self-test's baselines are the R1's |
+| `./devkit selftest` | run on one board, 2026-11-21: 24 of 24 checks pass without a cable, including the internal digital loopback. Its baselines and its power model are the R1's |
+| `./devkit tx-guard` | works: affirm, status, refusal and revoke, over ssh with a key |
+| `verify --board`, `gpio-check`, `clock` | not run on an R2 |
 | The USER LED | its pin (MIO 7) is in the device tree; not looked at on the board |
 | A release, and a pinned R2 XSA | v0.1; `fetch-pinned-xsa.sh` downloads its `system_top.xsa`, so only an FPGA change needs Vivado |
 | The Windows card writer, `write-card.cmd` | in the release, unchanged from the R1's; not used for an R2 card |

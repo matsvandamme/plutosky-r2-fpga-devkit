@@ -37,7 +37,7 @@ From a PlutoSky R2 in its box to one running this firmware: six short steps, one
 -   :material-numeric-6-circle:{ .lg } **[Before you transmit](before-you-transmit.md)**
 
 
-    Transmit is untested on the R2. The rules to start from.
+    Tested at low power only on the R2. The rules to start from.
 
 </div>
 

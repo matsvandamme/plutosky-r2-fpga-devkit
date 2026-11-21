@@ -24,9 +24,11 @@ One PlutoSky R2 has run this firmware. Release **[v0.1](https://github.com/matsv
 | Ethernet: 1 Gbit/s, DHCP, `fishball.local`, ssh and iiod | **works** |
 | USB: the board enumerates and its network interface comes up | **works** on the board's side (the host was a Mac, which has no driver for it) |
 | a card written with `./devkit write-card --from` a release | **works** |
-| transmit | **not tested** |
+| transmit, both channels, at low power through attenuators; mutes when its program stops, is killed or starves | **works** |
+| transmit power | **not measured** |
 | the four sample-locked header pins, the 10 MHz reference input | **not tested** |
-| `./devkit flash`, `./devkit selftest`, the Windows card writer | **not run** for an R2 |
+| `./devkit selftest` and `./devkit tx-guard` | **work** |
+| `./devkit flash`, the Windows card writer | **not run** for an R2 |
 
 The full list, with how each item was checked: [what is tested and what is not](docs/plutosky-r2.md#what-is-tested-and-what-is-not).
 
@@ -89,7 +91,7 @@ After the first card, `./devkit flash --kernel-only` puts a changed kernel on th
 
 > [!CAUTION]
 > ### Before you ever transmit
-> Transmit has **not been tested on the R2** with this firmware, and nothing here has measured its transmitter. The rules written for the R1 are the ones to start from: the receive port of an AD9361 board survives about **+2.5 dBm**, a board with a power amplifier puts out far more than that, so **never loop TX back to RX without at least 20 dB of attenuation**, and never transmit at power into an open port. The devkit's transmitting tools refuse to run until you record `./devkit tx-guard affirm`. Read [transmitter safety](docs/transmitter-safety.md) first.
+> Transmit has been tested on one R2 only at low power, through attenuators, and **its output power has not been measured**: the loop showed about 7.5 dB more gain than on the R1, so do not assume the R1's figures. The rules written for the R1 are the ones to start from: the receive port of an AD9361 board survives about **+2.5 dBm**, a board with a power amplifier puts out far more than that, so **never loop TX back to RX without at least 20 dB of attenuation**, and never transmit at power into an open port. The devkit's transmitting tools refuse to run until you record `./devkit tx-guard affirm`. Read [transmitter safety](docs/transmitter-safety.md) first.
 
 ## The header is 1.8 V
 

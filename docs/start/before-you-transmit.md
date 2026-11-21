@@ -1,16 +1,19 @@
 ---
 icon: material/alert-octagon-outline
-description: Transmit is untested on the R2. Four rules, written for the R1, that keep the receiver and the bench intact.
+description: The R2 transmits at low power, tested; its full power is unmeasured. Four rules that keep the receiver and the bench intact.
 ---
 
 # Before you transmit
 
-!!! danger "Transmit has not been tested on the R2"
-    With this firmware, no R2 has transmitted, and nothing here has measured an
-    R2's output power, its power-on behaviour, or whether the firmware's mute
-    works on it. Every number on this page was measured on a PlutoSky **R1**.
-    The rules still apply, because the radio chip and its receive limit are the
-    same; treat the first transmission as an experiment, into a dummy load.
+!!! danger "The R2's transmit power has not been measured"
+    One R2 has transmitted with this firmware, on 2026-11-21, on both channels,
+    always through attenuators and never above 30 dB of attenuation setting.
+    At that level everything behaved: clean tones, a linear attenuator, and a
+    transmitter that mutes when its program stops, is killed or stops sending.
+    What nobody has measured is how much power it puts out. The loopback
+    showed about 7.5 dB more gain than the same test expects on an R1, so the
+    R1's numbers on this page may be too low for the R2. Raise power in steps,
+    into an attenuator, watching the receiver's level.
 
 On the R1, with its power amplifier: about **+19 dBm** out, against a receiver
 that survives **+2.5 dBm**. The R2 is sold with and without an amplifier.
@@ -35,7 +38,8 @@ that survives **+2.5 dBm**. The R2 is sold with and without an amplifier.
 
 What carries over by construction: the R2's device tree inherits the R1's
 transmit attenuation default (89.75 dB, the muted state), and CI checks the
-built tree for it. What that does on the board has not been measured.
+built tree for it. On the board, both channels read 89.75 dB after boot. The
+power-on burst the R1 emits (rule 3) has not been looked for on the R2.
 
 Writing your own transmit code? Two more rules apply: set the attenuation
 **after** the buffer starts and read it back, and mute **before** tearing the
