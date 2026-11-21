@@ -102,7 +102,12 @@ echo "=== Building the $REV_NAME FPGA design ($REV_PART): synth -> impl -> bitst
     cd "$PLUTO"
     cp "$FW1_DIR/scripts/build_hdl.tcl" .
     cp "$FW1_DIR/scripts/coefile_wbfm_102100.coe" .
-    vivado -mode batch -source build_hdl.tcl -journal build_hdl.jou -log build_hdl.log
+    # stdin closed, always. Batch-mode Vivado still reads it, and with a stdin
+    # that is open but never delivers anything - a container started without -i,
+    # a build launched from a script or over ssh - it sits at the end of the Tcl
+    # script waiting for a command instead of exiting. Seen on macOS, where the
+    # bitstream had been written and the build never moved on.
+    vivado -mode batch -source build_hdl.tcl -journal build_hdl.jou -log build_hdl.log </dev/null
     echo "    Timing summary:"; grep -A9 "Design Timing Summary" timing.rpt | tail -6 || true
 )
 XSA="$PLUTO/system_top.xsa"
