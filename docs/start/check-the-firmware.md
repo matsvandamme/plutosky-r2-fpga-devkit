@@ -33,7 +33,7 @@ ip -br addr show eth0                                # an address from your rout
 ```
 
 From a clone, `./devkit status` says the same in one line without logging in.
-A release card reads `modern` and its release, `v0.2`; a build between
+A release card reads `modern` and its release, `v0.3`; a build between
 releases reads `modern (Debian)` with its `git describe`.
 
 **Built it yourself and the board is on the network?** Compare the card with

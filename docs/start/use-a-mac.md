@@ -67,7 +67,7 @@ bash, whose startup file on a Mac is `~/.bash_profile`.
     ([put the firmware on a card](write-the-card.md)).
 
 With every file of release
-[v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)
+[v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3)
 in `~/Downloads`:
 
 ```bash

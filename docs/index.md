@@ -17,7 +17,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
 </div>
 
-<p class="banner" markdown>Release [v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2) is out, booted on one R2. [What is tested and what is not](plutosky-r2.md#what-is-tested-and-what-is-not).</p>
+<p class="banner" markdown>Release [v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3) is out: transmit restarts without reconnecting. Its boot files were booted on one R2. [What is tested and what is not](plutosky-r2.md#what-is-tested-and-what-is-not).</p>
 
 <div class="grid cards" markdown>
 
@@ -82,12 +82,12 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
 -   :material-download-outline:{ .lg }
 
-    **[Prebuilt firmware](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)**
+    **[Prebuilt firmware](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3)**
 
-    The card files and the FPGA design. A pre-release, booted on one R2
-    before it was published.
+    The card files and the FPGA design. Its boot files were booted
+    on one R2 before it was published.
 
-    <span class="count">Release v0.2 on GitHub</span>
+    <span class="count">Release v0.3 on GitHub</span>
 
 -   :material-swap-horizontal:{ .lg }
 
@@ -102,7 +102,7 @@ root all built from source. The PlutoSky R1 / 7020-SDR is a different board:
 
 ## From the release to a card
 
-Download every file of [v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2) into one folder, then, in a clone of the
+Download every file of [v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3) into one folder, then, in a clone of the
 repository on Linux:
 
 ```bash
@@ -149,7 +149,7 @@ labelled as such where it matters.
 | | This site | [The R1's site](https://matsvandamme.github.io/fishball7020-fpga-devkit/) |
 |---|---|---|
 | Board | PlutoSky R2, XC7Z020-CLG484 | PlutoSky R1 / 7020-SDR / Fishball7020, XC7Z020-CLG400 |
-| Release to download | [v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2), a pre-release | yes |
+| Release to download | [v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3) | yes |
 | Hardware pages (ports, header, schematic) | [one page](plutosky-r2.md), from the vendor's schematic | measured on the board |
 | Course | no | Fabric School, 54 lessons |
 

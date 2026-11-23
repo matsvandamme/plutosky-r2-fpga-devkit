@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://matsvandamme.github.io/plutosky-r2-fpga-devkit/"><img src="https://img.shields.io/badge/docs-matsvandamme.github.io-4069FF" alt="The documentation site"></a>
-  <a href="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2"><img src="https://img.shields.io/badge/release-v0.2%20%C2%B7%20pre--release%2C%20booted%20on%20one%20board-orange" alt="Release v0.2: a pre-release, booted on one board"></a>
+  <a href="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3"><img src="https://img.shields.io/badge/release-v0.3%20%C2%B7%20booted%20on%20one%20board-orange" alt="Release v0.3: booted on one board"></a>
   <img src="https://img.shields.io/badge/board-PlutoSky%20R2%20%C2%B7%20XC7Z020--CLG484%20%2B%20AD9361-blue" alt="Board: PlutoSky R2, Zynq XC7Z020-CLG484 + AD9361">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0-lightgrey" alt="License: GPL-2.0"></a>
   <a href="../../actions/workflows/verify-patches.yml"><img src="https://github.com/matsvandamme/plutosky-r2-fpga-devkit/actions/workflows/verify-patches.yml/badge.svg" alt="Verify patches CI status"></a>
@@ -64,7 +64,7 @@ Each line is in the R2's firmware, with what was checked on an R2 and where the 
 
 ## 🧪 Where this stands
 
-One PlutoSky R2 has run this firmware. Release **[v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)**, a pre-release, was booted on it on 2026-11-21, as v0.1 was before it.
+One PlutoSky R2 has run this firmware. Release **[v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3)** is the one to download: its boot files were booted on it on 2026-11-23, as an upgrade of v0.2. A card written from scratch with v0.3 has not been booted; v0.2's was, on 2026-11-21, and v0.3 differs from it in the kernel and in build stamps.
 
 | | State on the R2 |
 |---|---|
@@ -139,7 +139,7 @@ This repository started as a copy of [fishball7020-fpga-devkit](https://github.c
 
 The card does not touch the firmware the board shipped with: that is in its QSPI flash, and setting the `BOOT` switch to QSPI (`1 0`) boots it again.
 
-**From the release**, on a Linux PC with a card reader. Download every file of **[v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2)** into one folder, then:
+**From the release**, on a Linux PC with a card reader. Download every file of **[v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3)** into one folder, then:
 
 ```bash
 # run from: wherever you want the devkit to live (e.g. ~)

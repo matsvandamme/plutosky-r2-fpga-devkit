@@ -1,11 +1,11 @@
 ---
 icon: material/sd
-description: Download release v0.2 and write it to a microSD card with the devkit's card writer, on Linux or macOS.
+description: Download release v0.3 and write it to a microSD card with the devkit's card writer, on Linux or macOS.
 ---
 
 # Put the firmware on a card
 
-Download **every file** of release [v0.2](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.2) into one folder. The card needs
+Download **every file** of release [v0.3](https://github.com/matsvandamme/plutosky-r2-fpga-devkit/releases/tag/v0.3) into one folder. The card needs
 **two partitions** (boot files, then Debian), so copying files onto it is not
 enough: use the writer.
 
