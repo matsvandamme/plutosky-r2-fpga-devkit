@@ -74,7 +74,7 @@ PC rather than inside `./devkit container`.
 | | |
 |---|---|
 | `setup.sh`, `build_all.sh`, `verify_output.sh` | what `./devkit setup`, `build` and `verify` run for this target |
-| [`patches/`](patches/README.md) | the ten driver patches, most of them transmitter safety |
+| [`patches/`](patches/README.md) | the eleven driver patches, most of them transmitter safety |
 | `dts/zynq-pluto-sdr-fishball-r2.dts` | the R2's device tree: it includes the next one and overrides Ethernet, two pins and the model |
 | `dts/zynq-pluto-sdr-fishball.dts` | the R1's device tree, an overlay on ADI's. The R2's input; change it in the R1 repository too |
 | `config/fishball_defconfig`, `config/r2.config` | the R1's kernel configuration, and the one option the R2 adds; `config/fishball.config` explains each option |

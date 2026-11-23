@@ -44,7 +44,7 @@ A patch in `firmware/revs/r2/patches/` with the **same file name** as one in
 `firmware/patches/` replaces it; any other is added
 ([`rev.sh`](firmware/scripts/rev.sh)). Number a new one after the highest in
 `firmware/patches/` and `firmware-modern/patches/`, which share one numbering
-space with the R1 repository: the highest there is currently `0022`. Rules:
+space with the R1 repository: the highest there is currently `0024`. Rules:
 
 - **Patches stack.** 0004, 0005 and 0007 all edit `cf_axi_dds.c`. A plain
   `git diff` of such a file includes the earlier patches' changes too. Generate
