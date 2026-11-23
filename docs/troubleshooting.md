@@ -160,6 +160,20 @@ reboot.
 journalctl -b -u fishball-rf-quiesce -u iiod
 ```
 
+### Transmit works once, then only after reconnecting (SDR Console)
+
+**Symptom.** On release v0.2 or earlier, a program transmits once per connection.
+After the first stop the USER LED still lights when you transmit, nothing comes
+out, and only disconnecting and reconnecting helps.
+
+**Cause.** The transmit watchdog mutes the transmitter when no samples arrive for
+250 ms, and it did not unmute when samples came back. A program that keeps one
+transmit buffer open between transmissions, as SDR Console does, could then not
+transmit again: [what the watchdog does](transmitter-safety.md#after-a-starve-mute-data-arriving-again-unmutes).
+
+**Fix.** Release v0.3. Coming from v0.2 you only need its `uImage`: replace the one on
+the card's first (FAT) partition, or run `./devkit flash --kernel-only`.
+
 ### SDRangel lists the board as `PlutoSDR0 TBD` and will not open it
 
 **Cause.** SDRangel identifies Plutos by serial number, and firmware built
